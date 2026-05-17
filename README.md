@@ -23,4 +23,4 @@ The first tool is:
 - Prompts stored as Markdown assets, not embedded in code.
 
 ## Status
-Initial monorepo setup is complete, with a minimal `compose-guardrails` CLI discovery command in place.
+Initial monorepo setup is complete, with a minimal `compose-guardrails` CLI that scans Kotlin files, detects Compose candidates, and runs through a fake AI client abstraction.

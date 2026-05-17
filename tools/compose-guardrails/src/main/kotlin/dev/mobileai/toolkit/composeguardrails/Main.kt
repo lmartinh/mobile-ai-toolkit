@@ -1,7 +1,9 @@
 package dev.mobileai.toolkit.composeguardrails
 
+import dev.mobileai.toolkit.aiclient.AiClientFactory
 import dev.mobileai.toolkit.composeguardrails.core.ComposeCandidateDetector
 import dev.mobileai.toolkit.composeguardrails.core.KotlinFileScanner
+import dev.mobileai.toolkit.composeguardrails.core.analysis.GuardrailsAiAnalyzer
 import dev.mobileai.toolkit.composeguardrails.core.prompt.PromptAssetLoader
 import dev.mobileai.toolkit.composeguardrails.core.prompt.PromptComposer
 import java.nio.file.Path
@@ -19,6 +21,13 @@ fun main(args: Array<String>) {
     val detector = ComposeCandidateDetector()
     val promptLoader = PromptAssetLoader(Path.of("tools/compose-guardrails/prompts"))
     val promptComposer = PromptComposer()
+    val provider = System.getenv("MOBILE_AI_CLIENT") ?: "fake"
+    val aiAnalyzer = try {
+        GuardrailsAiAnalyzer(AiClientFactory.create(provider))
+    } catch (error: IllegalArgumentException) {
+        System.err.println("Error: ${error.message}")
+        exitProcess(1)
+    }
 
     val kotlinFiles = try {
         scanner.scan(inputPath)
@@ -36,6 +45,7 @@ fun main(args: Array<String>) {
         exitProcess(1)
     }
     val promptBundle = promptComposer.compose(promptAssets, composeAnalyses)
+    val aiResult = aiAnalyzer.analyze(promptBundle)
 
     println("Compose Guardrails - File Discovery")
     println("Analyzed path: ${inputPath.toAbsolutePath().normalize().pathString}")
@@ -44,6 +54,8 @@ fun main(args: Array<String>) {
     println("Composable functions detected: $totalComposableFunctions")
     println("Active guardrail rules: ${promptBundle.activeRuleIds.size}")
     println("Composed prompt size: ${promptBundle.promptText.length} chars")
+    println("AI client: ${aiResult.metadata["provider"]} (${aiResult.model})")
+    println("AI response preview: ${aiResult.content.take(120)}")
     println("Files:")
 
     kotlinFiles.forEach { filePath ->

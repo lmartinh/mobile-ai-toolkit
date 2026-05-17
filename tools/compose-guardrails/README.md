@@ -18,7 +18,8 @@ Behavior:
 - It prints a summary with analyzed path, number of Kotlin files, and file paths.
 - It also prints Compose candidate files and detected `@Composable` functions.
 - It validates and loads prompt Markdown assets from `prompts/`.
-- It composes a deterministic review prompt bundle (not sent to any AI provider yet).
+- It composes a deterministic review prompt bundle and sends it to an AI client abstraction.
+- By default it uses a deterministic fake client (`MOBILE_AI_CLIENT=fake`).
 
 Local development run:
 - `./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"`
