@@ -2,6 +2,7 @@ package dev.mobileai.toolkit.aiclient
 
 import dev.mobileai.toolkit.aiclient.anthropic.AnthropicAiClient
 import dev.mobileai.toolkit.aiclient.gemini.GeminiAiClient
+import dev.mobileai.toolkit.aiclient.openai.OpenAiClient
 
 object AiClientFactory {
     fun create(config: AiProviderConfig): AiClient {

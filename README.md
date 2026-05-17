@@ -78,5 +78,14 @@ env:
 
 Use `MOBILE_AI_PROVIDER=fake` for deterministic CI checks without external API calls.
 
+Current provider-layer limitations:
+- No streaming support yet.
+- No retries/backoff yet.
+- No chat history support.
+- No live API tests in the automated test suite.
+
+Guardrail quality note:
+- AI findings should be treated as review assistance and validated manually by developers.
+
 ## Status
 Milestones 1-8.5 are complete (including OpenAI, Anthropic, and Gemini adapters behind `AiClient`). Next is guardrail quality expansion.

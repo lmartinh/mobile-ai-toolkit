@@ -1,11 +1,29 @@
-# Rule: state-hoisting
+# Rule: compose.state-hoisting
 
-## Intent
-State should be hoisted to the lowest common owner when it is shared, reusable, or needs external control.
+- category: state-management
+- goal: make reusable composables externally controllable.
+- recommended severity: warning
 
-## Flag When
-- Child composables own state that parent/siblings need to coordinate.
-- Reusable components hide mutable state that should be caller-controlled.
+## What to detect
+- Reusable leaf composables owning mutable state that callers should provide.
 
-## Preferred Pattern
-Expose state and callbacks as parameters for stateless composables where practical.
+## What not to detect
+- Truly local ephemeral UI state with no external coordination need.
+
+## Bad example
+```kotlin
+@Composable
+fun SearchField() { var q by remember { mutableStateOf("") } }
+```
+
+## Improved example
+```kotlin
+@Composable
+fun SearchField(query: String, onQueryChange: (String) -> Unit) { }
+```
+
+## Guidance for actionable suggestions
+- Suggest parameter + callback APIs for reusable components.
+
+## False positive notes
+- Do not require hoisting for tiny private UI toggles.

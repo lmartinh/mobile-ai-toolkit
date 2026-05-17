@@ -1,4 +1,4 @@
-package dev.mobileai.toolkit.aiclient.anthropic
+package dev.mobileai.toolkit.aiclient.openai
 
 import dev.mobileai.toolkit.aiclient.AiProviderConfig
 import dev.mobileai.toolkit.aiclient.AiRequest
@@ -9,16 +9,24 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-class AnthropicAiClientTest {
+class OpenAiClientTest {
     @Test
     fun `maps successful response to AiResponse`() {
-        val client = AnthropicAiClient(
-            config = AiProviderConfig("anthropic", "test-key", "claude-3-5-sonnet"),
+        val client = OpenAiClient(
+            config = AiProviderConfig("openai", "test-key", "gpt-4.1-mini"),
             transport = FixedTransport(
                 HttpResult(
-                    statusCode = 200,
-                    body = """
-                        {"content":[{"type":"text","text":"{\"findings\":[]}"}]}
+                    200,
+                    """
+                    {
+                      "choices": [
+                        {
+                          "message": {
+                            "content": "{\"findings\":[]}"
+                          }
+                        }
+                      ]
+                    }
                     """.trimIndent()
                 )
             )
@@ -27,14 +35,14 @@ class AnthropicAiClientTest {
         val response = client.generate(AiRequest(prompt = "hello"))
 
         assertEquals("{\"findings\":[]}", response.content)
-        assertEquals("anthropic", response.metadata["provider"])
+        assertEquals("openai", response.metadata["provider"])
     }
 
     @Test
     fun `maps api error to graceful failure without exposing api key`() {
-        val key = "anthropic-secret-123"
-        val client = AnthropicAiClient(
-            config = AiProviderConfig("anthropic", key, "claude-3-5-sonnet"),
+        val key = "sk-secret-123"
+        val client = OpenAiClient(
+            config = AiProviderConfig("openai", key, "gpt-4.1-mini"),
             transport = FixedTransport(HttpResult(401, "unauthorized"))
         )
 
@@ -42,23 +50,23 @@ class AnthropicAiClientTest {
             client.generate(AiRequest(prompt = "hello"))
         }
 
-        assertTrue(error.message!!.contains("Anthropic API error"))
+        assertTrue(error.message!!.contains("OpenAI API error"))
         assertTrue(!error.message!!.contains(key))
     }
 
     @Test
     fun `malformed response fails gracefully without exposing api key`() {
-        val key = "anthropic-secret-123"
-        val client = AnthropicAiClient(
-            config = AiProviderConfig("anthropic", key, "claude-3-5-sonnet"),
-            transport = FixedTransport(HttpResult(200, "{}"))
+        val key = "sk-secret-123"
+        val client = OpenAiClient(
+            config = AiProviderConfig("openai", key, "gpt-4.1-mini"),
+            transport = FixedTransport(HttpResult(200, "{\"choices\":[]}"))
         )
 
         val error = assertFailsWith<IllegalStateException> {
             client.generate(AiRequest(prompt = "hello"))
         }
 
-        assertTrue(error.message!!.contains("Anthropic response parse error"))
+        assertTrue(error.message!!.contains("OpenAI response parse error"))
         assertTrue(!error.message!!.contains(key))
     }
 

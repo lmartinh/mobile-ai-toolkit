@@ -1,17 +1,25 @@
 # Compose Review Prompt
 
-You are reviewing Jetpack Compose UI code for guardrail compliance.
+You are reviewing Jetpack Compose Kotlin code for guardrail compliance.
 
-## Task
-- Analyze the provided Compose source files.
-- Evaluate each file against the guardrail rules loaded from `prompts/rules/`.
-- Report only evidence-based findings from the given code.
+## Primary objective
+Return only concrete, actionable findings backed by evidence in the provided code.
 
-## Review Constraints
-- Do not invent missing code context.
-- Do not propose architecture rewrites unless required to resolve a violation.
-- Prioritize high-confidence, actionable findings.
+## Quality bar
+- Prefer fewer high-confidence findings over many vague findings.
+- Do not invent files, APIs, architecture layers, classes, or framework usage that are not present.
+- Do not speculate about runtime behavior unless directly implied by the code.
+- Avoid generic advice such as "improve architecture" without concrete code-linked reasoning.
 
-## Output
-- Follow the format defined in `prompts/output-format.md`.
-- Include concise remediation guidance per finding.
+## Analysis process
+1. Read each provided rule and evaluate only against those rules.
+2. For each potential issue, verify it is observable in the code snippet.
+3. Respect platform scope: apply Android-only rules only to Android code; apply multiplatform rules only when shared/common context is evident.
+4. If evidence is weak or uncertain, omit the finding.
+5. For each emitted finding, explain why it matters for maintainability, correctness, or Compose best practices.
+6. Suggest realistic improvements that could be applied in the shown codebase style.
+
+## Output requirements
+- Follow `prompts/output-format.md` exactly.
+- Output must be strict JSON compatible with the existing schema.
+- No Markdown fences, prose preface, or trailing commentary.

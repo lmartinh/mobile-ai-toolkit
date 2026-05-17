@@ -1,10 +1,11 @@
-package dev.mobileai.toolkit.aiclient
+package dev.mobileai.toolkit.aiclient.openai
 
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
-import java.time.Duration
+import dev.mobileai.toolkit.aiclient.AiClient
+import dev.mobileai.toolkit.aiclient.AiProviderConfig
+import dev.mobileai.toolkit.aiclient.AiRequest
+import dev.mobileai.toolkit.aiclient.AiResponse
+import dev.mobileai.toolkit.aiclient.HttpTransport
+import dev.mobileai.toolkit.aiclient.JdkHttpTransport
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -17,14 +18,12 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class OpenAiClient(
     private val config: AiProviderConfig,
-    private val httpClient: HttpClient = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(20))
-        .build(),
+    private val transport: HttpTransport = JdkHttpTransport(),
     private val json: Json = Json { ignoreUnknownKeys = true }
 ) : AiClient {
 
     init {
-        require(config.provider == "openai") { "OpenAiClient requires provider=openai" }
+        require(config.provider.lowercase() == "openai") { "OpenAiClient requires provider=openai" }
         require(!config.apiKey.isNullOrBlank()) { "OpenAiClient requires non-empty apiKey" }
         require(!config.model.isNullOrBlank()) { "OpenAiClient requires non-empty model" }
     }
@@ -43,27 +42,26 @@ class OpenAiClient(
             put("temperature", JsonPrimitive(0.1))
         }.toString()
 
-        val httpRequest = HttpRequest.newBuilder()
-            .uri(URI.create(OPENAI_CHAT_COMPLETIONS_URL))
-            .header("Authorization", "Bearer ${config.apiKey}")
-            .header("Content-Type", "application/json")
-            .timeout(Duration.ofSeconds(60))
-            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-            .build()
-
-        val response = try {
-            httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString())
+        val result = try {
+            transport.postJson(
+                url = OPENAI_CHAT_COMPLETIONS_URL,
+                headers = mapOf(
+                    "Authorization" to "Bearer ${config.apiKey}",
+                    "Content-Type" to "application/json"
+                ),
+                body = requestBody
+            )
         } catch (ex: Exception) {
             throw IllegalStateException("OpenAI request failed: ${ex.message}")
         }
 
-        if (response.statusCode() !in 200..299) {
-            val bodyPreview = response.body().take(300)
-            throw IllegalStateException("OpenAI API error (${response.statusCode()}): $bodyPreview")
+        if (result.statusCode !in 200..299) {
+            val bodyPreview = result.body.take(300)
+            throw IllegalStateException("OpenAI API error (${result.statusCode}): $bodyPreview")
         }
 
         val content = try {
-            extractContent(response.body())
+            extractContent(result.body)
         } catch (ex: Exception) {
             throw IllegalStateException("OpenAI response parse error: ${ex.message}")
         }

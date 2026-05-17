@@ -7,6 +7,15 @@ import kotlin.test.assertTrue
 
 class AiConfigLoaderTest {
     @Test
+    fun `load defaults to fake when provider is missing`() {
+        val config = AiConfigLoader(emptyMap()).load()
+
+        assertEquals("fake", config.provider)
+        assertEquals(null, config.apiKey)
+        assertEquals(null, config.model)
+    }
+
+    @Test
     fun `load returns openai config when env vars are valid`() {
         val config = AiConfigLoader(
             mapOf(

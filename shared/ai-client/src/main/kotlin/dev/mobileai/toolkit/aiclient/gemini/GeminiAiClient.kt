@@ -39,12 +39,15 @@ class GeminiAiClient(
             })
         }.toString()
 
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/${config.model}:generateContent?key=${config.apiKey}"
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/${config.model}:generateContent"
 
         val result = try {
             transport.postJson(
                 url = url,
-                headers = mapOf("Content-Type" to "application/json"),
+                headers = mapOf(
+                    "Content-Type" to "application/json",
+                    "x-goog-api-key" to config.apiKey!!
+                ),
                 body = body
             )
         } catch (ex: Exception) {

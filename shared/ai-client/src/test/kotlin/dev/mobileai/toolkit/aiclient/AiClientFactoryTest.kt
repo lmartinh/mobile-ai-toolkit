@@ -2,6 +2,7 @@ package dev.mobileai.toolkit.aiclient
 
 import dev.mobileai.toolkit.aiclient.anthropic.AnthropicAiClient
 import dev.mobileai.toolkit.aiclient.gemini.GeminiAiClient
+import dev.mobileai.toolkit.aiclient.openai.OpenAiClient
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
