@@ -40,13 +40,13 @@ Status: done
 - Add parser tests for valid, invalid, and mixed payloads.
 
 ## Milestone 7: Markdown Report Generation
-Status: next
+Status: done
 - Generate stable Markdown reports from parsed findings.
 - Include summary, per-file findings, and remediation guidance.
 - Add golden tests for report rendering consistency.
 
 ## Milestone 8: First Real AI Provider Adapter
-Status: planned
+Status: next
 - Add one real provider implementation behind `AiClient`.
 - Configure through environment variables only.
 - Add adapter tests and clear configuration docs.

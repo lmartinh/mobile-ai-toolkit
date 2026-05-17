@@ -8,6 +8,8 @@ import dev.mobileai.toolkit.composeguardrails.core.parsing.FindingParser
 import dev.mobileai.toolkit.composeguardrails.core.prompt.PromptAssetLoader
 import dev.mobileai.toolkit.composeguardrails.core.prompt.PromptComposer
 import dev.mobileai.toolkit.report.FindingSeverity
+import dev.mobileai.toolkit.report.MarkdownReportRenderer
+import dev.mobileai.toolkit.report.ReportInput
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.system.exitProcess
@@ -24,6 +26,7 @@ fun main(args: Array<String>) {
     val promptLoader = PromptAssetLoader(Path.of("tools/compose-guardrails/prompts"))
     val promptComposer = PromptComposer()
     val findingParser = FindingParser()
+    val reportRenderer = MarkdownReportRenderer()
     val provider = System.getenv("MOBILE_AI_CLIENT") ?: "fake"
     val aiAnalyzer = try {
         GuardrailsAiAnalyzer(AiClientFactory.create(provider))
@@ -95,6 +98,18 @@ fun main(args: Array<String>) {
             println("- [${finding.severity}] ${finding.ruleId}: ${finding.title} (${finding.filePath})")
         }
     }
+
+    val markdownReport = reportRenderer.render(
+        ReportInput(
+            analyzedPath = inputPath.toAbsolutePath().normalize().pathString,
+            kotlinFilesScanned = kotlinFiles.size,
+            findings = parsedFindings.findings,
+            parserWarnings = parsedFindings.warnings
+        )
+    )
+
+    println()
+    println(markdownReport)
 }
 
 private fun printUsage() {

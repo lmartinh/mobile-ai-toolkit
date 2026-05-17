@@ -17,6 +17,7 @@ Current implementation supports:
 - Prompt assembly from versioned Markdown assets.
 - AI client abstraction with deterministic fake adapter.
 - Structured finding parsing (`severity`, `rule_id`, `title`, `file_path`, `explanation`, `suggestion`, optional `code_example`).
+- Stable Markdown report generation from parsed findings.
 
 ## Quick Start
 Run from repository root:
@@ -43,4 +44,4 @@ Run tests:
 - Prompts are Markdown assets, never hardcoded in Kotlin.
 
 ## Status
-Milestones 1-6 are complete (foundation, scanner, Compose detection, prompt pipeline, AI abstraction, structured parser). Next is Markdown report generation.
+Milestones 1-7 are complete (foundation, scanner, Compose detection, prompt pipeline, AI abstraction, structured parser, Markdown report generation). Next is the first real AI provider adapter.

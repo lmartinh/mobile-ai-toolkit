@@ -15,6 +15,7 @@ Kotlin CLI tool for Compose guardrail analysis using a provider-agnostic AI work
 - Builds a deterministic prompt bundle.
 - Sends prompt to `AiClient` abstraction (`fake` client by default).
 - Parses AI response into structured findings.
+- Renders a stable Markdown guardrails report.
 
 ## Structured Finding Schema
 - `severity`: `error | warning | info`
@@ -24,6 +25,13 @@ Kotlin CLI tool for Compose guardrail analysis using a provider-agnostic AI work
 - `explanation`
 - `suggestion`
 - `code_example` (optional)
+
+## Current Output
+The command prints an execution summary and a Markdown report with:
+- `# Compose Guardrails Report`
+- `## Summary`
+- `## Parser Warnings` (when applicable)
+- `## Findings` grouped by file
 
 ## Local Run
 ```bash
