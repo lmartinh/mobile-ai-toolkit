@@ -8,6 +8,9 @@ Open-source Kotlin monorepo for AI-assisted mobile development tools.
 The first tool is:
 - `compose-guardrails`: analyzes Jetpack Compose code and reports violations of predefined guardrails.
 
+## Current Command
+- `mobile-ai guardrails check <path>` (implemented in `tools/compose-guardrails`): scans a `.kt` file or directory and prints discovered Kotlin files.
+
 ## Repository Layout
 - `tools/`: individual CLI tools and tool-specific logic.
 - `shared/`: reusable components shared across tools (AI client abstractions, CLI helpers, reporting utilities).
@@ -20,4 +23,4 @@ The first tool is:
 - Prompts stored as Markdown assets, not embedded in code.
 
 ## Status
-This is an initialization-only skeleton. CLI implementation is intentionally deferred.
+Initial monorepo setup is complete, with a minimal `compose-guardrails` CLI discovery command in place.

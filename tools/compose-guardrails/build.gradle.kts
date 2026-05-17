@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.0.21"
+    kotlin("jvm") version "2.1.21"
     application
 }
 
@@ -15,4 +15,5 @@ dependencies {
     implementation(project(":shared:ai-client"))
     implementation(project(":shared:cli-common"))
     implementation(project(":shared:report-common"))
+    testImplementation(kotlin("test"))
 }

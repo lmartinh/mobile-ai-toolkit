@@ -3,12 +3,22 @@
 Kotlin CLI tool (skeleton) for analyzing Jetpack Compose code against predefined development guardrails using AI-assisted review.
 
 ## Current Scope
-- Project structure and documentation.
-- Prompt assets for review behavior.
+- Minimal CLI command for Kotlin file discovery.
+- Prompt assets for future AI-based guardrail checks.
 - Example input and expected Markdown report.
 
+## Command
+`mobile-ai guardrails check <path>`
+
+Behavior:
+- If `<path>` is a `.kt` file, it analyzes that file.
+- If `<path>` is a directory, it recursively scans for `.kt` files.
+- It prints a summary with analyzed path, number of Kotlin files, and file paths.
+
+Local development run:
+- `./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"`
+
 ## Planned Scope (v1)
-- Accept file/directory inputs.
 - Run guardrail checks using prompt-driven analysis.
 - Emit structured Markdown findings.
 

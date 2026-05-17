@@ -25,3 +25,8 @@ This module contains the first tool in the monorepo: Compose guardrail analysis.
 ## Output Expectations
 - Prefer stable Markdown/text report output for v1.
 - Include file references, rule IDs, severity, and remediation guidance.
+
+## Language Policy
+- Use English for all commit messages.
+- Use English for all code comments.
+- Use English for all documentation and Markdown content.

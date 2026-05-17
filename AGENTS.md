@@ -29,3 +29,8 @@ This repository hosts Kotlin-based AI-assisted mobile development tools in a mon
 - Keep commits focused and atomic.
 - Update docs when architecture, prompts, or workflows change.
 - Validate examples and expected reports when changing guardrail behavior.
+
+## Language Policy
+- Use English for all commit messages.
+- Use English for all code comments.
+- Use English for all documentation and Markdown content.
