@@ -46,13 +46,13 @@ Status: done
 - Add golden tests for report rendering consistency.
 
 ## Milestone 8: First Real AI Provider Adapter
-Status: next
+Status: done
 - Add one real provider implementation behind `AiClient`.
 - Configure through environment variables only.
 - Add adapter tests and clear configuration docs.
 
 ## Milestone 9: Guardrail Quality Expansion
-Status: planned
+Status: next
 - Improve rule set and prompt tuning.
 - Expand examples and expected outputs.
 - Reduce false positives with deterministic post-processing.

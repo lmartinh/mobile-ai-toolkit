@@ -1,5 +1,6 @@
 package dev.mobileai.toolkit.composeguardrails
 
+import dev.mobileai.toolkit.aiclient.AiConfigLoader
 import dev.mobileai.toolkit.aiclient.AiClientFactory
 import dev.mobileai.toolkit.composeguardrails.core.ComposeCandidateDetector
 import dev.mobileai.toolkit.composeguardrails.core.KotlinFileScanner
@@ -27,9 +28,14 @@ fun main(args: Array<String>) {
     val promptComposer = PromptComposer()
     val findingParser = FindingParser()
     val reportRenderer = MarkdownReportRenderer()
-    val provider = System.getenv("MOBILE_AI_CLIENT") ?: "fake"
+    val aiConfig = try {
+        AiConfigLoader().load()
+    } catch (error: IllegalArgumentException) {
+        System.err.println("Error: ${error.message}")
+        exitProcess(1)
+    }
     val aiAnalyzer = try {
-        GuardrailsAiAnalyzer(AiClientFactory.create(provider))
+        GuardrailsAiAnalyzer(AiClientFactory.create(aiConfig))
     } catch (error: IllegalArgumentException) {
         System.err.println("Error: ${error.message}")
         exitProcess(1)
@@ -51,7 +57,12 @@ fun main(args: Array<String>) {
         exitProcess(1)
     }
     val promptBundle = promptComposer.compose(promptAssets, composeAnalyses)
-    val aiResult = aiAnalyzer.analyze(promptBundle)
+    val aiResult = try {
+        aiAnalyzer.analyze(promptBundle)
+    } catch (error: IllegalStateException) {
+        System.err.println("Error: ${error.message}")
+        exitProcess(1)
+    }
     val parsedFindings = findingParser.parse(aiResult.content)
     val findingsBySeverity = parsedFindings.findings.groupingBy { it.severity }.eachCount()
 

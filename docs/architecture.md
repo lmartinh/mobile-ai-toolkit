@@ -28,6 +28,10 @@ This repository is a Kotlin/JVM monorepo for AI-assisted mobile development tool
 - AI responses are parsed from JSON using `kotlinx.serialization`.
 - Parser behavior is resilient to invalid payloads and produces warnings instead of crashing.
 
+## Security Note
+- Runtime secrets such as API keys must be supplied via environment variables.
+- Never commit API keys or tokens to the repository.
+
 ## Evolution Approach
 - Start with minimal abstractions and add complexity only when needed.
 - Prefer clear seams over deep framework layering.

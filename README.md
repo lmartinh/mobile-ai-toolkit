@@ -26,6 +26,21 @@ Run from repository root:
 ./gradlew :tools:compose-guardrails:run --args="guardrails check tools/compose-guardrails/examples/bad-compose-sample"
 ```
 
+Run explicitly with fake provider:
+
+```bash
+MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+```
+
+Run with OpenAI provider:
+
+```bash
+MOBILE_AI_PROVIDER=openai \
+MOBILE_AI_API_KEY=your_api_key \
+MOBILE_AI_MODEL=gpt-4.1-mini \
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+```
+
 Run tests:
 
 ```bash
@@ -43,5 +58,25 @@ Run tests:
 - No hardcoded AI provider/API keys in core logic.
 - Prompts are Markdown assets, never hardcoded in Kotlin.
 
+## Runtime Configuration
+Environment variables are used at runtime for provider selection:
+- `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
+- `MOBILE_AI_API_KEY` (required for real providers)
+- `MOBILE_AI_MODEL` (required for real providers)
+
+Security note:
+- Never commit API keys or secrets to this repository.
+
+GitHub Actions example:
+
+```yaml
+env:
+  MOBILE_AI_PROVIDER: anthropic
+  MOBILE_AI_API_KEY: ${{ secrets.MOBILE_AI_API_KEY }}
+  MOBILE_AI_MODEL: ${{ secrets.MOBILE_AI_MODEL }}
+```
+
+Use `MOBILE_AI_PROVIDER=fake` for deterministic CI checks without external API calls.
+
 ## Status
-Milestones 1-7 are complete (foundation, scanner, Compose detection, prompt pipeline, AI abstraction, structured parser, Markdown report generation). Next is the first real AI provider adapter.
+Milestones 1-8.5 are complete (including OpenAI, Anthropic, and Gemini adapters behind `AiClient`). Next is guardrail quality expansion.

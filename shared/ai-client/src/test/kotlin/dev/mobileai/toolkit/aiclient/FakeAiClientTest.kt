@@ -25,7 +25,7 @@ class FakeAiClientTest {
 
     @Test
     fun `factory returns fake client`() {
-        val client = AiClientFactory.create("fake")
+        val client = AiClientFactory.create(AiProviderConfig(provider = "fake"))
 
         val response = client.generate(AiRequest(prompt = "sample"))
 
@@ -35,7 +35,7 @@ class FakeAiClientTest {
     @Test
     fun `factory fails for unsupported provider`() {
         assertFailsWith<IllegalArgumentException> {
-            AiClientFactory.create("unknown")
+            AiClientFactory.create(AiProviderConfig(provider = "unknown"))
         }
     }
 }
