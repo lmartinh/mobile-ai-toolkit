@@ -5,6 +5,7 @@ Kotlin CLI tool (skeleton) for analyzing Jetpack Compose code against predefined
 ## Current Scope
 - Minimal CLI command for Kotlin file discovery.
 - Basic text-based Compose candidate detection.
+- Prompt asset loading and deterministic prompt composition pipeline.
 - Prompt assets for future AI-based guardrail checks.
 - Example input and expected Markdown report.
 
@@ -16,6 +17,8 @@ Behavior:
 - If `<path>` is a directory, it recursively scans for `.kt` files.
 - It prints a summary with analyzed path, number of Kotlin files, and file paths.
 - It also prints Compose candidate files and detected `@Composable` functions.
+- It validates and loads prompt Markdown assets from `prompts/`.
+- It composes a deterministic review prompt bundle (not sent to any AI provider yet).
 
 Local development run:
 - `./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"`
