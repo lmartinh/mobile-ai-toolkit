@@ -19,7 +19,8 @@ class FakeAiClientTest {
 
         assertEquals("fake-ai-client-v1", response.model)
         assertEquals("fake", response.metadata["provider"])
-        assertTrue(response.content.contains("prompt_length=5"))
+        assertTrue(response.content.contains("\"prompt_length\": 5"))
+        assertTrue(response.content.contains("\"findings\""))
     }
 
     @Test

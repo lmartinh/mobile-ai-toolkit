@@ -4,8 +4,10 @@ import dev.mobileai.toolkit.aiclient.AiClientFactory
 import dev.mobileai.toolkit.composeguardrails.core.ComposeCandidateDetector
 import dev.mobileai.toolkit.composeguardrails.core.KotlinFileScanner
 import dev.mobileai.toolkit.composeguardrails.core.analysis.GuardrailsAiAnalyzer
+import dev.mobileai.toolkit.composeguardrails.core.parsing.FindingParser
 import dev.mobileai.toolkit.composeguardrails.core.prompt.PromptAssetLoader
 import dev.mobileai.toolkit.composeguardrails.core.prompt.PromptComposer
+import dev.mobileai.toolkit.report.FindingSeverity
 import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.system.exitProcess
@@ -21,6 +23,7 @@ fun main(args: Array<String>) {
     val detector = ComposeCandidateDetector()
     val promptLoader = PromptAssetLoader(Path.of("tools/compose-guardrails/prompts"))
     val promptComposer = PromptComposer()
+    val findingParser = FindingParser()
     val provider = System.getenv("MOBILE_AI_CLIENT") ?: "fake"
     val aiAnalyzer = try {
         GuardrailsAiAnalyzer(AiClientFactory.create(provider))
@@ -46,6 +49,8 @@ fun main(args: Array<String>) {
     }
     val promptBundle = promptComposer.compose(promptAssets, composeAnalyses)
     val aiResult = aiAnalyzer.analyze(promptBundle)
+    val parsedFindings = findingParser.parse(aiResult.content)
+    val findingsBySeverity = parsedFindings.findings.groupingBy { it.severity }.eachCount()
 
     println("Compose Guardrails - File Discovery")
     println("Analyzed path: ${inputPath.toAbsolutePath().normalize().pathString}")
@@ -55,7 +60,12 @@ fun main(args: Array<String>) {
     println("Active guardrail rules: ${promptBundle.activeRuleIds.size}")
     println("Composed prompt size: ${promptBundle.promptText.length} chars")
     println("AI client: ${aiResult.metadata["provider"]} (${aiResult.model})")
-    println("AI response preview: ${aiResult.content.take(120)}")
+    println("Findings parsed: ${parsedFindings.findings.size}")
+    println(
+        "Findings by severity: error=${findingsBySeverity[FindingSeverity.ERROR] ?: 0}, " +
+            "warning=${findingsBySeverity[FindingSeverity.WARNING] ?: 0}, " +
+            "info=${findingsBySeverity[FindingSeverity.INFO] ?: 0}"
+    )
     println("Files:")
 
     kotlinFiles.forEach { filePath ->
@@ -69,6 +79,20 @@ fun main(args: Array<String>) {
             analysis.composableFunctions.forEach { function ->
                 println("  - @Composable ${function.functionName} (line ${function.line})")
             }
+        }
+    }
+
+    if (parsedFindings.warnings.isNotEmpty()) {
+        println("Parser warnings:")
+        parsedFindings.warnings.forEach { warning ->
+            println("- $warning")
+        }
+    }
+
+    if (parsedFindings.findings.isNotEmpty()) {
+        println("Structured findings:")
+        parsedFindings.findings.forEach { finding ->
+            println("- [${finding.severity}] ${finding.ruleId}: ${finding.title} (${finding.filePath})")
         }
     }
 }

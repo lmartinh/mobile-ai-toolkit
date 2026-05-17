@@ -1,22 +1,25 @@
 # Output Format Prompt
 
-Generate a Markdown report with the following sections in order:
+Return **valid JSON** with this structure:
 
-1. `# Compose Guardrails Report`
-2. `## Summary`
-- Total files analyzed
-- Total findings
-- Findings by severity (`high`, `medium`, `low`)
-3. `## Findings`
+```json
+{
+  "findings": [
+    {
+      "severity": "error|warning|info",
+      "rule_id": "compose.rule-id",
+      "title": "Short finding title",
+      "file_path": "relative/or/absolute/path.kt",
+      "explanation": "Why this violates the rule",
+      "suggestion": "Actionable fix guidance",
+      "code_example": "Optional short code example"
+    }
+  ]
+}
+```
 
-For each finding, include:
-- Rule ID
-- Severity
-- File path
-- Approximate line reference (if available)
-- Why this violates the guardrail
-- Suggested remediation
-
-If no findings exist, output:
-- `## Findings`
-- `No guardrail violations detected.`
+Rules:
+- Return JSON only, without Markdown fences in the final answer.
+- Include only evidence-based findings.
+- Omit `code_example` when not needed.
+- If no findings exist, return `{ "findings": [] }`.

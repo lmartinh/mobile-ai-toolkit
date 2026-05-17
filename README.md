@@ -6,21 +6,41 @@ Open-source Kotlin monorepo for AI-assisted mobile development tools.
 `mobile-ai-toolkit` provides practical CLI tools that analyze mobile codebases and enforce development guardrails using AI-assisted workflows.
 
 The first tool is:
-- `compose-guardrails`: analyzes Jetpack Compose code and reports violations of predefined guardrails.
+- `compose-guardrails`: analyzes Jetpack Compose code and reports guardrail findings.
 
 ## Current Command
-- `mobile-ai guardrails check <path>` (implemented in `tools/compose-guardrails`): scans a `.kt` file or directory and prints discovered Kotlin files.
+- `mobile-ai guardrails check <path>`
+
+Current implementation supports:
+- Kotlin file discovery (`.kt` file or recursive directory scan).
+- Text-based Compose candidate and `@Composable` detection.
+- Prompt assembly from versioned Markdown assets.
+- AI client abstraction with deterministic fake adapter.
+- Structured finding parsing (`severity`, `rule_id`, `title`, `file_path`, `explanation`, `suggestion`, optional `code_example`).
+
+## Quick Start
+Run from repository root:
+
+```bash
+./gradlew :tools:compose-guardrails:run --args="guardrails check tools/compose-guardrails/examples/bad-compose-sample"
+```
+
+Run tests:
+
+```bash
+./gradlew :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test
+```
 
 ## Repository Layout
-- `tools/`: individual CLI tools and tool-specific logic.
-- `shared/`: reusable components shared across tools (AI client abstractions, CLI helpers, reporting utilities).
-- `docs/`: architecture and roadmap documentation.
+- `tools/`: individual tools and tool-specific logic.
+- `shared/`: reusable modules across tools.
+- `docs/`: architecture and roadmap.
 
 ## Design Principles
 - Kotlin/JVM with Gradle Kotlin DSL.
-- Simple, extensible monorepo structure for future tools.
-- No hardcoded AI provider or API keys.
-- Prompts stored as Markdown assets, not embedded in code.
+- Keep architecture simple and modular.
+- No hardcoded AI provider/API keys in core logic.
+- Prompts are Markdown assets, never hardcoded in Kotlin.
 
 ## Status
-Initial monorepo setup is complete, with a minimal `compose-guardrails` CLI that scans Kotlin files, detects Compose candidates, and runs through a fake AI client abstraction.
+Milestones 1-6 are complete (foundation, scanner, Compose detection, prompt pipeline, AI abstraction, structured parser). Next is Markdown report generation.

@@ -21,6 +21,7 @@ class GuardrailsAiAnalyzerTest {
 
         assertEquals("fake-ai-client-v1", result.model)
         assertEquals("fake", result.metadata["provider"])
-        assertTrue(result.content.contains("prompt_length=14"))
+        assertTrue(result.content.contains("\"prompt_length\": 14"))
+        assertTrue(result.content.contains("\"findings\""))
     }
 }

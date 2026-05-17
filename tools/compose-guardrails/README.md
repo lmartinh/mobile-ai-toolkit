@@ -1,34 +1,43 @@
 # compose-guardrails
 
-Kotlin CLI tool (skeleton) for analyzing Jetpack Compose code against predefined development guardrails using AI-assisted review.
-
-## Current Scope
-- Minimal CLI command for Kotlin file discovery.
-- Basic text-based Compose candidate detection.
-- Prompt asset loading and deterministic prompt composition pipeline.
-- Prompt assets for future AI-based guardrail checks.
-- Example input and expected Markdown report.
+Kotlin CLI tool for Compose guardrail analysis using a provider-agnostic AI workflow.
 
 ## Command
 `mobile-ai guardrails check <path>`
 
-Behavior:
-- If `<path>` is a `.kt` file, it analyzes that file.
-- If `<path>` is a directory, it recursively scans for `.kt` files.
-- It prints a summary with analyzed path, number of Kotlin files, and file paths.
-- It also prints Compose candidate files and detected `@Composable` functions.
-- It validates and loads prompt Markdown assets from `prompts/`.
-- It composes a deterministic review prompt bundle and sends it to an AI client abstraction.
-- By default it uses a deterministic fake client (`MOBILE_AI_CLIENT=fake`).
+## Current Behavior
+- Accepts either:
+  - one `.kt` file
+  - one directory (recursive `.kt` scan)
+- Detects Compose candidates using text heuristics.
+- Detects `@Composable` function candidates with approximate line numbers.
+- Loads prompts from `prompts/` Markdown assets.
+- Builds a deterministic prompt bundle.
+- Sends prompt to `AiClient` abstraction (`fake` client by default).
+- Parses AI response into structured findings.
 
-Local development run:
-- `./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"`
+## Structured Finding Schema
+- `severity`: `error | warning | info`
+- `rule_id`
+- `title`
+- `file_path`
+- `explanation`
+- `suggestion`
+- `code_example` (optional)
 
-## Planned Scope (v1)
-- Run guardrail checks using prompt-driven analysis.
-- Emit structured Markdown findings.
+## Local Run
+```bash
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+```
 
-## Non-Goals (v1)
-- Code generation.
-- Auto-fixing source files.
-- Provider-specific assumptions in core logic.
+Optional provider selector:
+
+```bash
+MOBILE_AI_CLIENT=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+```
+
+## Scope and Non-Goals (Current)
+- Focus on analysis only.
+- No code generation.
+- No auto-fix behavior.
+- No provider-specific coupling in core modules.
