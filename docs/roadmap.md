@@ -35,7 +35,7 @@ Status: done
 ## Milestone 6: Structured Finding Parsing
 Status: done
 - Define finding model and severities in `shared/report-common`.
-- Parse structured AI responses into typed findings.
+- Parse structured AI responses into typed findings using a JSON parser.
 - Handle invalid findings and severities with controlled warnings/fallbacks.
 - Add parser tests for valid, invalid, and mixed payloads.
 

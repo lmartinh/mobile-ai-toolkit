@@ -1,18 +1,13 @@
 package dev.mobileai.toolkit.composeguardrails.core.prompt
 
-import java.nio.file.Files
-import java.nio.file.Path
-import kotlin.io.path.exists
-import kotlin.io.path.isRegularFile
-import kotlin.io.path.name
-import kotlin.io.path.readText
-import kotlin.streams.toList
-
-class PromptAssetLoader(private val promptsRoot: Path) {
+class PromptAssetLoader(
+    private val classLoader: ClassLoader = PromptAssetLoader::class.java.classLoader,
+    private val basePath: String = "prompts"
+) {
     fun load(): PromptAssets {
-        val reviewPrompt = readRequiredFile(promptsRoot.resolve("compose-review.md"))
-        val outputFormatPrompt = readRequiredFile(promptsRoot.resolve("output-format.md"))
-        val rulePrompts = loadRulePrompts(promptsRoot.resolve("rules"))
+        val reviewPrompt = readRequiredResource("$basePath/compose-review.md")
+        val outputFormatPrompt = readRequiredResource("$basePath/output-format.md")
+        val rulePrompts = loadRulePrompts()
 
         return PromptAssets(
             composeReview = reviewPrompt,
@@ -21,34 +16,32 @@ class PromptAssetLoader(private val promptsRoot: Path) {
         )
     }
 
-    private fun loadRulePrompts(rulesDirectory: Path): List<RulePrompt> {
-        require(rulesDirectory.exists()) { "Rules directory does not exist: $rulesDirectory" }
+    private fun loadRulePrompts(): List<RulePrompt> {
+        val indexContent = readRequiredResource("$basePath/rules/index.txt")
+        val fileNames = indexContent
+            .lines()
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
 
-        Files.list(rulesDirectory).use { stream ->
-            val files = stream
-                .filter { it.isRegularFile() }
-                .filter { it.name.endsWith(".md") }
-                .sorted()
-                .toList()
+        require(fileNames.isNotEmpty()) { "No rule prompt files listed in $basePath/rules/index.txt" }
 
-            require(files.isNotEmpty()) { "No rule prompt files found in: $rulesDirectory" }
-
-            return files.map { file ->
-                RulePrompt(
-                    id = file.name.removeSuffix(".md"),
-                    content = readRequiredFile(file)
-                )
-            }
+        return fileNames.sorted().map { fileName ->
+            val resourcePath = "$basePath/rules/$fileName"
+            RulePrompt(
+                id = fileName.removeSuffix(".md"),
+                content = readRequiredResource(resourcePath)
+            )
         }
     }
 
-    private fun readRequiredFile(path: Path): String {
-        require(path.exists()) { "Required prompt file does not exist: $path" }
-        require(path.isRegularFile()) { "Prompt path is not a file: $path" }
+    private fun readRequiredResource(resourcePath: String): String {
+        val content = classLoader.getResourceAsStream(resourcePath)
+            ?.bufferedReader(Charsets.UTF_8)
+            ?.use { it.readText() }
+            ?.trim()
 
-        val content = path.readText().trim()
-        require(content.isNotBlank()) { "Prompt file is empty: $path" }
-
+        require(!content.isNullOrBlank()) { "Required prompt resource is missing or empty: $resourcePath" }
         return content
     }
 }

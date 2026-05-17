@@ -6,6 +6,5 @@ rootProject.name = "mobile-ai-toolkit"
 include(
     ":tools:compose-guardrails",
     ":shared:ai-client",
-    ":shared:cli-common",
     ":shared:report-common"
 )

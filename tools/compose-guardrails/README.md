@@ -11,10 +11,10 @@ Kotlin CLI tool for Compose guardrail analysis using a provider-agnostic AI work
   - one directory (recursive `.kt` scan)
 - Detects Compose candidates using text heuristics.
 - Detects `@Composable` function candidates with approximate line numbers.
-- Loads prompts from `prompts/` Markdown assets.
+- Loads prompts from classpath Markdown resources (`src/main/resources/prompts`).
 - Builds a deterministic prompt bundle.
 - Sends prompt to `AiClient` abstraction (`fake` client by default).
-- Parses AI response into structured findings.
+- Parses AI JSON response into structured findings using `kotlinx.serialization`.
 - Renders a stable Markdown guardrails report.
 
 ## Structured Finding Schema

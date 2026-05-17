@@ -23,7 +23,7 @@ fun main(args: Array<String>) {
     val inputPath = Path.of(args[2])
     val scanner = KotlinFileScanner()
     val detector = ComposeCandidateDetector()
-    val promptLoader = PromptAssetLoader(Path.of("tools/compose-guardrails/prompts"))
+    val promptLoader = PromptAssetLoader()
     val promptComposer = PromptComposer()
     val findingParser = FindingParser()
     val reportRenderer = MarkdownReportRenderer()
