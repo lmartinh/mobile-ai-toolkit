@@ -5,12 +5,14 @@ Kotlin CLI tool for Compose guardrail analysis using a provider-agnostic AI work
 ## Command
 `mobile-ai guardrails check <path>`
 
-Optional rule-set flag:
+Optional flags:
 - `--rule-set default`
 - `--rule-set advanced`
 - `--rule-set all`
+- `--output <path>`
 
-If omitted, `default` is used.
+If `--rule-set` is omitted, `default` is used.
+If `--output` is provided, the Markdown report is written to that file.
 
 ## Current Behavior
 - Accepts either:
@@ -110,6 +112,12 @@ Run with all rules:
 ./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set all"
 ```
 
+Write report to a file:
+
+```bash
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set default --output artifacts/compose-guardrails-report.md"
+```
+
 ## CLI Rule-Set Assessment
 - `mobile-ai guardrails check <path>` remains valid and uses the conservative `default` rule set.
 - `--rule-set default` loads only the default catalog.
@@ -170,6 +178,45 @@ env:
 
 For deterministic CI checks without external calls, set `MOBILE_AI_PROVIDER=fake`.
 
+## GitHub Actions
+Workflow:
+- `.github/workflows/compose-guardrails.yml`
+
+Behavior (report-only for now):
+- runs `:shared:ai-client:test`, `:shared:report-common:test`, and `:tools:compose-guardrails:test`
+- runs `compose-guardrails` with fake provider and writes a clean report using `--output`
+- uploads `artifacts/compose-guardrails-report.md` as `compose-guardrails-report`
+- findings do not fail the build yet
+
+Default CI configuration:
+- `MOBILE_AI_PROVIDER=fake`
+- `COMPOSE_GUARDRAILS_TARGET=tools/compose-guardrails/src/main`
+- `COMPOSE_GUARDRAILS_RULE_SET=default`
+- `COMPOSE_GUARDRAILS_REPORT_PATH=artifacts/compose-guardrails-report.md`
+- `COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY=false`
+- `COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS=false`
+- `COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY=true`
+
+Behavior notes:
+- workflow is report-only by default
+- fail-on-findings is opt-in
+- changed-files-only is opt-in and applies on pull_request events
+- changed-files-only includes only changed `.kt` files inside `COMPOSE_GUARDRAILS_TARGET`
+- files outside target scope are ignored
+- when no matching changed Kotlin files are found, workflow writes a clean no-files report and succeeds
+- when changed-files-only is enabled outside pull_request, workflow falls back to target analysis
+- report artifact name: `compose-guardrails-report`
+- step summary includes provider, rule set, target path, changed-files-only status, report mode, report path, and fallback status
+
+Path handling note:
+- CI executes analysis with absolute paths.
+- Current CI script rejects analysis/report paths with whitespace and exits with a clear error to avoid Gradle `--args` splitting issues.
+
+Real providers in CI should be configured with secrets:
+- `MOBILE_AI_PROVIDER`
+- `MOBILE_AI_API_KEY`
+- `MOBILE_AI_MODEL`
+
 ## Scope and Non-Goals (Current)
 - Focus on analysis only.
 - No code generation.
@@ -200,3 +247,5 @@ Examples overview:
 
 Recommendation:
 - Validate AI findings manually before applying changes.
+
+PR comments are not implemented in this milestone; GitHub Step Summary is used instead.

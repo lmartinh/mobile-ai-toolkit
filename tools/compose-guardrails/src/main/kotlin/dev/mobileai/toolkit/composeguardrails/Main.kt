@@ -5,6 +5,7 @@ import dev.mobileai.toolkit.aiclient.AiClientFactory
 import dev.mobileai.toolkit.composeguardrails.core.cli.CommandOptionsParser
 import dev.mobileai.toolkit.composeguardrails.core.ComposeCandidateDetector
 import dev.mobileai.toolkit.composeguardrails.core.KotlinFileScanner
+import dev.mobileai.toolkit.composeguardrails.core.cli.ReportOutputWriter
 import dev.mobileai.toolkit.composeguardrails.core.analysis.GuardrailsAiAnalyzer
 import dev.mobileai.toolkit.composeguardrails.core.parsing.FindingParser
 import dev.mobileai.toolkit.composeguardrails.core.prompt.PromptAssetLoader
@@ -31,6 +32,7 @@ fun main(args: Array<String>) {
     val promptComposer = PromptComposer()
     val findingParser = FindingParser()
     val reportRenderer = MarkdownReportRenderer()
+    val reportOutputWriter = ReportOutputWriter()
     val aiConfig = try {
         AiConfigLoader().load()
     } catch (error: IllegalArgumentException) {
@@ -123,10 +125,9 @@ fun main(args: Array<String>) {
         )
     )
 
-    println()
-    println(markdownReport)
+    reportOutputWriter.write(markdownReport, commandOptions.outputPath)
 }
 
 private fun printUsage() {
-    println("Usage: mobile-ai guardrails check <path> [--rule-set default|advanced|all]")
+    println("Usage: mobile-ai guardrails check <path> [--rule-set default|advanced|all] [--output <path>]")
 }

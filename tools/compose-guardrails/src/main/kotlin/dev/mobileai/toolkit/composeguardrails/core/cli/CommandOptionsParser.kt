@@ -5,12 +5,13 @@ import java.nio.file.Path
 
 data class CommandOptions(
     val inputPath: Path,
-    val ruleSet: RuleSet
+    val ruleSet: RuleSet,
+    val outputPath: Path?
 )
 
 class CommandOptionsParser {
     fun parse(args: Array<String>): CommandOptions {
-        if (args.size != 3 && args.size != 5) {
+        if (args.size < 3) {
             throw IllegalArgumentException("Invalid arguments")
         }
         if (args[0] != "guardrails" || args[1] != "check") {
@@ -18,17 +19,38 @@ class CommandOptionsParser {
         }
 
         val inputPath = Path.of(args[2])
-        val ruleSet = if (args.size == 5) {
-            if (args[3] != "--rule-set") {
-                throw IllegalArgumentException(
-                    "Unsupported option: ${args[3]}. Supported option: --rule-set <default|advanced|all>"
-                )
+        var ruleSet = RuleSet.DEFAULT
+        var outputPath: Path? = null
+
+        var index = 3
+        while (index < args.size) {
+            when (args[index]) {
+                "--rule-set" -> {
+                    val value = args.getOrNull(index + 1)
+                        ?: throw IllegalArgumentException("Missing value for --rule-set")
+                    ruleSet = RuleSet.fromCli(value)
+                    index += 2
+                }
+
+                "--output" -> {
+                    val value = args.getOrNull(index + 1)
+                        ?: throw IllegalArgumentException("Missing value for --output")
+                    if (value.startsWith("--")) {
+                        throw IllegalArgumentException("Missing value for --output")
+                    }
+                    outputPath = Path.of(value)
+                    index += 2
+                }
+
+                else -> {
+                    throw IllegalArgumentException(
+                        "Unsupported option: ${args[index]}. " +
+                            "Supported options: --rule-set <default|advanced|all>, --output <path>"
+                    )
+                }
             }
-            RuleSet.fromCli(args[4])
-        } else {
-            RuleSet.DEFAULT
         }
 
-        return CommandOptions(inputPath, ruleSet)
+        return CommandOptions(inputPath, ruleSet, outputPath)
     }
 }

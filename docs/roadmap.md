@@ -58,7 +58,7 @@ Status: done (stabilized in 9.2)
 - Reduce false positives with deterministic post-processing.
 
 ## Milestone 10: Basic GitHub Actions Integration
-Status: planned
+Status: done
 - Add CI workflow to run `compose-guardrails` in PRs.
 - Persist Markdown report artifacts.
 - Document CI usage and required environment configuration.

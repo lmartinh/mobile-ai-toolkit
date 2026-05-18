@@ -32,6 +32,7 @@ Rule-set examples:
 ./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set default"
 ./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set advanced"
 ./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set all"
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --output artifacts/compose-guardrails-report.md"
 ```
 
 If `--rule-set` is omitted, the CLI uses the conservative `default` rule set.
@@ -56,6 +57,59 @@ Run tests:
 ```bash
 ./gradlew :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test
 ```
+
+## CI Integration
+A baseline GitHub Actions workflow is provided at:
+- `.github/workflows/compose-guardrails.yml`
+
+Current CI behavior (report-only):
+- Runs module tests.
+- Runs `compose-guardrails` with `MOBILE_AI_PROVIDER=fake`.
+- Uses `COMPOSE_GUARDRAILS_TARGET` and `COMPOSE_GUARDRAILS_RULE_SET` to configure scan scope and rules.
+- Writes a clean Markdown report to `artifacts/compose-guardrails-report.md`.
+- Uploads the report artifact (`compose-guardrails-report`).
+- Findings do not fail the build yet.
+
+For deterministic CI, keep `fake` provider.
+For real-provider CI runs, use repository secrets for:
+- `MOBILE_AI_PROVIDER`
+- `MOBILE_AI_API_KEY`
+- `MOBILE_AI_MODEL`
+
+
+CI workflow knobs (environment variables):
+- `COMPOSE_GUARDRAILS_TARGET` (default: `tools/compose-guardrails/src/main`)
+- `COMPOSE_GUARDRAILS_RULE_SET` (default: `default`)
+- `COMPOSE_GUARDRAILS_REPORT_PATH` (default: `artifacts/compose-guardrails-report.md`)
+- `COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY` (default: `false`)
+- `COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS` (default: `false`)
+- `COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY` (default: `true`)
+
+Behavior defaults remain non-breaking:
+- fake provider
+- default rule set
+- report-only mode (no fail on findings)
+- full configured target path analysis
+
+Changed-files-only mode:
+- Set `COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY=true` to analyze changed `.kt` files on pull requests.
+- Changed-files-only mode analyzes only files inside `COMPOSE_GUARDRAILS_TARGET`.
+- Files outside target scope are ignored (for example tests/examples when target is `src/main`).
+- If no changed Kotlin files match the target scope, CI writes a clean no-files Markdown report and succeeds.
+- On non-PR events, changed-files-only falls back to full analysis of `COMPOSE_GUARDRAILS_TARGET`.
+
+Fail-on-findings mode:
+- Set `COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS=true` to fail CI when the report contains findings.
+
+Report artifact:
+- Uploaded as `compose-guardrails-report`.
+
+Step Summary:
+- Includes provider, rule set, target path, changed-files-only status, report mode, report path, and fallback status.
+
+Path handling note:
+- CI uses absolute analysis paths to avoid Gradle module working-directory ambiguity.
+- Current CI script rejects analysis/report paths containing whitespace with a clear error to avoid Gradle `--args` splitting issues.
 
 ## Repository Layout
 - `tools/`: individual tools and tool-specific logic.
@@ -101,4 +155,4 @@ Guardrail quality note:
 - Advanced rules are exploratory and may produce noisier findings.
 
 ## Status
-Milestones 1-9.2 are complete (including default/advanced/all rule-set UX and stabilized examples/catalog consistency). Next is CI integration.
+Milestones 1-10 are complete, including baseline GitHub Actions integration for deterministic `compose-guardrails` checks and report artifacts.

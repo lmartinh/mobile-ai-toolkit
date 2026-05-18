@@ -1,0 +1,90 @@
+name: Compose Guardrails
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+env:
+  COMPOSE_GUARDRAILS_TARGET: tools/compose-guardrails/src/main
+  COMPOSE_GUARDRAILS_RULE_SET: default
+  COMPOSE_GUARDRAILS_REPORT_PATH: artifacts/compose-guardrails-report.md
+  COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY: false
+  COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS: false
+  COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY: true
+
+jobs:
+  compose-guardrails:
+    runs-on: ubuntu-latest
+    env:
+      MOBILE_AI_PROVIDER: fake
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run tests
+        run: ./gradlew :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test
+
+      - name: Validate changed-files helper logic
+        run: .github/scripts/test-run-compose-guardrails.sh
+
+      - name: Run compose-guardrails analysis
+        id: analyze
+        shell: bash
+        run: .github/scripts/run-compose-guardrails.sh
+
+      - name: Upload guardrails report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-guardrails-report
+          path: ${{ steps.analyze.outputs.report_path }}
+
+      - name: Write step summary
+        if: always() && env.COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY == 'true'
+        shell: bash
+        run: |
+          REPORT="${{ steps.analyze.outputs.report_path }}"
+          {
+            echo "## Compose Guardrails Summary"
+            echo
+            echo "- Provider: ${MOBILE_AI_PROVIDER}"
+            echo "- Rule set: ${COMPOSE_GUARDRAILS_RULE_SET}"
+            echo "- Target: ${COMPOSE_GUARDRAILS_TARGET}"
+            echo "- Changed-files-only: ${COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY}"
+            echo "- Analysis mode: ${{ steps.analyze.outputs.analysis_mode }}"
+            echo "- Non-PR fallback used: ${{ steps.analyze.outputs.fallback_used }}"
+            echo "- Report mode: ${{ steps.analyze.outputs.report_mode }}"
+            echo "- Report artifact: compose-guardrails-report"
+            echo "- Report path: ${REPORT}"
+            echo
+            if [[ -f "$REPORT" ]]; then
+              echo "Report generated successfully. Download the artifact to inspect full findings."
+              echo
+              head -n 20 "$REPORT"
+            else
+              echo "Report file not found at expected path."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail on findings (optional)
+        if: always() && env.COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS == 'true'
+        shell: bash
+        run: |
+          total="${{ steps.analyze.outputs.total_findings }}"
+          if [[ "${total}" =~ ^[0-9]+$ ]] && [[ "$total" -gt 0 ]]; then
+            echo "Failing build because COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS=true and findings=${total}."
+            exit 1
+          fi
