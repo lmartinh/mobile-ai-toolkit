@@ -247,7 +247,7 @@ jobs:
         if: always()
         with:
           name: compose-guardrails-report
-          path: ${{ steps.compose-guardrails.outputs.report_path }}
+          path: ${{ steps.compose-guardrails.outputs.report-path }}
 ```
 
 `fake` is deterministic scaffolding for CI validation, not a real AI review.

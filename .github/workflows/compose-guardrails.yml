@@ -63,4 +63,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compose-guardrails-report
-          path: ${{ steps.analyze.outputs.report_path }}
+          path: ${{ steps.analyze.outputs.report-path }}

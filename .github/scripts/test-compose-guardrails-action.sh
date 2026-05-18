@@ -17,14 +17,15 @@ for token in \
   "write-step-summary:" \
   "MOBILE_AI_TOOLKIT_DIR:" \
   "COMPOSE_GUARDRAILS_WORKSPACE:" \
-  "analysis_mode:" \
-  "fallback_used:" \
-  "report_path:" \
-  "report_mode:" \
-  "total_findings:" \
+  "analysis-mode:" \
+  "fallback-used:" \
+  "report-path:" \
+  "report-mode:" \
+  "total-findings:" \
   "github.action_path" \
   "GITHUB_STEP_SUMMARY" \
   "Report artifact: caller responsibility" \
+  "../../.." \
   "script_path=" \
   'bash "$script_path"'
 do

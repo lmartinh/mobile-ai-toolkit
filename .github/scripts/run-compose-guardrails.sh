@@ -115,10 +115,10 @@ total_findings="$(cg_extract_total_findings "$REPORT_PATH")"
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   {
-    echo "analysis_mode=${analysis_mode}"
-    echo "fallback_used=${fallback_used}"
-    echo "report_path=${REPORT_PATH}"
-    echo "report_mode=$([[ "$COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS" == "true" ]] && echo "fail-on-findings" || echo "report-only")"
-    echo "total_findings=${total_findings}"
+    echo "analysis-mode=${analysis_mode}"
+    echo "fallback-used=${fallback_used}"
+    echo "report-path=${REPORT_PATH}"
+    echo "report-mode=$([[ "$COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS" == "true" ]] && echo "fail-on-findings" || echo "report-only")"
+    echo "total-findings=${total_findings}"
   } >> "$GITHUB_OUTPUT"
 fi

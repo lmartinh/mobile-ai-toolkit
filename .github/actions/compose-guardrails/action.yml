@@ -40,21 +40,21 @@ inputs:
     default: "true"
 
 outputs:
-  analysis_mode:
+  analysis-mode:
     description: Analysis mode used by the underlying script.
-    value: ${{ steps.run.outputs.analysis_mode }}
-  fallback_used:
+    value: ${{ steps.run.outputs.analysis-mode }}
+  fallback-used:
     description: Whether non-PR fallback analysis was used.
-    value: ${{ steps.run.outputs.fallback_used }}
-  report_path:
+    value: ${{ steps.run.outputs.fallback-used }}
+  report-path:
     description: Markdown report output path.
-    value: ${{ steps.run.outputs.report_path }}
-  report_mode:
+    value: ${{ steps.run.outputs.report-path }}
+  report-mode:
     description: Report mode used by the underlying script.
-    value: ${{ steps.run.outputs.report_mode }}
-  total_findings:
+    value: ${{ steps.run.outputs.report-mode }}
+  total-findings:
     description: Total findings parsed from the report.
-    value: ${{ steps.run.outputs.total_findings }}
+    value: ${{ steps.run.outputs.total-findings }}
 
 runs:
   using: composite
@@ -62,7 +62,7 @@ runs:
     - id: run
       shell: bash
       env:
-        MOBILE_AI_TOOLKIT_DIR: ${{ github.action_path }}/../..
+        MOBILE_AI_TOOLKIT_DIR: ${{ github.action_path }}/../../..
         COMPOSE_GUARDRAILS_WORKSPACE: ${{ github.workspace }}
         MOBILE_AI_PROVIDER: ${{ inputs.provider }}
         MOBILE_AI_MODEL: ${{ inputs.model }}
