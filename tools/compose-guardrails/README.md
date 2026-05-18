@@ -2,6 +2,9 @@
 
 Kotlin CLI tool for Compose guardrail analysis using a provider-agnostic AI workflow.
 
+Tool roadmap:
+- `docs/roadmaps/compose-guardrails.md`
+
 ## Command
 `mobile-ai guardrails check <path>`
 

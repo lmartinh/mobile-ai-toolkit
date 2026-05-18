@@ -1,4 +1,4 @@
-# Roadmap
+# Compose Guardrails Roadmap
 
 This roadmap keeps the repository simple and effective. The next focus is external CI adoption through a reusable GitHub Action, with `fake` provider and report-only behavior as safe defaults.
 

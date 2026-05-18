@@ -114,7 +114,8 @@ Path handling note:
 ## Repository Layout
 - `tools/`: individual tools and tool-specific logic.
 - `shared/`: reusable modules across tools.
-- `docs/`: architecture and roadmap.
+- `docs/`: architecture and cross-repository documentation.
+- `docs/roadmaps/`: per-tool roadmaps (`compose-guardrails` today, more tools later).
 
 ## Design Principles
 - Kotlin/JVM with Gradle Kotlin DSL.
