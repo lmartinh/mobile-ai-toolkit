@@ -1,6 +1,6 @@
 # Compose Guardrails Roadmap
 
-This roadmap keeps the repository simple and effective. The next focus is external CI adoption through a reusable GitHub Action, with `fake` provider and report-only behavior as safe defaults.
+This roadmap keeps the repository simple and effective. The current focus is open source polish for the first public release, while keeping `fake` provider and report-only behavior as safe defaults.
 
 ## Milestone 1: Repository Initialization
 Status: done
@@ -93,13 +93,13 @@ Status: done
 - Postpone Maven Central and Gradle plugin publishing until after v0.1.0.
 
 ## Milestone 13: Open Source Polish
-Status: planned
+Status: done
 - Rewrite the root README around quickstart, CI usage, providers, examples, and limitations.
-- Add project badges for CI, license, and release status when available.
+- Add project badges for CI, license, and release packaging.
 - Add `CONTRIBUTING.md` with setup, test, documentation, and English-only contribution guidance.
 - Add `SECURITY.md` with secret handling and vulnerability reporting guidance.
 - Update `CHANGELOG.md` for the first public release.
-- Add lightweight issue templates if they stay easy to maintain.
+- Add lightweight issue templates for bug reports, feature requests, and guardrail proposals.
 
 ## Milestone 14: v0.1.0 Release Candidate
 Status: planned

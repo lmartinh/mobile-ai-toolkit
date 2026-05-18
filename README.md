@@ -1,5 +1,9 @@
 # mobile-ai-toolkit
 
+[![CI](https://img.shields.io/badge/CI-GitHub%20Actions-blue)](.github/workflows/compose-guardrails.yml)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Release Packaging](https://img.shields.io/badge/Release%20Packaging-compose--guardrails-orange)](docs/roadmaps/compose-guardrails.md)
+
 Open-source Kotlin monorepo for AI-assisted mobile development tools.
 
 ## Purpose
@@ -113,6 +117,12 @@ Release packaging:
 - The packaged launcher lives under `tools/compose-guardrails/build/install/compose-guardrails/bin/compose-guardrails`.
 - Tagged releases use `.github/workflows/release-compose-guardrails.yml` to run tests, validate the distribution, and upload ZIP/TAR artifacts.
 
+Project docs:
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)
+- Issue templates live under `.github/ISSUE_TEMPLATE/` for bugs, features, and guardrail proposals.
+
 Path handling note:
 - CI uses absolute analysis paths to avoid Gradle module working-directory ambiguity.
 - Current CI script rejects analysis/report paths containing whitespace with a clear error to avoid Gradle `--args` splitting issues.
@@ -124,7 +134,7 @@ Path handling note:
 - `docs/roadmaps/`: per-tool roadmaps (`compose-guardrails` today, more tools later).
 
 Reusable GitHub Action:
-The reusable Action is designed for external repositories. It runs the tool checkout from `mobile-ai-toolkit` and analyzes the consumer repository workspace.
+The reusable Action is designed for external repositories. It runs the tool checkout from `mobile-ai-toolkit` and analyzes the consumer repository workspace. It still uses the toolkit checkout and Gradle; packaged-distribution execution remains future work.
 
 Safe first run:
 ```yaml
@@ -240,4 +250,4 @@ Guardrail quality note:
 - Advanced rules are exploratory and may produce noisier findings.
 
 ## Status
-Milestones 1-12 are complete, including baseline GitHub Actions integration, a reusable GitHub Action, and release packaging for deterministic `compose-guardrails` checks and report artifacts.
+Milestones 1-13 are complete, including baseline GitHub Actions integration, a reusable GitHub Action, release packaging, and open source polish for deterministic `compose-guardrails` checks and report artifacts.
