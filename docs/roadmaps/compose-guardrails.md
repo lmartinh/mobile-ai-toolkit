@@ -84,12 +84,12 @@ Status: done (stabilized in 11.1)
 - Validate the Action manifest and use it from the built-in workflow.
 
 ## Milestone 12: Release Packaging
-Status: planned
+Status: done
 - Configure repeatable Gradle application distributions for the CLI.
 - Produce release ZIP/TAR artifacts for tagged versions.
 - Ensure packaged distributions include prompt resources.
 - Add a release workflow that runs tests and uploads artifacts.
-- Use the packaged CLI in the reusable GitHub Action if it simplifies external adoption.
+- Document the packaged CLI path for local installs and release workflows.
 - Postpone Maven Central and Gradle plugin publishing until after v0.1.0.
 
 ## Milestone 13: Open Source Polish

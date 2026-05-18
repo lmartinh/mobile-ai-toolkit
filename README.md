@@ -107,6 +107,12 @@ Report artifact:
 Step Summary:
 - Includes provider, rule set, target path, changed-files-only status, report mode, report path, and fallback status.
 
+Release packaging:
+- Build an installable distribution with `./gradlew :tools:compose-guardrails:installDist`.
+- Build release archives with `./gradlew :tools:compose-guardrails:distZip :tools:compose-guardrails:distTar`.
+- The packaged launcher lives under `tools/compose-guardrails/build/install/compose-guardrails/bin/compose-guardrails`.
+- Tagged releases use `.github/workflows/release-compose-guardrails.yml` to run tests, validate the distribution, and upload ZIP/TAR artifacts.
+
 Path handling note:
 - CI uses absolute analysis paths to avoid Gradle module working-directory ambiguity.
 - Current CI script rejects analysis/report paths containing whitespace with a clear error to avoid Gradle `--args` splitting issues.
@@ -234,4 +240,4 @@ Guardrail quality note:
 - Advanced rules are exploratory and may produce noisier findings.
 
 ## Status
-Milestones 1-11 are complete, including baseline GitHub Actions integration and a reusable GitHub Action for deterministic `compose-guardrails` checks and report artifacts.
+Milestones 1-12 are complete, including baseline GitHub Actions integration, a reusable GitHub Action, and release packaging for deterministic `compose-guardrails` checks and report artifacts.

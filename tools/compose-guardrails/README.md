@@ -181,6 +181,32 @@ env:
 
 For deterministic CI checks without external calls, set `MOBILE_AI_PROVIDER=fake`.
 
+## Release Packaging
+Build an installable distribution:
+
+```bash
+./gradlew :tools:compose-guardrails:installDist
+```
+
+Build release archives:
+
+```bash
+./gradlew :tools:compose-guardrails:distZip :tools:compose-guardrails:distTar
+```
+
+Run the packaged launcher:
+
+```bash
+MOBILE_AI_PROVIDER=fake \
+./tools/compose-guardrails/build/install/compose-guardrails/bin/compose-guardrails guardrails check tools/compose-guardrails/examples/bad-compose-sample
+```
+
+Release workflow:
+- `.github/workflows/release-compose-guardrails.yml`
+- Runs tests on tagged `v*` pushes.
+- Validates the installed distribution and packaged prompt resources.
+- Uploads ZIP/TAR artifacts for the release build.
+
 ## GitHub Actions
 Workflow:
 - `.github/workflows/compose-guardrails.yml`
