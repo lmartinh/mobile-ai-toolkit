@@ -117,6 +117,39 @@ Path handling note:
 - `docs/`: architecture and cross-repository documentation.
 - `docs/roadmaps/`: per-tool roadmaps (`compose-guardrails` today, more tools later).
 
+Reusable GitHub Action:
+```yaml
+name: Compose Guardrails
+on:
+  pull_request:
+
+jobs:
+  compose-guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - id: compose-guardrails
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        with:
+          target: tools/compose-guardrails/src/main
+          rule_set: default
+          provider: fake
+          report_path: artifacts/compose-guardrails-report.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compose-guardrails-report
+          path: ${{ steps.compose-guardrails.outputs.report_path }}
+```
+The reusable Action keeps `fake` and report-only behavior as the default and exposes the same CI knobs used by the built-in workflow.
+
 ## Design Principles
 - Kotlin/JVM with Gradle Kotlin DSL.
 - Keep architecture simple and modular.
@@ -156,4 +189,4 @@ Guardrail quality note:
 - Advanced rules are exploratory and may produce noisier findings.
 
 ## Status
-Milestones 1-10 are complete, including baseline GitHub Actions integration for deterministic `compose-guardrails` checks and report artifacts.
+Milestones 1-11 are complete, including baseline GitHub Actions integration and a reusable GitHub Action for deterministic `compose-guardrails` checks and report artifacts.

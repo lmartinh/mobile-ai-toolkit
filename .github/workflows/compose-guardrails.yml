@@ -40,10 +40,20 @@ jobs:
       - name: Validate changed-files helper logic
         run: .github/scripts/test-run-compose-guardrails.sh
 
+      - name: Validate reusable action manifest
+        run: .github/scripts/test-compose-guardrails-action.sh
+
       - name: Run compose-guardrails analysis
         id: analyze
-        shell: bash
-        run: .github/scripts/run-compose-guardrails.sh
+        uses: ./.github/actions/compose-guardrails
+        with:
+          target: ${{ env.COMPOSE_GUARDRAILS_TARGET }}
+          rule_set: ${{ env.COMPOSE_GUARDRAILS_RULE_SET }}
+          provider: ${{ env.MOBILE_AI_PROVIDER }}
+          report_path: ${{ env.COMPOSE_GUARDRAILS_REPORT_PATH }}
+          changed_files_only: ${{ env.COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY }}
+          fail_on_findings: ${{ env.COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS }}
+          write_step_summary: ${{ env.COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY }}
 
       - name: Upload guardrails report artifact
         if: always()
@@ -68,7 +78,7 @@ jobs:
             echo "- Non-PR fallback used: ${{ steps.analyze.outputs.fallback_used }}"
             echo "- Report mode: ${{ steps.analyze.outputs.report_mode }}"
             echo "- Report artifact: compose-guardrails-report"
-            echo "- Report path: ${REPORT}"
+            echo "- Report path: ${{ steps.analyze.outputs.report_path }}"
             echo
             if [[ -f "$REPORT" ]]; then
               echo "Report generated successfully. Download the artifact to inspect full findings."

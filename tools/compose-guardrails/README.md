@@ -215,6 +215,42 @@ Path handling note:
 - CI executes analysis with absolute paths.
 - Current CI script rejects analysis/report paths with whitespace and exits with a clear error to avoid Gradle `--args` splitting issues.
 
+Reusable Action:
+```yaml
+name: Compose Guardrails
+on:
+  pull_request:
+
+jobs:
+  compose-guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - id: compose-guardrails
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        with:
+          target: tools/compose-guardrails/src/main
+          rule_set: default
+          provider: fake
+          report_path: artifacts/compose-guardrails-report.md
+          changed_files_only: false
+          fail_on_findings: false
+          write_step_summary: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compose-guardrails-report
+          path: ${{ steps.compose-guardrails.outputs.report_path }}
+```
+Use this Action when you want the same safe defaults in another repository. It keeps report-only behavior by default and exposes the same CI knobs as the built-in workflow.
+
 Real providers in CI should be configured with secrets:
 - `MOBILE_AI_PROVIDER`
 - `MOBILE_AI_API_KEY`

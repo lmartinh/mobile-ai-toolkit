@@ -1,0 +1,64 @@
+name: Compose Guardrails
+description: Run compose-guardrails with safe defaults and configurable CI inputs.
+
+inputs:
+  target:
+    description: Target path to analyze.
+    required: false
+    default: tools/compose-guardrails/src/main
+  rule_set:
+    description: Rule set to use.
+    required: false
+    default: default
+  provider:
+    description: AI provider to use.
+    required: false
+    default: fake
+  report_path:
+    description: Markdown report output path.
+    required: false
+    default: artifacts/compose-guardrails-report.md
+  changed_files_only:
+    description: Analyze changed Kotlin files only on pull_request events.
+    required: false
+    default: "false"
+  fail_on_findings:
+    description: Fail the workflow when findings are present.
+    required: false
+    default: "false"
+  write_step_summary:
+    description: Write a GitHub Step Summary entry.
+    required: false
+    default: "true"
+
+outputs:
+  analysis_mode:
+    description: Analysis mode used by the underlying script.
+    value: ${{ steps.run.outputs.analysis_mode }}
+  fallback_used:
+    description: Whether non-PR fallback analysis was used.
+    value: ${{ steps.run.outputs.fallback_used }}
+  report_path:
+    description: Markdown report output path.
+    value: ${{ steps.run.outputs.report_path }}
+  report_mode:
+    description: Report mode used by the underlying script.
+    value: ${{ steps.run.outputs.report_mode }}
+  total_findings:
+    description: Total findings parsed from the report.
+    value: ${{ steps.run.outputs.total_findings }}
+
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        MOBILE_AI_PROVIDER: ${{ inputs.provider }}
+        COMPOSE_GUARDRAILS_TARGET: ${{ inputs.target }}
+        COMPOSE_GUARDRAILS_RULE_SET: ${{ inputs.rule_set }}
+        COMPOSE_GUARDRAILS_REPORT_PATH: ${{ inputs.report_path }}
+        COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY: ${{ inputs.changed_files_only }}
+        COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS: ${{ inputs.fail_on_findings }}
+        COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY: ${{ inputs.write_step_summary }}
+      run: bash "${{ github.action_path }}/../../scripts/run-compose-guardrails.sh"
