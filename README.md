@@ -191,6 +191,9 @@ Fail-on-findings:
 ```
 
 The reusable Action keeps `fake` and report-only behavior as the default. Step Summary is handled by the Action; artifact upload remains the caller’s responsibility.
+For public repositories, `fake` is the safest default for untrusted pull requests. Real providers require GitHub Secrets and may be unavailable on forked PRs depending on repository settings.
+
+The reusable Action has external-workspace validation: changed-files-only mode is scoped to `COMPOSE_GUARDRAILS_TARGET`, and changed files are resolved under the consumer workspace rather than the toolkit checkout.
 
 ## Design Principles
 - Kotlin/JVM with Gradle Kotlin DSL.

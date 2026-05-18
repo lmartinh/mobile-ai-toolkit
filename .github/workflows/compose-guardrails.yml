@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 env:
   COMPOSE_GUARDRAILS_TARGET: tools/compose-guardrails/src/main
   COMPOSE_GUARDRAILS_RULE_SET: default

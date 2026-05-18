@@ -286,6 +286,9 @@ Fail-on-findings:
 ```
 
 Use this Action when you want the same safe defaults in another repository. It keeps report-only behavior by default, writes GitHub Step Summary entries internally, and leaves artifact upload to the caller.
+For forked pull requests, GitHub may withhold secrets depending on repository settings, so `fake` remains the safest default for public or untrusted PRs. Real providers still require GitHub Secrets.
+
+The reusable Action is validated against a separate consumer workspace, and changed-files-only mode is scoped to `COMPOSE_GUARDRAILS_TARGET` inside that workspace.
 
 Real providers in CI should be configured with secrets:
 - `MOBILE_AI_PROVIDER`

@@ -93,6 +93,10 @@ runs:
           source "$script_dir/compose-guardrails-lib.sh"
           report_path="$(cg_resolve_in_workspace "$COMPOSE_GUARDRAILS_REPORT_PATH" "$COMPOSE_GUARDRAILS_WORKSPACE")"
           report_mode="report-only"
+          fallback_used="false"
+          if [[ "${COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY}" == "true" && "${GITHUB_EVENT_NAME:-}" != "pull_request" ]]; then
+            fallback_used="true"
+          fi
           if [[ "${COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS}" == "true" ]]; then
             report_mode="fail-on-findings"
           fi
@@ -105,6 +109,7 @@ runs:
             echo "- Target: ${COMPOSE_GUARDRAILS_TARGET}"
             echo "- Changed-files-only: ${COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY}"
             echo "- Report mode: ${report_mode}"
+            echo "- Fallback used: ${fallback_used}"
             echo "- Report artifact: caller responsibility"
             echo "- Report path: ${report_path}"
             echo

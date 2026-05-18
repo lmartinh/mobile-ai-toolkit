@@ -25,6 +25,7 @@ for token in \
   "github.action_path" \
   "GITHUB_STEP_SUMMARY" \
   "Report artifact: caller responsibility" \
+  "Fallback used:" \
   "../../.." \
   "script_path=" \
   'bash "$script_path"'

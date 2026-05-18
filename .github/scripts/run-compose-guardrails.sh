@@ -40,7 +40,7 @@ run_guardrails_for_path() {
   cg_assert_no_whitespace_path "$analysis_path" "analysis path"
   cg_assert_no_whitespace_path "$output_path" "report output path"
 
-  "$MOBILE_AI_TOOLKIT_DIR/gradlew" :tools:compose-guardrails:run \
+  "$MOBILE_AI_TOOLKIT_DIR/gradlew" --project-dir "$MOBILE_AI_TOOLKIT_DIR" :tools:compose-guardrails:run \
     --args="guardrails check ${analysis_path} --rule-set ${COMPOSE_GUARDRAILS_RULE_SET} --output ${output_path}"
 }
 
@@ -54,11 +54,15 @@ if [[ "$COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY" == "true" && "$GITHUB_EVENT_NAME"
 
   git -C "$COMPOSE_GUARDRAILS_WORKSPACE" fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
 
-  mapfile -t changed_files < <(git -C "$COMPOSE_GUARDRAILS_WORKSPACE" diff --name-only "origin/${GITHUB_BASE_REF}...${GITHUB_SHA}")
+  changed_files=()
+  while IFS= read -r changed_file; do
+    changed_files+=("$changed_file")
+  done < <(git -C "$COMPOSE_GUARDRAILS_WORKSPACE" diff --name-only "origin/${GITHUB_BASE_REF}...${GITHUB_SHA}")
 
   selected_files=()
   for file in "${changed_files[@]}"; do
     file_rel="$(cg_normalize_rel_path "$file")"
+    file_abs="${COMPOSE_GUARDRAILS_WORKSPACE}/${file_rel}"
 
     if ! cg_is_kotlin_source_file "$file_rel"; then
       continue
@@ -68,11 +72,10 @@ if [[ "$COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY" == "true" && "$GITHUB_EVENT_NAME"
       continue
     fi
 
-    if [[ ! -f "$file_rel" ]]; then
+    if [[ ! -f "$file_abs" ]]; then
       continue
     fi
 
-    file_abs="${COMPOSE_GUARDRAILS_WORKSPACE}/${file_rel}"
     cg_assert_no_whitespace_path "$file_abs" "changed file path"
     selected_files+=("$file_rel")
   done
