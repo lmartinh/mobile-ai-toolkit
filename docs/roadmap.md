@@ -1,5 +1,7 @@
 # Roadmap
 
+This roadmap keeps the repository simple and effective. The next focus is external CI adoption through a reusable GitHub Action, with `fake` provider and report-only behavior as safe defaults.
+
 ## Milestone 1: Repository Initialization
 Status: done
 - Set up monorepo structure for tools and shared modules.
@@ -45,20 +47,73 @@ Status: done
 - Include summary, per-file findings, and remediation guidance.
 - Add golden tests for report rendering consistency.
 
-## Milestone 8: First Real AI Provider Adapter
+## Milestone 8: Real AI Provider Adapters
 Status: done
-- Add one real provider implementation behind `AiClient`.
-- Configure through environment variables only.
+- Add real provider implementations behind `AiClient`.
+- Support OpenAI, Anthropic, and Gemini.
+- Configure providers through environment variables only.
+- Keep `FakeAiClient` available for tests and deterministic CI.
 - Add adapter tests and clear configuration docs.
 
 ## Milestone 9: Guardrail Quality Expansion
 Status: done (stabilized in 9.2)
 - Improve rule set and prompt tuning.
+- Split rules into conservative default rules and advanced opt-in rules.
 - Expand examples and expected outputs.
-- Reduce false positives with deterministic post-processing.
+- Reduce noise through clearer rule guidance and prompt constraints.
 
-## Milestone 10: Basic GitHub Actions Integration
-Status: done
+## Milestone 10: GitHub Actions Integration
+Status: done (stabilized in 10.4)
 - Add CI workflow to run `compose-guardrails` in PRs.
-- Persist Markdown report artifacts.
+- Persist clean Markdown report artifacts.
+- Add configurable target path, rule set, and report path.
+- Add changed-files-only mode scoped to the configured target.
+- Add opt-in fail-on-findings behavior.
+- Add GitHub Step Summary.
+- Keep `fake` provider and report-only behavior as safe defaults.
 - Document CI usage and required environment configuration.
+
+## Milestone 11: Reusable GitHub Action
+Status: planned
+- Create a reusable GitHub Action for `compose-guardrails`.
+- Start with the simplest viable Action type, preferably a composite action unless packaging constraints require another approach.
+- Expose simple inputs for target path, rule set, provider, report path, changed-files-only, fail-on-findings, and summary behavior.
+- Keep `fake` provider as the default so no secrets are required for the first run.
+- Keep report-only behavior as the default, with fail-on-findings opt-in.
+- Add a copy-paste GitHub Actions example for external repositories.
+- Verify the action can run from a separate test repository.
+
+## Milestone 12: Release Packaging
+Status: planned
+- Configure repeatable Gradle application distributions for the CLI.
+- Produce release ZIP/TAR artifacts for tagged versions.
+- Ensure packaged distributions include prompt resources.
+- Add a release workflow that runs tests and uploads artifacts.
+- Use the packaged CLI in the reusable GitHub Action if it simplifies external adoption.
+- Postpone Maven Central and Gradle plugin publishing until after v0.1.0.
+
+## Milestone 13: Open Source Polish
+Status: planned
+- Rewrite the root README around quickstart, CI usage, providers, examples, and limitations.
+- Add project badges for CI, license, and release status when available.
+- Add `CONTRIBUTING.md` with setup, test, documentation, and English-only contribution guidance.
+- Add `SECURITY.md` with secret handling and vulnerability reporting guidance.
+- Update `CHANGELOG.md` for the first public release.
+- Add lightweight issue templates if they stay easy to maintain.
+
+## Milestone 14: v0.1.0 Release Candidate
+Status: planned
+- Define and run a v0.1.0 release checklist.
+- Verify a third-party repository can run the reusable GitHub Action.
+- Confirm default CI behavior remains fake-provider, report-only, and secret-free.
+- Confirm real-provider CI setup works through GitHub Secrets.
+- Tag v0.1.0 only after docs, changelog, release artifacts, and examples are aligned.
+
+## Milestone 15: Post-v0.1.0 Improvements
+Status: planned
+- Consider optional PR comments after the first release.
+- Consider SARIF and JSON outputs for richer CI integrations.
+- Improve fail-on-findings using structured output instead of Markdown parsing.
+- Improve path handling for spaces in Gradle-driven CI runs.
+- Explore prompt-size reductions through changed-line or context selection.
+- Keep AST parsing and code generation out of scope until real usage justifies them.
