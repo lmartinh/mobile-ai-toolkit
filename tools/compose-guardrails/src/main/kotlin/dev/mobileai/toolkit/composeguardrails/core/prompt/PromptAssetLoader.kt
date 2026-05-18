@@ -4,10 +4,10 @@ class PromptAssetLoader(
     private val classLoader: ClassLoader = PromptAssetLoader::class.java.classLoader,
     private val basePath: String = "prompts"
 ) {
-    fun load(): PromptAssets {
+    fun load(ruleSet: RuleSet = RuleSet.DEFAULT): PromptAssets {
         val reviewPrompt = readRequiredResource("$basePath/compose-review.md")
         val outputFormatPrompt = readRequiredResource("$basePath/output-format.md")
-        val rulePrompts = loadRulePrompts()
+        val rulePrompts = loadRulePrompts(ruleSet)
 
         return PromptAssets(
             composeReview = reviewPrompt,
@@ -16,15 +16,12 @@ class PromptAssetLoader(
         )
     }
 
-    private fun loadRulePrompts(): List<RulePrompt> {
-        val indexContent = readRequiredResource("$basePath/rules/index.txt")
-        val fileNames = indexContent
-            .lines()
-            .map { it.trim() }
-            .filter { it.isNotBlank() }
-            .distinct()
-
-        require(fileNames.isNotEmpty()) { "No rule prompt files listed in $basePath/rules/index.txt" }
+    private fun loadRulePrompts(ruleSet: RuleSet): List<RulePrompt> {
+        val fileNames = when (ruleSet) {
+            RuleSet.DEFAULT -> loadIndex("default-index.txt")
+            RuleSet.ADVANCED -> loadIndex("advanced-index.txt")
+            RuleSet.ALL -> (loadIndex("default-index.txt") + loadIndex("advanced-index.txt")).distinct()
+        }
 
         return fileNames.sorted().map { fileName ->
             val resourcePath = "$basePath/rules/$fileName"
@@ -33,6 +30,18 @@ class PromptAssetLoader(
                 content = readRequiredResource(resourcePath)
             )
         }
+    }
+
+    private fun loadIndex(indexFile: String): List<String> {
+        val indexContent = readRequiredResource("$basePath/rules/$indexFile")
+        val fileNames = indexContent
+            .lines()
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
+
+        require(fileNames.isNotEmpty()) { "No rule prompt files listed in $basePath/rules/$indexFile" }
+        return fileNames
     }
 
     private fun readRequiredResource(resourcePath: String): String {

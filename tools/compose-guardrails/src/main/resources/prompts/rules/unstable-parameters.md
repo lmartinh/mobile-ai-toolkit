@@ -1,28 +1,37 @@
 # Rule: compose.unstable-parameters
 
-- category: performance
-- goal: reduce unnecessary recompositions from unstable inputs.
+- category: performance (advanced)
+- goal: reduce avoidable recompositions from clearly unstable inputs.
 - recommended severity: info
 
 ## What to detect
-- Passing frequently recreated lambdas/objects where stable alternatives exist.
+- Repeated recreation of heavyweight objects or callbacks in hot paths where recomposition impact is evident.
 
 ## What not to detect
-- Cases where instability impact is negligible or unavoidable.
+- Routine lambda usage with no strong evidence of measurable impact.
+- Blanket cases where wrapping in `remember` adds complexity without clear gain.
 
 ## Bad example
 ```kotlin
-Child(onClick = { doSomething(id) })
+@Composable
+fun Feed(items: List<Item>, onOpen: (Item) -> Unit) {
+  val mapper = ItemMapper() // recreated each recomposition
+  FeedList(items.map(mapper::map), onOpen)
+}
 ```
 
 ## Improved example
 ```kotlin
-val onClick = remember(id) { { doSomething(id) } }
-Child(onClick = onClick)
+@Composable
+fun Feed(items: List<Item>, onOpen: (Item) -> Unit) {
+  val mapper = remember { ItemMapper() }
+  FeedList(items.map(mapper::map), onOpen)
+}
 ```
 
 ## Guidance for actionable suggestions
-- Suggest stable memoized callbacks/objects when impact is clear.
+- Report only when instability is concrete and likely impactful.
+- Avoid broad "wrap all lambdas in remember" advice.
 
 ## False positive notes
-- Do not over-report micro-optimizations.
+- This rule is advanced and lower-confidence; omit uncertain findings.

@@ -2,6 +2,7 @@ package dev.mobileai.toolkit.composeguardrails
 
 import dev.mobileai.toolkit.aiclient.AiConfigLoader
 import dev.mobileai.toolkit.aiclient.AiClientFactory
+import dev.mobileai.toolkit.composeguardrails.core.cli.CommandOptionsParser
 import dev.mobileai.toolkit.composeguardrails.core.ComposeCandidateDetector
 import dev.mobileai.toolkit.composeguardrails.core.KotlinFileScanner
 import dev.mobileai.toolkit.composeguardrails.core.analysis.GuardrailsAiAnalyzer
@@ -11,17 +12,19 @@ import dev.mobileai.toolkit.composeguardrails.core.prompt.PromptComposer
 import dev.mobileai.toolkit.report.FindingSeverity
 import dev.mobileai.toolkit.report.MarkdownReportRenderer
 import dev.mobileai.toolkit.report.ReportInput
-import java.nio.file.Path
 import kotlin.io.path.pathString
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
-    if (args.size != 3 || args[0] != "guardrails" || args[1] != "check") {
+    val commandOptions = try {
+        CommandOptionsParser().parse(args)
+    } catch (error: IllegalArgumentException) {
+        System.err.println("Error: ${error.message}")
         printUsage()
         exitProcess(1)
     }
 
-    val inputPath = Path.of(args[2])
+    val inputPath = commandOptions.inputPath
     val scanner = KotlinFileScanner()
     val detector = ComposeCandidateDetector()
     val promptLoader = PromptAssetLoader()
@@ -51,7 +54,7 @@ fun main(args: Array<String>) {
     val composeCandidates = composeAnalyses.filter { it.isComposeCandidate }
     val totalComposableFunctions = composeCandidates.sumOf { it.composableFunctions.size }
     val promptAssets = try {
-        promptLoader.load()
+        promptLoader.load(commandOptions.ruleSet)
     } catch (error: IllegalArgumentException) {
         System.err.println("Error: ${error.message}")
         exitProcess(1)
@@ -71,6 +74,7 @@ fun main(args: Array<String>) {
     println("Kotlin files found: ${kotlinFiles.size}")
     println("Compose candidate files: ${composeCandidates.size}")
     println("Composable functions detected: $totalComposableFunctions")
+    println("Rule set: ${commandOptions.ruleSet.cliValue}")
     println("Active guardrail rules: ${promptBundle.activeRuleIds.size}")
     println("Composed prompt size: ${promptBundle.promptText.length} chars")
     println("AI client: ${aiResult.metadata["provider"]} (${aiResult.model})")
@@ -124,5 +128,5 @@ fun main(args: Array<String>) {
 }
 
 private fun printUsage() {
-    println("Usage: mobile-ai guardrails check <path>")
+    println("Usage: mobile-ai guardrails check <path> [--rule-set default|advanced|all]")
 }

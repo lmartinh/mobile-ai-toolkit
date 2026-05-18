@@ -5,6 +5,13 @@ Kotlin CLI tool for Compose guardrail analysis using a provider-agnostic AI work
 ## Command
 `mobile-ai guardrails check <path>`
 
+Optional rule-set flag:
+- `--rule-set default`
+- `--rule-set advanced`
+- `--rule-set all`
+
+If omitted, `default` is used.
+
 ## Current Behavior
 - Accepts either:
   - one `.kt` file
@@ -33,30 +40,40 @@ Supported providers:
 - `code_example` (optional)
 
 ## Supported Guardrails
+Default rule set (enabled by default, conservative):
 - `compose.no-business-logic-in-composables`
 - `compose.state-hoisting`
 - `compose.viewmodel-in-leaf-composable`
 - `compose.unidirectional-data-flow`
 - `compose.no-side-effects-in-composition`
 - `compose.effect-key-quality`
-- `compose.expensive-work-in-composition`
-- `compose.unstable-parameters`
 - `compose.lazy-list-keys`
-- `compose.derived-state-usage`
-- `compose.large-composable`
 - `compose.missing-modifier-parameter`
 - `compose.modifier-parameter-position`
-- `compose.hardcoded-dimensions-and-colors`
-- `compose.missing-preview`
-- `compose.preview-with-real-dependencies`
 - `compose.missing-content-description`
 - `compose.clickable-without-semantics`
 - `compose.android.collect-as-state-with-lifecycle` (`Android-only`)
 - `compose.android.context-leak-risk` (`Android-only`)
 - `compose.multiplatform.no-android-api-in-common` (`Multiplatform/commonMain`)
-- `compose.multiplatform.resources-usage` (`Multiplatform/commonMain`)
 - `compose.multiplatform.platform-specific-ui-leak` (`Multiplatform/commonMain`)
 - `compose.multiplatform.public-api-cleanliness` (`Multiplatform/commonMain`)
+
+Advanced rule set (opt-in, lower-confidence/noise-prone):
+- `compose.expensive-work-in-composition`
+- `compose.unstable-parameters`
+- `compose.derived-state-usage`
+- `compose.large-composable`
+- `compose.hardcoded-dimensions-and-colors`
+- `compose.missing-preview`
+- `compose.preview-with-real-dependencies`
+- `compose.multiplatform.resources-usage` (`Multiplatform/commonMain`)
+
+## Rule Catalog Assessment
+- The default catalog is intentionally limited to higher-signal Compose, Android, accessibility, and commonMain boundary rules.
+- The advanced catalog contains exploratory or noisier checks, especially performance, preview, design-system, and multiplatform resource guidance.
+- Use `default` for routine code review and CI-friendly runs.
+- Use `advanced` when you want deeper review coverage and can tolerate more subjective or lower-confidence findings.
+- Use `all` when you explicitly want both sets in a single analysis pass.
 
 ## Severity Guidance
 - `error`: high-confidence issue with clear correctness/architecture risk.
@@ -74,6 +91,32 @@ The command prints an execution summary and a Markdown report with:
 ```bash
 ./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
 ```
+
+Run with explicit default rules:
+
+```bash
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set default"
+```
+
+Run with advanced rules only:
+
+```bash
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set advanced"
+```
+
+Run with all rules:
+
+```bash
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set all"
+```
+
+## CLI Rule-Set Assessment
+- `mobile-ai guardrails check <path>` remains valid and uses the conservative `default` rule set.
+- `--rule-set default` loads only the default catalog.
+- `--rule-set advanced` loads only the advanced catalog.
+- `--rule-set all` loads the union of default and advanced rules without duplicates.
+- Invalid rule-set values fail fast with a clear error listing the supported values.
+- Rule-set selection is implemented directly in the CLI argument parser and prompt loader; there is no additional config layer to maintain.
 
 Run with fake provider:
 
@@ -138,6 +181,8 @@ Provider limitations (current):
 - No retries/backoff.
 - No chat history.
 - No live API tests in CI; use `fake` provider for deterministic checks.
+- Rule detection is heuristic/text-based (no AST parser yet).
+- Advanced rules are intentionally conservative and can still be noisy.
 
 Examples overview:
 - `examples/business-logic-sample`
@@ -146,6 +191,11 @@ Examples overview:
 - `examples/lazy-list-sample`
 - `examples/android-lifecycle-sample`
 - `examples/multiplatform-commonmain-sample`
+- `examples/effect-key-quality-sample`
+- `examples/viewmodel-in-leaf-composable-sample`
+- `examples/clickable-without-semantics-sample`
+- `examples/modifier-parameter-position-sample`
+- `examples/expensive-work-in-composition-sample`
 - `examples/clean-compose-sample` (expected zero findings)
 
 Recommendation:

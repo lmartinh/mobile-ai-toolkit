@@ -1,14 +1,15 @@
 # Rule: compose.missing-preview
 
-- category: developer-experience
-- goal: improve UI iteration with preview coverage.
+- category: developer-experience (advanced)
+- goal: improve iteration speed with practical preview coverage.
 - recommended severity: info
 
 ## What to detect
-- User-facing composables with no practical `@Preview`.
+- Important user-facing composables lacking feasible previews.
 
 ## What not to detect
-- Composables where preview setup is genuinely impractical without significant infrastructure.
+- Cases where preview setup is non-trivial and would require heavy runtime dependencies.
+- Internal utility composables with little preview value.
 
 ## Bad example
 ```kotlin
@@ -21,7 +22,8 @@
 ```
 
 ## Guidance for actionable suggestions
-- Suggest 1-2 preview variants (default/error/loading).
+- Suggest only high-value previews (default/error/loading) when clearly useful.
+- Keep severity low and avoid forcing previews everywhere.
 
 ## False positive notes
-- Keep low severity for non-core components.
+- Advanced rule; omit if preview value is uncertain.

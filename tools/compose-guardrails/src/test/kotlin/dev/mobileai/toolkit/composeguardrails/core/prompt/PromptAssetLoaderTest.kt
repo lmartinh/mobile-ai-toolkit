@@ -15,7 +15,7 @@ class PromptAssetLoaderTest {
         writePrompts(resourcesRoot)
 
         val classLoader = URLClassLoader(arrayOf(resourcesRoot.toUri().toURL()), null)
-        val assets = PromptAssetLoader(classLoader = classLoader).load()
+        val assets = PromptAssetLoader(classLoader = classLoader).load(RuleSet.DEFAULT)
 
         assertEquals("review", assets.composeReview)
         assertEquals("format", assets.outputFormat)
@@ -24,7 +24,7 @@ class PromptAssetLoaderTest {
 
     @Test
     fun `load works regardless of process working directory`() {
-        val assets = PromptAssetLoader().load()
+        val assets = PromptAssetLoader().load(RuleSet.DEFAULT)
 
         assertTrue(assets.composeReview.contains("Compose Review Prompt"))
         assertTrue(assets.outputFormat.contains("Return **valid JSON**"))
@@ -39,7 +39,7 @@ class PromptAssetLoaderTest {
         val classLoader = URLClassLoader(arrayOf(resourcesRoot.toUri().toURL()), null)
 
         assertFailsWith<IllegalArgumentException> {
-            PromptAssetLoader(classLoader = classLoader).load()
+            PromptAssetLoader(classLoader = classLoader).load(RuleSet.DEFAULT)
         }
     }
 
@@ -52,12 +52,12 @@ class PromptAssetLoaderTest {
 
         Files.writeString(promptsRoot.resolve("compose-review.md"), "review")
         Files.writeString(promptsRoot.resolve("output-format.md"), "format")
-        Files.writeString(rulesRoot.resolve("index.txt"), "")
+        Files.writeString(rulesRoot.resolve("default-index.txt"), "")
 
         val classLoader = URLClassLoader(arrayOf(resourcesRoot.toUri().toURL()), null)
 
         assertFailsWith<IllegalArgumentException> {
-            PromptAssetLoader(classLoader = classLoader).load()
+            PromptAssetLoader(classLoader = classLoader).load(RuleSet.DEFAULT)
         }
     }
 
@@ -70,7 +70,8 @@ class PromptAssetLoaderTest {
 
         Files.writeString(promptsRoot.resolve("compose-review.md"), "review")
         Files.writeString(promptsRoot.resolve("output-format.md"), "format")
-        Files.writeString(rulesRoot.resolve("index.txt"), "z-rule.md\na-rule.md\n")
+        Files.writeString(rulesRoot.resolve("default-index.txt"), "z-rule.md\na-rule.md\n")
+        Files.writeString(rulesRoot.resolve("advanced-index.txt"), "z-rule.md\n")
         Files.writeString(rulesRoot.resolve("z-rule.md"), "rule-z")
         Files.writeString(rulesRoot.resolve("a-rule.md"), "rule-a")
     }

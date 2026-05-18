@@ -1,27 +1,34 @@
 # Rule: compose.large-composable
 
-- category: maintainability
-- goal: keep composables cohesive and decomposed.
-- recommended severity: warning
+- category: maintainability (advanced)
+- goal: keep composables cohesive and understandable.
+- recommended severity: info
 
 ## What to detect
-- Very large composables mixing multiple responsibilities and deep nesting.
+- Composables mixing multiple distinct responsibilities with high nesting and difficult readability.
 
 ## What not to detect
-- Verbose but cohesive UI sections with clear structure.
+- Verbose yet cohesive layouts with clear helper decomposition.
+- Cases where size alone is not causing maintainability issues.
 
 ## Bad example
 ```kotlin
-@Composable fun Dashboard(...) { /* huge function with mixed concerns */ }
+@Composable fun Dashboard(...) { /* huge function mixing toolbar, filters, chart, dialogs */ }
 ```
 
 ## Improved example
 ```kotlin
-@Composable fun Dashboard(...) { Header(...); Content(...); Footer(...) }
+@Composable fun Dashboard(...) {
+  DashboardHeader(...)
+  DashboardFilters(...)
+  DashboardContent(...)
+  DashboardDialogs(...)
+}
 ```
 
 ## Guidance for actionable suggestions
-- Suggest concrete split points into child composables.
+- Call out concrete mixed concerns, not line-count alone.
+- Suggest 1-2 realistic split points.
 
 ## False positive notes
-- Avoid hard line-count thresholds without context.
+- Advanced rule; avoid subjective style-only findings.

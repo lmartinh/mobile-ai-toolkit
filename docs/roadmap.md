@@ -52,7 +52,7 @@ Status: done
 - Add adapter tests and clear configuration docs.
 
 ## Milestone 9: Guardrail Quality Expansion
-Status: next
+Status: done (stabilized in 9.2)
 - Improve rule set and prompt tuning.
 - Expand examples and expected outputs.
 - Reduce false positives with deterministic post-processing.

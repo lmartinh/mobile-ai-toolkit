@@ -11,6 +11,15 @@ Return only concrete, actionable findings backed by evidence in the provided cod
 - Do not speculate about runtime behavior unless directly implied by the code.
 - Avoid generic advice such as "improve architecture" without concrete code-linked reasoning.
 
+## Severity guidance
+- Use each rule's recommended severity by default.
+- Adjust severity only with clear evidence-based justification.
+- Omit uncertain findings instead of guessing.
+
+## Rule set guidance
+- Prefer default rules for normal analysis.
+- Treat advanced rules as lower-confidence and emit findings only when evidence is clear.
+
 ## Analysis process
 1. Read each provided rule and evaluate only against those rules.
 2. For each potential issue, verify it is observable in the code snippet.

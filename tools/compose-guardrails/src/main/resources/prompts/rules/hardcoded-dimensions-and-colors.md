@@ -1,14 +1,15 @@
 # Rule: compose.hardcoded-dimensions-and-colors
 
-- category: design-system
-- goal: favor theme/tokens over scattered magic values.
+- category: design-system (advanced)
+- goal: improve consistency by preferring theme/tokens over repeated magic values.
 - recommended severity: info
 
 ## What to detect
-- Repeated hardcoded color/spacing/text-size values in UI code.
+- Repeated hardcoded color/spacing/text-size constants in production UI paths.
 
 ## What not to detect
-- Truly local one-off values in prototypes or isolated previews.
+- Isolated one-off constants in previews/prototypes.
+- Small local values when no token system exists yet and no consistency issue is evident.
 
 ## Bad example
 ```kotlin
@@ -21,7 +22,8 @@ Text("Title", color = MaterialTheme.colorScheme.primary, modifier = Modifier.pad
 ```
 
 ## Guidance for actionable suggestions
-- Suggest concrete theme/token alternatives.
+- Suggest concrete token/theme alternatives only when practical.
+- Avoid noisy reports on isolated constants with low impact.
 
 ## False positive notes
-- Avoid over-reporting single experimental constants.
+- Advanced rule; report conservatively.

@@ -7,6 +7,6 @@
 ## Findings
 
 ### File: ProfileCard.kt
-- Rule: `compose.remember-usage`
+- Rule: `compose.expensive-work-in-composition`
 - Severity: `warning`
-- Title: remember cache may become stale when input changes
+- Title: Potential expensive work executed in composition path

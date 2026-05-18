@@ -6,7 +6,7 @@
 
 ## Findings
 
-### File: LoginScreen.kt
-- Rule: `compose.missing-preview`
+### File: InfoCard.kt
+- Rule: `compose.modifier-parameter-position`
 - Severity: `info`
-- Title: User-facing composable has no preview coverage
+- Title: Modifier parameter ordering is non-idiomatic

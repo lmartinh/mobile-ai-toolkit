@@ -1,27 +1,31 @@
 # Rule: compose.multiplatform.resources-usage
 
-- category: multiplatform-commonMain
-- goal: use multiplatform-friendly resource access patterns.
+- category: multiplatform-commonMain (advanced)
+- goal: keep shared UI resource access compatible across targets.
 - recommended severity: warning
 
 ## What to detect
-- Android resource access patterns (`R.string...`, `colorResource` from Android-only APIs) in shared code.
+- Android-specific resource patterns in shared/common UI code (e.g., `R.*`, Android-only resource helpers).
 
 ## What not to detect
-- Android-only resource usage in `androidMain`.
+- Android resource access inside `androidMain`.
+- Shared code already using multiplatform-friendly resource abstractions.
 
 ## Bad example
 ```kotlin
-Text(stringResource(R.string.title)) // in commonMain shared UI
+// common/shared UI file
+Text(stringResource(R.string.title))
 ```
 
 ## Improved example
 ```kotlin
-Text(SharedStrings.title)
+// shared API through project resource abstraction
+Text(AppStrings.title())
 ```
 
 ## Guidance for actionable suggestions
-- Recommend shared resource abstractions compatible with target platforms.
+- Suggest platform-agnostic resource wrappers suitable for Compose Multiplatform/library setups.
+- Keep suggestions generic (avoid forcing a single resource library unless already present).
 
 ## False positive notes
-- Apply only where shared/common source intent is evident.
+- Apply only when shared/common source context is evident.

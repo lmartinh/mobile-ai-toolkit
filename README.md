@@ -26,6 +26,16 @@ Run from repository root:
 ./gradlew :tools:compose-guardrails:run --args="guardrails check tools/compose-guardrails/examples/bad-compose-sample"
 ```
 
+Rule-set examples:
+
+```bash
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set default"
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set advanced"
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set all"
+```
+
+If `--rule-set` is omitted, the CLI uses the conservative `default` rule set.
+
 Run explicitly with fake provider:
 
 ```bash
@@ -86,6 +96,9 @@ Current provider-layer limitations:
 
 Guardrail quality note:
 - AI findings should be treated as review assistance and validated manually by developers.
+- Compose rule detection is heuristic/text-based (no AST parser yet).
+- Default rules are intentionally conservative to reduce noisy findings.
+- Advanced rules are exploratory and may produce noisier findings.
 
 ## Status
-Milestones 1-8.5 are complete (including OpenAI, Anthropic, and Gemini adapters behind `AiClient`). Next is guardrail quality expansion.
+Milestones 1-9.2 are complete (including default/advanced/all rule-set UX and stabilized examples/catalog consistency). Next is CI integration.

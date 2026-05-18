@@ -1,27 +1,31 @@
 # Rule: compose.derived-state-usage
 
-- category: performance
-- goal: memoize derived values driven by changing state.
+- category: performance (advanced)
+- goal: use `derivedStateOf` only when it improves recomposition behavior.
 - recommended severity: info
 
 ## What to detect
-- Recomputed derived values on every recomposition where `derivedStateOf` would clarify intent.
+- Expensive or noisy derived computations recalculated on frequent recompositions where memoized derivation is clearly beneficial.
 
 ## What not to detect
-- Cheap derived values where added complexity is not justified.
+- Trivial boolean/string expressions.
+- Cases where `derivedStateOf` would add indirection without practical benefit.
 
 ## Bad example
 ```kotlin
-val isValid = email.contains("@") && pass.length > 7
+val filtered = items.filter { it.visible }.sortedBy { it.rank }
 ```
 
 ## Improved example
 ```kotlin
-val isValid by remember(email, pass) { derivedStateOf { email.contains("@") && pass.length > 7 } }
+val filtered by remember(items) {
+  derivedStateOf { items.filter { it.visible }.sortedBy { it.rank } }
+}
 ```
 
 ## Guidance for actionable suggestions
-- Recommend only when recomposition pressure is plausible.
+- Suggest `derivedStateOf` only with clear recomposition/perf rationale.
+- Do not suggest it for small, obvious derived values.
 
 ## False positive notes
-- Do not force `derivedStateOf` for trivial expressions.
+- Advanced rule; skip if performance impact is uncertain.

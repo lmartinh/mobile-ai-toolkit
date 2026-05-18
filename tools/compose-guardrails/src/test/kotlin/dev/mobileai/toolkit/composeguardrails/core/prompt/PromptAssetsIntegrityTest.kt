@@ -8,60 +8,75 @@ import kotlin.test.assertTrue
 
 class PromptAssetsIntegrityTest {
     @Test
-    fun `all indexed rule files exist and are loadable`() {
-        val classLoader = PromptAssetsIntegrityTest::class.java.classLoader
-        val indexContent = classLoader
-            .getResourceAsStream("prompts/rules/index.txt")
-            ?.bufferedReader(Charsets.UTF_8)
-            ?.readText()
-            ?: error("Missing prompts/rules/index.txt")
-
-        val fileNames = indexContent.lines().map { it.trim() }.filter { it.isNotBlank() }
-        assertTrue(fileNames.isNotEmpty(), "Rule index must not be empty")
+    fun `all indexed default rule files exist and are loadable`() {
+        val fileNames = loadIndex("default-index.txt")
+        assertTrue(fileNames.isNotEmpty(), "Default rule index must not be empty")
 
         fileNames.forEach { fileName ->
-            val resourcePath = "prompts/rules/$fileName"
-            val content = classLoader
-                .getResourceAsStream(resourcePath)
-                ?.bufferedReader(Charsets.UTF_8)
-                ?.readText()
-
-            assertTrue(!content.isNullOrBlank(), "Rule resource missing or empty: $resourcePath")
+            val content = loadRule(fileName)
+            assertTrue(content.isNotBlank(), "Default rule resource missing or empty: $fileName")
         }
     }
 
     @Test
-    fun `default active rule ids match expected catalog`() {
-        val assets = PromptAssetLoader().load()
+    fun `all indexed advanced rule files exist and are loadable`() {
+        val fileNames = loadIndex("advanced-index.txt")
+        assertTrue(fileNames.isNotEmpty(), "Advanced rule index must not be empty")
+
+        fileNames.forEach { fileName ->
+            val content = loadRule(fileName)
+            assertTrue(content.isNotBlank(), "Advanced rule resource missing or empty: $fileName")
+        }
+    }
+
+    @Test
+    fun `default active rule ids match expected conservative catalog`() {
+        val assets = PromptAssetLoader().load(RuleSet.DEFAULT)
         val actual = assets.rules.map { "compose.${it.id}" }.toSet()
         val expected = setOf(
+            "compose.no-business-logic-in-composables",
+            "compose.state-hoisting",
+            "compose.viewmodel-in-leaf-composable",
+            "compose.unidirectional-data-flow",
+            "compose.no-side-effects-in-composition",
+            "compose.effect-key-quality",
+            "compose.lazy-list-keys",
+            "compose.missing-modifier-parameter",
+            "compose.modifier-parameter-position",
+            "compose.missing-content-description",
+            "compose.clickable-without-semantics",
             "compose.android.collect-as-state-with-lifecycle",
             "compose.android.context-leak-risk",
-            "compose.clickable-without-semantics",
-            "compose.derived-state-usage",
-            "compose.effect-key-quality",
-            "compose.expensive-work-in-composition",
-            "compose.hardcoded-dimensions-and-colors",
-            "compose.large-composable",
-            "compose.lazy-list-keys",
-            "compose.missing-content-description",
-            "compose.missing-modifier-parameter",
-            "compose.missing-preview",
-            "compose.modifier-parameter-position",
             "compose.multiplatform.no-android-api-in-common",
             "compose.multiplatform.platform-specific-ui-leak",
-            "compose.multiplatform.public-api-cleanliness",
-            "compose.multiplatform.resources-usage",
-            "compose.no-business-logic-in-composables",
-            "compose.no-side-effects-in-composition",
-            "compose.preview-with-real-dependencies",
-            "compose.state-hoisting",
-            "compose.unidirectional-data-flow",
-            "compose.unstable-parameters",
-            "compose.viewmodel-in-leaf-composable"
+            "compose.multiplatform.public-api-cleanliness"
         )
 
-        assertTrue(actual == expected, "Default rule set does not match expected catalog")
+        assertTrue(actual == expected, "Default rule set does not match expected conservative catalog")
+    }
+
+    @Test
+    fun `every indexed rule contains required metadata sections`() {
+        val allRuleFiles = loadIndex("default-index.txt") + loadIndex("advanced-index.txt")
+        val requiredMarkers = listOf(
+            "# Rule: compose.",
+            "- category:",
+            "- goal:",
+            "- recommended severity:",
+            "## What to detect",
+            "## What not to detect",
+            "## Bad example",
+            "## Improved example",
+            "## Guidance for actionable suggestions",
+            "## False positive notes"
+        )
+
+        allRuleFiles.forEach { fileName ->
+            val content = loadRule(fileName)
+            requiredMarkers.forEach { marker ->
+                assertTrue(content.contains(marker), "Rule $fileName is missing required section: $marker")
+            }
+        }
     }
 
     @Test
@@ -75,7 +90,7 @@ class PromptAssetsIntegrityTest {
     }
 
     @Test
-    fun `all examples contain expected report`() {
+    fun `all examples contain expected report and kotlin file`() {
         val examplesRoot = Path.of("examples")
         val exampleDirs = Files.list(examplesRoot).use { stream ->
             stream.filter { Files.isDirectory(it) }.toList()
@@ -95,6 +110,43 @@ class PromptAssetsIntegrityTest {
     }
 
     @Test
+    fun `example reports only reference known active rule ids and no legacy ids`() {
+        val knownRuleIds = (loadIndex("default-index.txt") + loadIndex("advanced-index.txt"))
+            .map { "compose.${it.removeSuffix(".md")}" }
+            .toSet()
+
+        val legacyRuleIds = setOf(
+            "compose.previews",
+            "compose.remember-usage",
+            "compose.separation-of-concerns"
+        )
+
+        val reportFiles = Files.walk(Path.of("examples")).use { stream ->
+            stream.filter { Files.isRegularFile(it) && it.fileName.toString() == "expected-report.md" }.toList()
+        }
+
+        reportFiles.forEach { report ->
+            val text = Files.readString(report)
+            assertTrue(text.contains("# Compose Guardrails Report"), "Missing report title in $report")
+            assertTrue(text.contains("## Summary"), "Missing Summary section in $report")
+            assertTrue(text.contains("## Findings"), "Missing Findings section in $report")
+
+            legacyRuleIds.forEach { legacy ->
+                assertTrue(!text.contains(legacy), "Legacy rule id found in ${report.fileName}: $legacy")
+            }
+
+            Regex("compose\\.[a-z0-9.-]+").findAll(text).map { it.value }.toSet().forEach { ruleId ->
+                assertTrue(ruleId in knownRuleIds, "Unknown rule id in example report $report: $ruleId")
+            }
+
+            Regex("Severity: `([a-z]+)`").findAll(text).forEach { match ->
+                val severity = match.groupValues[1]
+                assertTrue(severity in setOf("error", "warning", "info"), "Invalid severity '$severity' in $report")
+            }
+        }
+    }
+
+    @Test
     fun `clean example is documented as no findings`() {
         val expected = Path.of("examples/clean-compose-sample/expected-report.md")
         val text = Files.readString(expected)
@@ -104,13 +156,42 @@ class PromptAssetsIntegrityTest {
     }
 
     @Test
-    fun `prompt composition includes loaded rule content`() {
-        val assets = PromptAssetLoader().load()
+    fun `renamed expensive work example exists and old remember misuse example is removed`() {
+        val newDir = Path.of("examples/expensive-work-in-composition-sample")
+        val oldDir = Path.of("examples/remember-misuse-sample")
+
+        assertTrue(Files.exists(newDir), "Expected renamed example directory to exist")
+        assertTrue(!Files.exists(oldDir), "Old example directory should not exist anymore")
+    }
+
+    @Test
+    fun `prompt composition includes rule content from selected catalog`() {
+        val assets = PromptAssetLoader().load(RuleSet.DEFAULT)
         val composed = PromptComposer().compose(assets, emptyList()).promptText
 
         assertTrue(composed.contains("## Active Rules"))
-        assertTrue(composed.contains("Rule: large-composable"))
-        assertTrue(composed.contains("Rule: unidirectional-data-flow"))
-        assertTrue(composed.contains("Rule: multiplatform.no-android-api-in-common"))
+        assertTrue(composed.contains("Rule: no-business-logic-in-composables"))
+        assertTrue(composed.contains("Rule: android.collect-as-state-with-lifecycle"))
+    }
+
+    private fun loadIndex(indexName: String): List<String> {
+        val classLoader = PromptAssetsIntegrityTest::class.java.classLoader
+        val content = classLoader
+            .getResourceAsStream("prompts/rules/$indexName")
+            ?.bufferedReader(Charsets.UTF_8)
+            ?.readText()
+            ?: error("Missing prompts/rules/$indexName")
+
+        return content.lines().map { it.trim() }.filter { it.isNotBlank() }.distinct()
+    }
+
+    private fun loadRule(fileName: String): String {
+        val classLoader = PromptAssetsIntegrityTest::class.java.classLoader
+        return classLoader
+            .getResourceAsStream("prompts/rules/$fileName")
+            ?.bufferedReader(Charsets.UTF_8)
+            ?.readText()
+            ?.trim()
+            ?: ""
     }
 }
