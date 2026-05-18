@@ -26,6 +26,12 @@ Thanks for helping with `mobile-ai-toolkit`.
 .github/scripts/test-compose-guardrails-release-packaging.sh
 ```
 
+- Re-run the helper validation scripts when touching CI or workflow behavior:
+  - `.github/scripts/test-run-compose-guardrails.sh`
+  - `.github/scripts/test-compose-guardrails-action.sh`
+  - `.github/scripts/test-compose-guardrails-external.sh`
+- Run the external-repo and packaging scripts when changing reusable action behavior or release flow.
+
 ## Pull Requests
 - Describe the behavior change, the scope, and the validation you ran.
 - Mention any user-facing workflow or documentation updates.

@@ -27,7 +27,7 @@ Current implementation supports:
 Run from repository root:
 
 ```bash
-./gradlew :tools:compose-guardrails:run --args="guardrails check tools/compose-guardrails/examples/bad-compose-sample"
+MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default --output $PWD/artifacts/compose-guardrails-report.md"
 ```
 
 Rule-set examples:
@@ -40,11 +40,12 @@ Rule-set examples:
 ```
 
 If `--rule-set` is omitted, the CLI uses the conservative `default` rule set.
+For `./gradlew :tools:compose-guardrails:run`, absolute paths are recommended because Gradle application `--args` handling is sensitive to working-directory assumptions.
 
 Run explicitly with fake provider:
 
 ```bash
-MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample"
 ```
 
 Run with OpenAI provider:
@@ -121,11 +122,23 @@ Project docs:
 - [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)
+- [Release checklist](docs/release-checklist.md)
 - Issue templates live under `.github/ISSUE_TEMPLATE/` for bugs, features, and guardrail proposals.
 
 Path handling note:
 - CI uses absolute analysis paths to avoid Gradle module working-directory ambiguity.
 - Current CI script rejects analysis/report paths containing whitespace with a clear error to avoid Gradle `--args` splitting issues.
+
+## Limitations
+- Compose detection is heuristic/text-based; there is no AST parser yet.
+- AI findings can contain false positives or false negatives and should be reviewed manually.
+- PR comments are not implemented yet.
+- SARIF and JSON output are not implemented yet.
+- Paths with spaces are currently unsupported in CI scripts.
+- The reusable GitHub Action still runs through the toolkit checkout and Gradle; packaged CLI usage is available for local and release workflows.
+
+## License
+This project is licensed under the MIT License. See `LICENSE` for details.
 
 ## Repository Layout
 - `tools/`: individual tools and tool-specific logic.

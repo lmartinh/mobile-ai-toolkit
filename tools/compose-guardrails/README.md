@@ -97,6 +97,8 @@ The command prints an execution summary and a Markdown report with:
 ./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
 ```
 
+When running from the repository root, prefer absolute paths based on `$PWD` for `--args` values.
+
 Run with explicit default rules:
 
 ```bash
@@ -132,7 +134,7 @@ Write report to a file:
 Run with fake provider:
 
 ```bash
-MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample"
 ```
 
 Run with OpenAI provider:
