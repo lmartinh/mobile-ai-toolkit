@@ -118,10 +118,16 @@ Path handling note:
 - `docs/roadmaps/`: per-tool roadmaps (`compose-guardrails` today, more tools later).
 
 Reusable GitHub Action:
+The reusable Action is designed for external repositories. It runs the tool checkout from `mobile-ai-toolkit` and analyzes the consumer repository workspace.
+
+Safe first run:
 ```yaml
 name: Compose Guardrails
 on:
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   compose-guardrails:
@@ -138,17 +144,53 @@ jobs:
       - id: compose-guardrails
         uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
         with:
-          target: tools/compose-guardrails/src/main
-          rule_set: default
+          target: .
+          rule-set: default
           provider: fake
-          report_path: artifacts/compose-guardrails-report.md
+          report-path: artifacts/compose-guardrails-report.md
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: compose-guardrails-report
           path: ${{ steps.compose-guardrails.outputs.report_path }}
 ```
-The reusable Action keeps `fake` and report-only behavior as the default and exposes the same CI knobs used by the built-in workflow.
+
+`fake` is deterministic scaffolding for CI validation, not a real AI review.
+
+Real provider:
+```yaml
+      - id: compose-guardrails
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        with:
+          target: app/src/main
+          rule-set: default
+          provider: anthropic
+          model: claude-3-5-sonnet
+          api-key: ${{ secrets.MOBILE_AI_API_KEY }}
+          report-path: artifacts/compose-guardrails-report.md
+```
+
+Changed-files-only PR mode:
+```yaml
+      - id: compose-guardrails
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        with:
+          target: .
+          changed-files-only: true
+          provider: fake
+```
+
+Fail-on-findings:
+```yaml
+      - id: compose-guardrails
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        with:
+          target: .
+          provider: fake
+          fail-on-findings: true
+```
+
+The reusable Action keeps `fake` and report-only behavior as the default. Step Summary is handled by the Action; artifact upload remains the caller’s responsibility.
 
 ## Design Principles
 - Kotlin/JVM with Gradle Kotlin DSL.

@@ -74,10 +74,10 @@ Status: done (stabilized in 10.4)
 - Document CI usage and required environment configuration.
 
 ## Milestone 11: Reusable GitHub Action
-Status: done
+Status: done (stabilized in 11.1)
 - Create a reusable GitHub Action for `compose-guardrails`.
-- Use a composite Action that wraps the existing CI script instead of duplicating orchestration logic.
-- Expose simple inputs for target path, rule set, provider, report path, changed-files-only, fail-on-findings, and summary behavior.
+- Use a composite Action that runs the tool from the `mobile-ai-toolkit` checkout while analyzing the consumer workspace.
+- Expose simple inputs for target path, rule set, provider, model, api-key, report path, changed-files-only, fail-on-findings, and summary behavior.
 - Keep `fake` provider as the default so no secrets are required for the first run.
 - Keep report-only behavior as the default, with fail-on-findings opt-in.
 - Add a copy-paste GitHub Actions example for external repositories.

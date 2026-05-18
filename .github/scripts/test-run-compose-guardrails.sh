@@ -57,6 +57,7 @@ assert_false "foo.txt is ignored" cg_is_kotlin_source_file "foo.txt"
 assert_false "build.gradle.kts is ignored" cg_is_kotlin_source_file "build.gradle.kts"
 
 assert_true "inside target is included" cg_is_within_target_scope "tools/compose-guardrails/src/main/kotlin/Foo.kt" "tools/compose-guardrails/src/main"
+assert_true "workspace root target includes file" cg_is_within_target_scope "src/main/kotlin/Foo.kt" "."
 assert_false "outside target is excluded" cg_is_within_target_scope "tools/compose-guardrails/src/test/kotlin/FooTest.kt" "tools/compose-guardrails/src/main"
 assert_false "sibling path is excluded" cg_is_within_target_scope "tools/compose-guardrails/src/mainly/Foo.kt" "tools/compose-guardrails/src/main"
 assert_false "examples path is excluded" cg_is_within_target_scope "tools/compose-guardrails/examples/bad-compose-sample/LoginScreen.kt" "tools/compose-guardrails/src/main"

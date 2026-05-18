@@ -221,6 +221,9 @@ name: Compose Guardrails
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   compose-guardrails:
     runs-on: ubuntu-latest
@@ -236,20 +239,53 @@ jobs:
       - id: compose-guardrails
         uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
         with:
-          target: tools/compose-guardrails/src/main
-          rule_set: default
+          target: .
+          rule-set: default
           provider: fake
-          report_path: artifacts/compose-guardrails-report.md
-          changed_files_only: false
-          fail_on_findings: false
-          write_step_summary: true
+          report-path: artifacts/compose-guardrails-report.md
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: compose-guardrails-report
           path: ${{ steps.compose-guardrails.outputs.report_path }}
 ```
-Use this Action when you want the same safe defaults in another repository. It keeps report-only behavior by default and exposes the same CI knobs as the built-in workflow.
+
+`fake` is deterministic scaffolding for CI validation, not a real AI review.
+
+Real provider:
+```yaml
+      - id: compose-guardrails
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        with:
+          target: app/src/main
+          rule-set: default
+          provider: openai
+          model: gpt-4.1-mini
+          api-key: ${{ secrets.MOBILE_AI_API_KEY }}
+          report-path: artifacts/compose-guardrails-report.md
+```
+
+Changed-files-only PR mode:
+```yaml
+      - id: compose-guardrails
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        with:
+          target: .
+          changed-files-only: true
+          provider: fake
+```
+
+Fail-on-findings:
+```yaml
+      - id: compose-guardrails
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        with:
+          target: .
+          provider: fake
+          fail-on-findings: true
+```
+
+Use this Action when you want the same safe defaults in another repository. It keeps report-only behavior by default, writes GitHub Step Summary entries internally, and leaves artifact upload to the caller.
 
 Real providers in CI should be configured with secrets:
 - `MOBILE_AI_PROVIDER`

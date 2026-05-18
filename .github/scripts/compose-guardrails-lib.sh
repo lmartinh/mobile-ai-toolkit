@@ -25,6 +25,19 @@ cg_assert_no_whitespace_path() {
   fi
 }
 
+cg_resolve_in_workspace() {
+  local value="$1"
+  local workspace="$2"
+  local normalized_value
+
+  normalized_value="$(cg_normalize_rel_path "$value")"
+  case "$normalized_value" in
+    /*) printf '%s\n' "$normalized_value" ;;
+    .) printf '%s\n' "$workspace" ;;
+    *) printf '%s\n' "$workspace/$normalized_value" ;;
+  esac
+}
+
 cg_is_kotlin_source_file() {
   local file="$1"
   case "$file" in
@@ -39,6 +52,10 @@ cg_is_within_target_scope() {
 
   file_rel="$(cg_normalize_rel_path "$1")"
   target_rel="$(cg_normalize_rel_path "$2")"
+
+  if [[ "$target_rel" == "." ]]; then
+    return 0
+  fi
 
   [[ "$file_rel" == "$target_rel" || "$file_rel" == "$target_rel"/* ]]
 }

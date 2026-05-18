@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 # shellcheck source=.github/scripts/compose-guardrails-lib.sh
 source "$SCRIPT_DIR/compose-guardrails-lib.sh"
 
+MOBILE_AI_TOOLKIT_DIR="${MOBILE_AI_TOOLKIT_DIR:-$(cd "$SCRIPT_DIR/../.." && pwd -P)}"
 COMPOSE_GUARDRAILS_TARGET="${COMPOSE_GUARDRAILS_TARGET:-tools/compose-guardrails/src/main}"
 COMPOSE_GUARDRAILS_RULE_SET="${COMPOSE_GUARDRAILS_RULE_SET:-default}"
 COMPOSE_GUARDRAILS_REPORT_PATH="${COMPOSE_GUARDRAILS_REPORT_PATH:-artifacts/compose-guardrails-report.md}"
@@ -14,14 +15,16 @@ COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS="${COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS:-fals
 GITHUB_EVENT_NAME="${GITHUB_EVENT_NAME:-}"
 GITHUB_BASE_REF="${GITHUB_BASE_REF:-}"
 GITHUB_SHA="${GITHUB_SHA:-}"
-GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-$(pwd -P)}"
+COMPOSE_GUARDRAILS_WORKSPACE="${COMPOSE_GUARDRAILS_WORKSPACE:-${GITHUB_WORKSPACE:-$(pwd -P)}}"
 MOBILE_AI_PROVIDER="${MOBILE_AI_PROVIDER:-fake}"
 
 TARGET_REL="$(cg_normalize_rel_path "$COMPOSE_GUARDRAILS_TARGET")"
-TARGET_ABS="${GITHUB_WORKSPACE}/${TARGET_REL}"
-REPORT_PATH="$COMPOSE_GUARDRAILS_REPORT_PATH"
+TARGET_ABS="$(cg_resolve_in_workspace "$TARGET_REL" "$COMPOSE_GUARDRAILS_WORKSPACE")"
+REPORT_PATH="$(cg_resolve_in_workspace "$COMPOSE_GUARDRAILS_REPORT_PATH" "$COMPOSE_GUARDRAILS_WORKSPACE")"
 REPORT_DIR="$(dirname "$REPORT_PATH")"
 
+cg_assert_no_whitespace_path "$MOBILE_AI_TOOLKIT_DIR" "MOBILE_AI_TOOLKIT_DIR"
+cg_assert_no_whitespace_path "$COMPOSE_GUARDRAILS_WORKSPACE" "COMPOSE_GUARDRAILS_WORKSPACE"
 cg_assert_no_whitespace_path "$TARGET_ABS" "COMPOSE_GUARDRAILS_TARGET"
 cg_assert_no_whitespace_path "$REPORT_PATH" "COMPOSE_GUARDRAILS_REPORT_PATH"
 
@@ -37,7 +40,7 @@ run_guardrails_for_path() {
   cg_assert_no_whitespace_path "$analysis_path" "analysis path"
   cg_assert_no_whitespace_path "$output_path" "report output path"
 
-  ./gradlew :tools:compose-guardrails:run \
+  "$MOBILE_AI_TOOLKIT_DIR/gradlew" :tools:compose-guardrails:run \
     --args="guardrails check ${analysis_path} --rule-set ${COMPOSE_GUARDRAILS_RULE_SET} --output ${output_path}"
 }
 
@@ -49,9 +52,9 @@ if [[ "$COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY" == "true" && "$GITHUB_EVENT_NAME"
     exit 1
   fi
 
-  git fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
+  git -C "$COMPOSE_GUARDRAILS_WORKSPACE" fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
 
-  mapfile -t changed_files < <(git diff --name-only "origin/${GITHUB_BASE_REF}...${GITHUB_SHA}")
+  mapfile -t changed_files < <(git -C "$COMPOSE_GUARDRAILS_WORKSPACE" diff --name-only "origin/${GITHUB_BASE_REF}...${GITHUB_SHA}")
 
   selected_files=()
   for file in "${changed_files[@]}"; do
@@ -69,7 +72,7 @@ if [[ "$COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY" == "true" && "$GITHUB_EVENT_NAME"
       continue
     fi
 
-    file_abs="${GITHUB_WORKSPACE}/${file_rel}"
+    file_abs="${COMPOSE_GUARDRAILS_WORKSPACE}/${file_rel}"
     cg_assert_no_whitespace_path "$file_abs" "changed file path"
     selected_files+=("$file_rel")
   done
@@ -80,7 +83,7 @@ if [[ "$COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY" == "true" && "$GITHUB_EVENT_NAME"
     : > "$REPORT_PATH"
     index=0
     for file_rel in "${selected_files[@]}"; do
-      file_abs="${GITHUB_WORKSPACE}/${file_rel}"
+      file_abs="${COMPOSE_GUARDRAILS_WORKSPACE}/${file_rel}"
       tmp_report="$(mktemp)"
 
       run_guardrails_for_path "$file_abs" "$tmp_report"

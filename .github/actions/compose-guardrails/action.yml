@@ -1,12 +1,12 @@
 name: Compose Guardrails
-description: Run compose-guardrails with safe defaults and configurable CI inputs.
+description: Run compose-guardrails from the mobile-ai-toolkit checkout against a consumer repository workspace.
 
 inputs:
   target:
-    description: Target path to analyze.
+    description: Target path inside the consumer repository to analyze.
     required: false
-    default: tools/compose-guardrails/src/main
-  rule_set:
+    default: .
+  rule-set:
     description: Rule set to use.
     required: false
     default: default
@@ -14,19 +14,27 @@ inputs:
     description: AI provider to use.
     required: false
     default: fake
-  report_path:
-    description: Markdown report output path.
+  model:
+    description: AI model name for real providers.
+    required: false
+    default: ""
+  api-key:
+    description: API key for real providers.
+    required: false
+    default: ""
+  report-path:
+    description: Markdown report output path inside the consumer repository workspace.
     required: false
     default: artifacts/compose-guardrails-report.md
-  changed_files_only:
+  changed-files-only:
     description: Analyze changed Kotlin files only on pull_request events.
     required: false
     default: "false"
-  fail_on_findings:
+  fail-on-findings:
     description: Fail the workflow when findings are present.
     required: false
     default: "false"
-  write_step_summary:
+  write-step-summary:
     description: Write a GitHub Step Summary entry.
     required: false
     default: "true"
@@ -54,11 +62,58 @@ runs:
     - id: run
       shell: bash
       env:
+        MOBILE_AI_TOOLKIT_DIR: ${{ github.action_path }}/../..
+        COMPOSE_GUARDRAILS_WORKSPACE: ${{ github.workspace }}
         MOBILE_AI_PROVIDER: ${{ inputs.provider }}
+        MOBILE_AI_MODEL: ${{ inputs.model }}
+        MOBILE_AI_API_KEY: ${{ inputs.api-key }}
         COMPOSE_GUARDRAILS_TARGET: ${{ inputs.target }}
-        COMPOSE_GUARDRAILS_RULE_SET: ${{ inputs.rule_set }}
-        COMPOSE_GUARDRAILS_REPORT_PATH: ${{ inputs.report_path }}
-        COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY: ${{ inputs.changed_files_only }}
-        COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS: ${{ inputs.fail_on_findings }}
-        COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY: ${{ inputs.write_step_summary }}
-      run: bash "${{ github.action_path }}/../../scripts/run-compose-guardrails.sh"
+        COMPOSE_GUARDRAILS_RULE_SET: ${{ inputs.rule-set }}
+        COMPOSE_GUARDRAILS_REPORT_PATH: ${{ inputs.report-path }}
+        COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY: ${{ inputs.changed-files-only }}
+        COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS: ${{ inputs.fail-on-findings }}
+        COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY: ${{ inputs.write-step-summary }}
+      run: |
+        set -euo pipefail
+
+        script_dir="$MOBILE_AI_TOOLKIT_DIR/.github/scripts"
+        script_path="$script_dir/run-compose-guardrails.sh"
+
+        if [[ ! -f "$script_path" ]]; then
+          echo "Error: compose-guardrails script not found at $script_path" >&2
+          exit 1
+        fi
+
+        set +e
+        bash "$script_path"
+        status=$?
+        set -e
+
+        if [[ "${COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY}" == "true" && -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+          source "$script_dir/compose-guardrails-lib.sh"
+          report_path="$(cg_resolve_in_workspace "$COMPOSE_GUARDRAILS_REPORT_PATH" "$COMPOSE_GUARDRAILS_WORKSPACE")"
+          report_mode="report-only"
+          if [[ "${COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS}" == "true" ]]; then
+            report_mode="fail-on-findings"
+          fi
+
+          {
+            echo "## Compose Guardrails Summary"
+            echo
+            echo "- Provider: ${MOBILE_AI_PROVIDER}"
+            echo "- Rule set: ${COMPOSE_GUARDRAILS_RULE_SET}"
+            echo "- Target: ${COMPOSE_GUARDRAILS_TARGET}"
+            echo "- Changed-files-only: ${COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY}"
+            echo "- Report mode: ${report_mode}"
+            echo "- Report artifact: caller responsibility"
+            echo "- Report path: ${report_path}"
+            echo
+            if [[ -f "$report_path" ]]; then
+              echo "Report generated successfully. Download the artifact to inspect full findings."
+            else
+              echo "Report file not found at expected path."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+        exit "$status"

@@ -43,17 +43,20 @@ jobs:
       - name: Validate reusable action manifest
         run: .github/scripts/test-compose-guardrails-action.sh
 
+      - name: Validate external repository usage
+        run: .github/scripts/test-compose-guardrails-external.sh
+
       - name: Run compose-guardrails analysis
         id: analyze
         uses: ./.github/actions/compose-guardrails
         with:
           target: ${{ env.COMPOSE_GUARDRAILS_TARGET }}
-          rule_set: ${{ env.COMPOSE_GUARDRAILS_RULE_SET }}
+          rule-set: ${{ env.COMPOSE_GUARDRAILS_RULE_SET }}
           provider: ${{ env.MOBILE_AI_PROVIDER }}
-          report_path: ${{ env.COMPOSE_GUARDRAILS_REPORT_PATH }}
-          changed_files_only: ${{ env.COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY }}
-          fail_on_findings: ${{ env.COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS }}
-          write_step_summary: ${{ env.COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY }}
+          report-path: ${{ env.COMPOSE_GUARDRAILS_REPORT_PATH }}
+          changed-files-only: ${{ env.COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY }}
+          fail-on-findings: ${{ env.COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS }}
+          write-step-summary: ${{ env.COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY }}
 
       - name: Upload guardrails report artifact
         if: always()
@@ -61,40 +64,3 @@ jobs:
         with:
           name: compose-guardrails-report
           path: ${{ steps.analyze.outputs.report_path }}
-
-      - name: Write step summary
-        if: always() && env.COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY == 'true'
-        shell: bash
-        run: |
-          REPORT="${{ steps.analyze.outputs.report_path }}"
-          {
-            echo "## Compose Guardrails Summary"
-            echo
-            echo "- Provider: ${MOBILE_AI_PROVIDER}"
-            echo "- Rule set: ${COMPOSE_GUARDRAILS_RULE_SET}"
-            echo "- Target: ${COMPOSE_GUARDRAILS_TARGET}"
-            echo "- Changed-files-only: ${COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY}"
-            echo "- Analysis mode: ${{ steps.analyze.outputs.analysis_mode }}"
-            echo "- Non-PR fallback used: ${{ steps.analyze.outputs.fallback_used }}"
-            echo "- Report mode: ${{ steps.analyze.outputs.report_mode }}"
-            echo "- Report artifact: compose-guardrails-report"
-            echo "- Report path: ${{ steps.analyze.outputs.report_path }}"
-            echo
-            if [[ -f "$REPORT" ]]; then
-              echo "Report generated successfully. Download the artifact to inspect full findings."
-              echo
-              head -n 20 "$REPORT"
-            else
-              echo "Report file not found at expected path."
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Fail on findings (optional)
-        if: always() && env.COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS == 'true'
-        shell: bash
-        run: |
-          total="${{ steps.analyze.outputs.total_findings }}"
-          if [[ "${total}" =~ ^[0-9]+$ ]] && [[ "$total" -gt 0 ]]; then
-            echo "Failing build because COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS=true and findings=${total}."
-            exit 1
-          fi
