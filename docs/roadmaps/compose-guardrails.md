@@ -102,7 +102,7 @@ Status: done
 - Add lightweight issue templates for bug reports, feature requests, and guardrail proposals.
 
 ## Milestone 14: v0.1.0 Release Candidate
-Status: planned
+Status: done
 - Define and run a v0.1.0 release checklist.
 - Verify a third-party repository can run the reusable GitHub Action.
 - Confirm default CI behavior remains fake-provider, report-only, and secret-free.

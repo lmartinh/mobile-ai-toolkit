@@ -263,4 +263,4 @@ Guardrail quality note:
 - Advanced rules are exploratory and may produce noisier findings.
 
 ## Status
-Milestones 1-13 are complete, including baseline GitHub Actions integration, a reusable GitHub Action, release packaging, and open source polish for deterministic `compose-guardrails` checks and report artifacts.
+Milestones 1-14 are complete, including baseline GitHub Actions integration, a reusable GitHub Action, release packaging, and open source polish for deterministic `compose-guardrails` checks and report artifacts.
