@@ -94,7 +94,7 @@ The command prints an execution summary and a Markdown report with:
 
 ## Local Run
 ```bash
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample"
 ```
 
 When running from the repository root, prefer absolute paths based on `$PWD` for `--args` values.
@@ -102,25 +102,25 @@ When running from the repository root, prefer absolute paths based on `$PWD` for
 Run with explicit default rules:
 
 ```bash
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set default"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default"
 ```
 
 Run with advanced rules only:
 
 ```bash
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set advanced"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set advanced"
 ```
 
 Run with all rules:
 
 ```bash
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set all"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set all"
 ```
 
 Write report to a file:
 
 ```bash
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set default --output artifacts/compose-guardrails-report.md"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default --output $PWD/artifacts/compose-guardrails-report.md"
 ```
 
 ## CLI Rule-Set Assessment
@@ -208,6 +208,8 @@ Release workflow:
 - Runs tests on tagged `v*` pushes.
 - Validates the installed distribution and packaged prompt resources.
 - Uploads ZIP/TAR artifacts for the release build.
+- Local development keeps `0.1.0-SNAPSHOT`; the release workflow passes the tag-derived stable version into Gradle so release archives do not include `SNAPSHOT`.
+- GitHub Release publishing is not implemented yet; the current release path uses workflow artifacts.
 
 ## GitHub Actions
 Workflow:

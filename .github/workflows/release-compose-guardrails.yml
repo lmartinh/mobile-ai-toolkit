@@ -11,6 +11,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ github.ref_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,5 +37,5 @@ jobs:
       - name: Upload distribution artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: compose-guardrails-release-packages
+          name: compose-guardrails-release-packages-${{ github.ref_name }}
           path: tools/compose-guardrails/build/distributions/*

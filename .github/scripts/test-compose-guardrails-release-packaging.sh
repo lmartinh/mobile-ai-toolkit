@@ -8,11 +8,26 @@ project_dir="$tool_root/tools/compose-guardrails"
 app_name="compose-guardrails"
 install_dir="$project_dir/build/install/$app_name"
 dist_dir="$project_dir/build/distributions"
+release_version="${RELEASE_VERSION:-}"
+release_version="${release_version#v}"
 
-"$tool_root/gradlew" --project-dir "$tool_root" \
-  :tools:compose-guardrails:installDist \
-  :tools:compose-guardrails:distZip \
-  :tools:compose-guardrails:distTar
+gradle_args=()
+if [[ -n "$release_version" ]]; then
+  gradle_args+=("-PreleaseVersion=$release_version")
+fi
+
+if ((${#gradle_args[@]})); then
+  "$tool_root/gradlew" --project-dir "$tool_root" \
+    "${gradle_args[@]}" \
+    :tools:compose-guardrails:installDist \
+    :tools:compose-guardrails:distZip \
+    :tools:compose-guardrails:distTar
+else
+  "$tool_root/gradlew" --project-dir "$tool_root" \
+    :tools:compose-guardrails:installDist \
+    :tools:compose-guardrails:distZip \
+    :tools:compose-guardrails:distTar
+fi
 
 install_bin="$install_dir/bin/$app_name"
 
@@ -47,12 +62,14 @@ if [[ -z "$zip_file" || -z "$tar_file" ]]; then
   exit 1
 fi
 
-if ! unzip -l "$zip_file" | grep -Fq -- "/bin/$app_name"; then
+zip_listing="$(unzip -l "$zip_file")"
+if [[ "$zip_listing" != *"/bin/$app_name"* ]]; then
   echo "FAIL: distZip is missing packaged launcher" >&2
   exit 1
 fi
 
-if ! tar -tf "$tar_file" | grep -Fq -- "/bin/$app_name"; then
+tar_listing="$(tar -tf "$tar_file")"
+if [[ "$tar_listing" != *"/bin/$app_name"* ]]; then
   echo "FAIL: distTar is missing packaged launcher" >&2
   exit 1
 fi

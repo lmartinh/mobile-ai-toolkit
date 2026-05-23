@@ -6,7 +6,9 @@ plugins {
 
 allprojects {
     group = "dev.mobileai.toolkit"
-    version = "0.1.0-SNAPSHOT"
+    version = providers.gradleProperty("releaseVersion")
+        .orElse("0.1.0-SNAPSHOT")
+        .get()
 
     repositories {
         mavenCentral()

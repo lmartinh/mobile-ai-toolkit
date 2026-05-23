@@ -33,10 +33,10 @@ MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrai
 Rule-set examples:
 
 ```bash
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set default"
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set advanced"
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set all"
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --output artifacts/compose-guardrails-report.md"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set advanced"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set all"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --output $PWD/artifacts/compose-guardrails-report.md"
 ```
 
 If `--rule-set` is omitted, the CLI uses the conservative `default` rule set.
@@ -54,7 +54,7 @@ Run with OpenAI provider:
 MOBILE_AI_PROVIDER=openai \
 MOBILE_AI_API_KEY=your_api_key \
 MOBILE_AI_MODEL=gpt-4.1-mini \
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample"
 ```
 
 Run tests:
@@ -115,8 +115,10 @@ Step Summary:
 Release packaging:
 - Build an installable distribution with `./gradlew :tools:compose-guardrails:installDist`.
 - Build release archives with `./gradlew :tools:compose-guardrails:distZip :tools:compose-guardrails:distTar`.
+- Local development uses `0.1.0-SNAPSHOT`; tagged release builds pass `-PreleaseVersion=0.1.0` so ZIP/TAR names are stable and do not include `SNAPSHOT`.
+- The release workflow derives the release version from the tag name and passes it into Gradle.
 - The packaged launcher lives under `tools/compose-guardrails/build/install/compose-guardrails/bin/compose-guardrails`.
-- Tagged releases use `.github/workflows/release-compose-guardrails.yml` to run tests, validate the distribution, and upload ZIP/TAR artifacts.
+- Tagged releases use `.github/workflows/release-compose-guardrails.yml` to run tests, validate the distribution, and upload ZIP/TAR workflow artifacts. GitHub Release publishing is not implemented yet.
 
 Project docs:
 - [Changelog](CHANGELOG.md)
@@ -136,6 +138,7 @@ Path handling note:
 - SARIF and JSON output are not implemented yet.
 - Paths with spaces are currently unsupported in CI scripts.
 - The reusable GitHub Action still runs through the toolkit checkout and Gradle; packaged CLI usage is available for local and release workflows.
+- Local builds default to `0.1.0-SNAPSHOT`; release workflows override the version for tagged releases.
 
 ## License
 This project is licensed under the MIT License. See `LICENSE` for details.
