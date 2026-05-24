@@ -1,6 +1,13 @@
 # Changelog
 
 ## Unreleased
+## v0.1.2
+- Fix the release publication infrastructure by tracking the Gradle wrapper JAR in Git so tagged GitHub Actions runs can execute the build.
+- Keep the release artifact naming and packaging flow stable for the next patch release.
+- This patch release is the recommended release line after the earlier `v0.1.0` and `v0.1.1` recovery tags.
+
+`v0.1.2` supersedes `v0.1.1` and `v0.1.0` for new users.
+
 ## v0.1.1
 - Correct the first public release after the prematurely published `v0.1.0` tag.
 - Produce stable `compose-guardrails-0.1.1.zip` and `compose-guardrails-0.1.1.tar` release artifacts without `SNAPSHOT` naming.

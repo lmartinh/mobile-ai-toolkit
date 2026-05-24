@@ -267,7 +267,7 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
       - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.1
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
         with:
           target: .
           rule-set: default
@@ -285,7 +285,7 @@ jobs:
 Real provider:
 ```yaml
       - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.1
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
         with:
           target: app/src/main
           rule-set: default
@@ -298,7 +298,7 @@ Real provider:
 Changed-files-only PR mode:
 ```yaml
       - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.1
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
         with:
           target: .
           changed-files-only: true
@@ -308,7 +308,7 @@ Changed-files-only PR mode:
 Fail-on-findings:
 ```yaml
       - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.1
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
         with:
           target: .
           provider: fake

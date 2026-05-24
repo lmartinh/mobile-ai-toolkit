@@ -1,6 +1,6 @@
 # Release Checklist
 
-Use this checklist before tagging `v0.1.1` or any later public patch release.
+Use this checklist before tagging `v0.1.2` or any later public patch release.
 
 ## Validation
 - Run `./gradlew :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test`.
@@ -8,7 +8,8 @@ Use this checklist before tagging `v0.1.1` or any later public patch release.
 - Run `.github/scripts/test-compose-guardrails-action.sh`.
 - Run `.github/scripts/test-compose-guardrails-external.sh`.
 - Run `.github/scripts/test-compose-guardrails-release-packaging.sh`.
-- Validate the release version mechanism by building with `-PreleaseVersion=0.1.1` or the tag-derived release value.
+- Verify `gradlew`, `gradlew.bat` (if present), `gradle/wrapper/gradle-wrapper.properties`, and `gradle/wrapper/gradle-wrapper.jar` are tracked before tagging.
+- Validate the release version mechanism by building with `-PreleaseVersion=0.1.2` or the tag-derived release value.
 - Verify release ZIP/TAR artifact names do not include `SNAPSHOT`.
 - Verify the packaged CLI works outside the repository.
 - Verify the reusable GitHub Action works from an external test repository.
@@ -24,4 +25,4 @@ Use this checklist before tagging `v0.1.1` or any later public patch release.
 - Verify the tag points to the intended commit before pushing it.
 - Do not move or delete a public tag unless the maintainers explicitly decide to do so.
 - If a public tag is published too early, prefer a patch release that supersedes it rather than rewriting history.
-- Create and tag `v0.1.1` only after validation passes.
+- Create and tag `v0.1.2` only after validation passes.
