@@ -115,7 +115,7 @@ Step Summary:
 Release packaging:
 - Build an installable distribution with `./gradlew :tools:compose-guardrails:installDist`.
 - Build release archives with `./gradlew :tools:compose-guardrails:distZip :tools:compose-guardrails:distTar`.
-- Local development uses `0.1.0-SNAPSHOT`; tagged release builds pass `-PreleaseVersion=0.1.1` so ZIP/TAR names are stable and do not include `SNAPSHOT`.
+- Local development uses `0.1.0-SNAPSHOT`; tagged release builds pass `-PreleaseVersion=0.1.2` so ZIP/TAR names are stable and do not include `SNAPSHOT`.
 - The release workflow derives the release version from the tag name and passes it into Gradle.
 - The packaged launcher lives under `tools/compose-guardrails/build/install/compose-guardrails/bin/compose-guardrails`.
 - Tagged releases use `.github/workflows/release-compose-guardrails.yml` to run tests, validate the distribution, and upload ZIP/TAR workflow artifacts. GitHub Release publishing is not implemented yet.

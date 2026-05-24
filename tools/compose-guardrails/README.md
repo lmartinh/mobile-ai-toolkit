@@ -143,7 +143,7 @@ Run with OpenAI provider:
 MOBILE_AI_PROVIDER=openai \
 MOBILE_AI_API_KEY=your_api_key \
 MOBILE_AI_MODEL=gpt-4.1-mini \
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample"
 ```
 
 Run with Anthropic provider:
@@ -152,7 +152,7 @@ Run with Anthropic provider:
 MOBILE_AI_PROVIDER=anthropic \
 MOBILE_AI_API_KEY=your_api_key \
 MOBILE_AI_MODEL=claude-3-5-sonnet \
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample"
 ```
 
 Run with Gemini provider:
@@ -161,7 +161,7 @@ Run with Gemini provider:
 MOBILE_AI_PROVIDER=gemini \
 MOBILE_AI_API_KEY=your_api_key \
 MOBILE_AI_MODEL=gemini-1.5-pro \
-./gradlew :tools:compose-guardrails:run --args="guardrails check <path>"
+./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample"
 ```
 
 Environment variables used at runtime:
