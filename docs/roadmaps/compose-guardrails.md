@@ -1,6 +1,6 @@
 # Compose Guardrails Roadmap
 
-This roadmap keeps the repository simple and effective. The current focus is open source polish for the first public release, while keeping `fake` provider and report-only behavior as safe defaults.
+This roadmap keeps the repository simple and effective. `compose-guardrails` has reached its first recommended public release as `v0.1.2`, and the next focus is post-release maintenance plus selective improvements. Safe defaults remain `fake` provider, report-only behavior, and no secrets required for the first run.
 
 ## Milestone 1: Repository Initialization
 Status: done
@@ -98,23 +98,46 @@ Status: done
 - Add project badges for CI, license, and release packaging.
 - Add `CONTRIBUTING.md` with setup, test, documentation, and English-only contribution guidance.
 - Add `SECURITY.md` with secret handling and vulnerability reporting guidance.
-- Update `CHANGELOG.md` for the first public release.
+- Update `CHANGELOG.md` for the first public release and release recovery notes.
 - Add lightweight issue templates for bug reports, feature requests, and guardrail proposals.
 
-## Milestone 14: v0.1.1 Release Recovery
+## Milestone 14: First Public Release
 Status: done
-- Define and run a release checklist for the first public patch release.
-- Verify a third-party repository can run the reusable GitHub Action.
-- Confirm default CI behavior remains fake-provider, report-only, and secret-free.
-- Confirm real-provider CI setup works through GitHub Secrets.
-- Keep public release tags immutable and prefer a patch release when a tag needs correction.
-- Tag `v0.1.1` only after docs, changelog, release artifacts, and examples are aligned.
+- Published `v0.1.2` as the first recommended public release.
+- Kept earlier public tags immutable and superseded `v0.1.0` and `v0.1.1` with `v0.1.2`.
+- Fixed release versioning so release artifacts are non-SNAPSHOT.
+- Versioned the complete Gradle wrapper required by GitHub Actions.
+- Validated ZIP/TAR release artifacts.
+- Confirmed the packaged CLI runs outside the repository with `fake` provider.
+- Confirmed the reusable GitHub Action remains usable from external repositories.
 
-## Milestone 15: Post-v0.1.1 Improvements
+## Milestone 15: Post-v0.1.2 Improvements
 Status: planned
-- Consider optional PR comments after the first release.
-- Consider SARIF and JSON outputs for richer CI integrations.
-- Improve fail-on-findings using structured output instead of Markdown parsing.
-- Improve path handling for spaces in Gradle-driven CI runs.
-- Explore prompt-size reductions through changed-line or context selection.
-- Keep AST parsing and code generation out of scope until real usage justifies them.
+- CI and GitHub Actions maintenance:
+  - Update GitHub Actions ecosystem versions to address Node 20 deprecation warnings.
+  - Add `shellcheck` to CI for `.github/scripts`.
+  - Add higher-level script tests that simulate a real PR `git diff`.
+  - Add exact-content tests for GitHub Step Summary.
+  - Add validation for `write-step-summary=false`.
+  - Add external workspace validation for `fail-on-findings`.
+- Reusable Action and release workflow:
+  - Consider switching the reusable GitHub Action to the packaged CLI distribution instead of the toolkit checkout and Gradle.
+  - Consider adding GitHub Release publication after artifact validation.
+  - Add a lightweight pull request template if needed.
+  - Keep patch-release recovery guidance documented.
+- Reporting and CI outputs:
+  - Add optional JSON output.
+  - Add optional SARIF output.
+  - Improve `fail-on-findings` using structured output instead of Markdown parsing.
+  - Improve multi-file changed-files report aggregation instead of concatenating per-file reports.
+  - Consider optional PR comments with idempotent update behavior.
+- Path handling and CLI robustness:
+  - Improve support for paths with spaces.
+  - Consider moving away from Gradle `--args` string tokenization where it affects CI/script reliability.
+  - Keep documenting path limitations until fixed.
+- Analysis quality and prompt efficiency:
+  - Explore changed-line or context selection to reduce prompt size.
+  - Add more real-world Compose/KMP examples.
+  - Continue monitoring noisy rules and move them between default and advanced if needed.
+  - Keep AST parsing out of scope until real usage justifies it.
+  - Keep code generation out of scope until there is clear user demand.
