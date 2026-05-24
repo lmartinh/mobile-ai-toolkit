@@ -5,6 +5,7 @@ rootProject.name = "mobile-ai-toolkit"
 
 include(
     ":tools:compose-guardrails",
+    ":tools:kmp-project-auditor",
     ":shared:ai-client",
     ":shared:report-common"
 )
