@@ -90,7 +90,7 @@ Status: done
 - Ensure packaged distributions include prompt resources.
 - Add a release workflow that runs tests and uploads artifacts.
 - Document the packaged CLI path for local installs and release workflows.
-- Postpone Maven Central and Gradle plugin publishing until after v0.1.0.
+- Postpone Maven Central and Gradle plugin publishing until after the first public release.
 
 ## Milestone 13: Open Source Polish
 Status: done
@@ -101,15 +101,16 @@ Status: done
 - Update `CHANGELOG.md` for the first public release.
 - Add lightweight issue templates for bug reports, feature requests, and guardrail proposals.
 
-## Milestone 14: v0.1.0 Release Candidate
+## Milestone 14: v0.1.1 Release Recovery
 Status: done
-- Define and run a v0.1.0 release checklist.
+- Define and run a release checklist for the first public patch release.
 - Verify a third-party repository can run the reusable GitHub Action.
 - Confirm default CI behavior remains fake-provider, report-only, and secret-free.
 - Confirm real-provider CI setup works through GitHub Secrets.
-- Tag v0.1.0 only after docs, changelog, release artifacts, and examples are aligned.
+- Keep public release tags immutable and prefer a patch release when a tag needs correction.
+- Tag `v0.1.1` only after docs, changelog, release artifacts, and examples are aligned.
 
-## Milestone 15: Post-v0.1.0 Improvements
+## Milestone 15: Post-v0.1.1 Improvements
 Status: planned
 - Consider optional PR comments after the first release.
 - Consider SARIF and JSON outputs for richer CI integrations.

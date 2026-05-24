@@ -1,6 +1,14 @@
 # Changelog
 
 ## Unreleased
+## v0.1.1
+- Correct the first public release after the prematurely published `v0.1.0` tag.
+- Produce stable `compose-guardrails-0.1.1.zip` and `compose-guardrails-0.1.1.tar` release artifacts without `SNAPSHOT` naming.
+- Fix release packaging validation so ZIP and TAR launcher checks are reliable.
+- Finalize the public release notes and recovery documentation.
+
+`v0.1.1` supersedes `v0.1.0`, which was tagged before the final release packaging fixes were applied.
+
 ## v0.1.0
 - First public release of `compose-guardrails` and the supporting monorepo baseline.
 - Add the `mobile-ai guardrails check <path>` CLI with Kotlin file scanning and text-based Compose detection.

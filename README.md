@@ -115,10 +115,11 @@ Step Summary:
 Release packaging:
 - Build an installable distribution with `./gradlew :tools:compose-guardrails:installDist`.
 - Build release archives with `./gradlew :tools:compose-guardrails:distZip :tools:compose-guardrails:distTar`.
-- Local development uses `0.1.0-SNAPSHOT`; tagged release builds pass `-PreleaseVersion=0.1.0` so ZIP/TAR names are stable and do not include `SNAPSHOT`.
+- Local development uses `0.1.0-SNAPSHOT`; tagged release builds pass `-PreleaseVersion=0.1.1` so ZIP/TAR names are stable and do not include `SNAPSHOT`.
 - The release workflow derives the release version from the tag name and passes it into Gradle.
 - The packaged launcher lives under `tools/compose-guardrails/build/install/compose-guardrails/bin/compose-guardrails`.
 - Tagged releases use `.github/workflows/release-compose-guardrails.yml` to run tests, validate the distribution, and upload ZIP/TAR workflow artifacts. GitHub Release publishing is not implemented yet.
+- `v0.1.1` is the recommended public patch release; it supersedes the earlier `v0.1.0` tag.
 
 Project docs:
 - [Changelog](CHANGELOG.md)
@@ -174,7 +175,7 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
       - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.1
         with:
           target: .
           rule-set: default
@@ -192,7 +193,7 @@ jobs:
 Real provider:
 ```yaml
       - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.1
         with:
           target: app/src/main
           rule-set: default
@@ -205,7 +206,7 @@ Real provider:
 Changed-files-only PR mode:
 ```yaml
       - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.1
         with:
           target: .
           changed-files-only: true
@@ -215,7 +216,7 @@ Changed-files-only PR mode:
 Fail-on-findings:
 ```yaml
       - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.0
+        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.1
         with:
           target: .
           provider: fake
@@ -266,4 +267,4 @@ Guardrail quality note:
 - Advanced rules are exploratory and may produce noisier findings.
 
 ## Status
-Milestones 1-14 are complete, including baseline GitHub Actions integration, a reusable GitHub Action, release packaging, and open source polish for deterministic `compose-guardrails` checks and report artifacts.
+Milestones 1-14 are complete, including baseline GitHub Actions integration, a reusable GitHub Action, release packaging, open source polish, and the recovered `v0.1.1` patch release for deterministic `compose-guardrails` checks and report artifacts.
