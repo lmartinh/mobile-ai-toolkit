@@ -34,7 +34,7 @@ class ExampleFixturesIntegrationTest {
         assertTrue(summary.contains("No deterministic findings found."))
         assertTrue(summary.contains("AI findings:"))
         assertTrue(summary.contains("kmp.ai.source-set-clarity"))
-        assertTrue(summary.contains("Markdown reports are not generated yet."))
+        assertTrue(summary.contains("Use --output <path> to write a Markdown report."))
     }
 
     @Test

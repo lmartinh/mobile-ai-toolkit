@@ -4,7 +4,7 @@
 
 ## Status
 
-Milestone 4 is implemented: deterministic scanner + deterministic findings + prompt pipeline with fake AI review.
+Milestone 5 is implemented: deterministic scanner/findings + fake AI review + Markdown audit reports.
 
 ## What It Scans Today
 
@@ -23,6 +23,8 @@ Milestone 4 is implemented: deterministic scanner + deterministic findings + pro
 - Prompt asset loading and deterministic prompt composition for KMP review
 - AI review through shared `AiClient` abstraction (fake provider default)
 - Structured AI finding parsing with safe fallback on invalid/malformed responses
+- Markdown audit report rendering with deterministic and AI findings sections
+- `--output <path>` support to write Markdown report files
 - Traversal excludes generated/internal directories (`build`, `.gradle`, `.idea`, `.kotlin`, `out`)
 
 ## What It Does Not Do Yet
@@ -30,8 +32,9 @@ Milestone 4 is implemented: deterministic scanner + deterministic findings + pro
 - Full dependency graph checks
 - AST/compiler-level platform API analysis
 - `expect`/`actual` analysis
-- Markdown audit report generation
 - CI/release integration for this tool
+- Fail-on-findings behavior
+- SARIF/JSON report outputs
 
 ## Usage
 
@@ -39,6 +42,12 @@ From repository root:
 
 ```bash
 ./gradlew :tools:kmp-project-auditor:run --args="kmp audit $PWD/tools/kmp-project-auditor/examples/clean-kmp-library"
+```
+
+Write a Markdown report:
+
+```bash
+./gradlew :tools:kmp-project-auditor:run --args="kmp audit $PWD/tools/kmp-project-auditor/examples/bad-kmp-library --output $PWD/artifacts/kmp-project-auditor-report.md"
 ```
 
 You can also run against the incomplete sample:
@@ -63,7 +72,7 @@ You can also run against the incomplete sample:
 - Gradle detection is text-based heuristic matching (no Gradle model/AST parsing).
 - Findings are conservative and heuristic-based (no Gradle AST or dependency graph resolution).
 - AI findings are heuristic and evidence-based; review them manually.
-- Markdown report output is not available yet.
+- No CI integration for report upload yet.
 
 ## Roadmap Summary
 

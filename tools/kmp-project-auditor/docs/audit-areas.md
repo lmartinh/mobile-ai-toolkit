@@ -2,7 +2,7 @@
 
 This document outlines planned audit areas for `kmp-project-auditor`.
 
-Milestone 4 adds a prompt pipeline and fake AI review on top of deterministic findings.
+Milestone 5 adds Markdown audit report generation on top of deterministic findings and fake AI review.
 
 ## Planned Areas
 
@@ -19,7 +19,7 @@ Milestone 4 adds a prompt pipeline and fake AI review on top of deterministic fi
 - Test source-set coverage
 - Consumer setup documentation
 
-## Milestone 4 Scope Reminder
+## Milestone 5 Scope Reminder
 
 Current behavior is deterministic and heuristic-based:
 - discover Gradle files
@@ -35,5 +35,7 @@ Current behavior is deterministic and heuristic-based:
 - load prompt assets and compose deterministic AI review context
 - run AI analysis through shared `AiClient` (fake provider by default)
 - parse structured AI findings separately from deterministic findings
+- render a deterministic Markdown report
+- support `--output <path>` for report files
 
-No Markdown audit report generation, no CI integration, and no Gradle AST/dependency graph parsing are implemented in Milestone 4.
+No CI integration, no fail-on-findings mode, and no Gradle AST/dependency graph parsing are implemented in Milestone 5.

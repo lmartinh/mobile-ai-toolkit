@@ -7,6 +7,7 @@
 
 ## Current Milestone Constraints
 - AI review pipeline is enabled in Milestone 4 through `AiClient`.
+- Markdown report generation is enabled in Milestone 5.
 - Default provider must stay fake for safe deterministic local/CI usage.
 - Do not add Gradle AST parsing in this phase.
 - Do not add Kotlin compiler analysis in this phase.
@@ -17,6 +18,8 @@
 - Keep CLI responsibilities limited to argument parsing, input validation, and output.
 - Keep findings evidence-based when findings are introduced in future milestones.
 - Keep deterministic findings separate from AI findings in output.
+- Keep deterministic findings and AI findings separated in Markdown reports.
 - Ensure AI prompt assets stay in Markdown resources and JSON output parsing remains defensive.
+- Keep `--output` behavior simple: write UTF-8 report, create parent directories, and fail clearly.
 - Document limitations clearly in README/docs when behavior is partial.
 - Avoid company-specific conventions or hardcoded organizational rules.

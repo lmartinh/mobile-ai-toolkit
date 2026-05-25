@@ -20,7 +20,7 @@ class ScanSummaryRenderer {
             lines += formatList(aiWarnings)
         }
         lines += "AI findings are heuristic and should be reviewed by a developer."
-        lines += "Markdown reports are not generated yet."
+        lines += "Use --output <path> to write a Markdown report."
         return lines.joinToString(separator = "\n")
     }
 

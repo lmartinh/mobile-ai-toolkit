@@ -12,6 +12,15 @@ class CommandOptionsParserTest {
         val options = parser.parse(arrayOf("kmp", "audit", "/tmp/project"))
 
         assertEquals("/tmp/project", options.projectPath.toString())
+        assertEquals(null, options.outputPath)
+    }
+
+    @Test
+    fun `parses kmp audit command with output`() {
+        val options = parser.parse(arrayOf("kmp", "audit", "/tmp/project", "--output", "/tmp/report.md"))
+
+        assertEquals("/tmp/project", options.projectPath.toString())
+        assertEquals("/tmp/report.md", options.outputPath.toString())
     }
 
     @Test
@@ -25,6 +34,20 @@ class CommandOptionsParserTest {
     fun `rejects invalid argument count`() {
         assertFailsWith<IllegalArgumentException> {
             parser.parse(arrayOf("kmp", "audit"))
+        }
+    }
+
+    @Test
+    fun `rejects missing output value`() {
+        assertFailsWith<IllegalArgumentException> {
+            parser.parse(arrayOf("kmp", "audit", "/tmp/project", "--output"))
+        }
+    }
+
+    @Test
+    fun `rejects unsupported extra args`() {
+        assertFailsWith<IllegalArgumentException> {
+            parser.parse(arrayOf("kmp", "audit", "/tmp/project", "--unknown"))
         }
     }
 }
