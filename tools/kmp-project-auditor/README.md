@@ -4,7 +4,7 @@
 
 ## Status
 
-Milestone 5 is implemented: deterministic scanner/findings + fake AI review + Markdown audit reports.
+Milestone 6 is implemented: deterministic scanner/findings + fake AI review + Markdown audit reports + rule catalog alignment.
 
 ## What It Scans Today
 
@@ -25,7 +25,15 @@ Milestone 5 is implemented: deterministic scanner/findings + fake AI review + Ma
 - Structured AI finding parsing with safe fallback on invalid/malformed responses
 - Markdown audit report rendering with deterministic and AI findings sections
 - `--output <path>` support to write Markdown report files
+- Stable clean/bad examples with golden expected Markdown reports
 - Traversal excludes generated/internal directories (`build`, `.gradle`, `.idea`, `.kotlin`, `out`)
+
+## Rule Catalog
+
+- Deterministic rules: implemented and enforced with conservative text/path heuristics.
+- AI-assisted rules: reviewed from provided evidence only.
+- Future rules: documented but intentionally not enforced yet.
+- Full catalog: `docs/rules.md`
 
 ## What It Does Not Do Yet
 
@@ -73,6 +81,7 @@ You can also run against the incomplete sample:
 - Findings are conservative and heuristic-based (no Gradle AST or dependency graph resolution).
 - AI findings are heuristic and evidence-based; review them manually.
 - No CI integration for report upload yet.
+- False positives are still possible with text-based Gradle/source heuristics.
 
 ## Roadmap Summary
 

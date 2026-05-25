@@ -21,5 +21,6 @@
 - Keep deterministic findings and AI findings separated in Markdown reports.
 - Ensure AI prompt assets stay in Markdown resources and JSON output parsing remains defensive.
 - Keep `--output` behavior simple: write UTF-8 report, create parent directories, and fail clearly.
+- Keep `docs/rules.md`, prompt rule index files, and expected reports aligned with current rule IDs.
 - Document limitations clearly in README/docs when behavior is partial.
 - Avoid company-specific conventions or hardcoded organizational rules.

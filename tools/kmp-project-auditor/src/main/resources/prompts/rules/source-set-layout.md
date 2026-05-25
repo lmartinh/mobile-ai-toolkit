@@ -1,5 +1,14 @@
-Check source-set and target alignment conservatively:
-- Android target without Android source set.
-- iOS target without iOS source set.
-- Android/iOS source sets without corresponding targets.
-Do not report speculative layout issues.
+# Rule Intent
+Review source-set and target alignment for Android/iOS in KMP modules.
+
+# Evidence To Use
+- Source-set list and categories.
+- Detected Gradle configuration summary.
+- Deterministic mismatch findings if present.
+
+# Do Not Report
+- Speculative structure problems without explicit mismatch evidence.
+- Company-specific architecture constraints.
+
+# False-Positive Notes
+- Gradle target detection is text-based and may miss convention-plugin indirection.

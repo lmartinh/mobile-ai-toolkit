@@ -20,7 +20,7 @@ class KmpPromptComposerTest {
         val deterministicFindings = auditor.audit(scanResult)
         val assets = KmpPromptAssetLoader().load()
 
-        val composer = KmpPromptComposer(maxFiles = 4, maxCharsPerFile = 200, maxTotalChars = 5000)
+        val composer = KmpPromptComposer(maxFiles = 4, maxCharsPerFile = 200, maxTotalChars = 12000)
         val bundle = composer.compose(assets, scanResult, deterministicFindings)
 
         assertTrue(bundle.promptText.contains("## Scan Summary"))

@@ -1,4 +1,7 @@
-common-platform-boundaries.md
-source-set-layout.md
 common-dependencies.md
+common-platform-boundaries.md
+consumer-docs.md
+publishing-readiness.md
+resources-usage.md
+source-set-layout.md
 test-source-sets.md
