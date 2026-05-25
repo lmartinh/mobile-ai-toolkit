@@ -2,7 +2,7 @@
 
 This document outlines planned audit areas for `kmp-project-auditor`.
 
-Milestone 3 adds a first deterministic rule subset on top of structure and target heuristics.
+Milestone 4 adds a prompt pipeline and fake AI review on top of deterministic findings.
 
 ## Planned Areas
 
@@ -19,7 +19,7 @@ Milestone 3 adds a first deterministic rule subset on top of structure and targe
 - Test source-set coverage
 - Consumer setup documentation
 
-## Milestone 3 Scope Reminder
+## Milestone 4 Scope Reminder
 
 Current behavior is deterministic and heuristic-based:
 - discover Gradle files
@@ -32,5 +32,8 @@ Current behavior is deterministic and heuristic-based:
   - missing `commonTest`
   - Android/iOS target-source-set mismatch
   - obvious Android dependency leaks in `commonMain` dependencies
+- load prompt assets and compose deterministic AI review context
+- run AI analysis through shared `AiClient` (fake provider by default)
+- parse structured AI findings separately from deterministic findings
 
-No AI calls, no Markdown audit report generation, and no Gradle AST/dependency graph parsing are implemented in Milestone 3.
+No Markdown audit report generation, no CI integration, and no Gradle AST/dependency graph parsing are implemented in Milestone 4.

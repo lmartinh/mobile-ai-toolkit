@@ -4,7 +4,7 @@
 
 ## Status
 
-Milestone 3 is implemented: deterministic scanner + source-set/target heuristics + first deterministic findings.
+Milestone 4 is implemented: deterministic scanner + deterministic findings + prompt pipeline with fake AI review.
 
 ## What It Scans Today
 
@@ -20,12 +20,13 @@ Milestone 3 is implemented: deterministic scanner + source-set/target heuristics
   - Missing `commonTest`
   - Android/iOS target-source-set mismatch
   - Obvious Android dependency leaks in `commonMain` dependency blocks
+- Prompt asset loading and deterministic prompt composition for KMP review
+- AI review through shared `AiClient` abstraction (fake provider default)
+- Structured AI finding parsing with safe fallback on invalid/malformed responses
 - Traversal excludes generated/internal directories (`build`, `.gradle`, `.idea`, `.kotlin`, `out`)
 
 ## What It Does Not Do Yet
 
-- AI-based reviews
-- Prompt composition/execution
 - Full dependency graph checks
 - AST/compiler-level platform API analysis
 - `expect`/`actual` analysis
@@ -53,12 +54,15 @@ You can also run against the incomplete sample:
 - No AI client/provider usage in Milestone 1.
 - No AI client/provider usage in Milestone 2.
 - No AI client/provider usage in Milestone 3.
+- Fake AI provider is default in Milestone 4 and requires no API key/model.
+- Real providers can be used through shared env vars (`MOBILE_AI_PROVIDER`, `MOBILE_AI_API_KEY`, `MOBILE_AI_MODEL`) if configured.
 
 ## Current Limitations
 
 - Scanning is filesystem-pattern based only.
 - Gradle detection is text-based heuristic matching (no Gradle model/AST parsing).
 - Findings are conservative and heuristic-based (no Gradle AST or dependency graph resolution).
+- AI findings are heuristic and evidence-based; review them manually.
 - Markdown report output is not available yet.
 
 ## Roadmap Summary

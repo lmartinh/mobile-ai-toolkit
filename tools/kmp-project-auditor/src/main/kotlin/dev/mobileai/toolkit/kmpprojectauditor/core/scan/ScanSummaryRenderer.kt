@@ -3,7 +3,28 @@ package dev.mobileai.toolkit.kmpprojectauditor.core.scan
 import dev.mobileai.toolkit.kmpprojectauditor.core.audit.KmpFinding
 
 class ScanSummaryRenderer {
-    fun render(result: ProjectScanResult, findings: List<KmpFinding>): String {
+    fun render(
+        result: ProjectScanResult,
+        deterministicFindings: List<KmpFinding>,
+        aiFindings: List<KmpFinding>,
+        aiWarnings: List<String>
+    ): String {
+        val lines = mutableListOf<String>()
+        lines += renderSummaryOnly(result)
+        lines += "Deterministic findings:"
+        lines += formatFindings(deterministicFindings, emptyFallback = "No deterministic findings found.")
+        lines += "AI findings:"
+        lines += formatFindings(aiFindings, emptyFallback = "No AI findings found.")
+        if (aiWarnings.isNotEmpty()) {
+            lines += "AI warnings:"
+            lines += formatList(aiWarnings)
+        }
+        lines += "AI findings are heuristic and should be reviewed by a developer."
+        lines += "Markdown reports are not generated yet."
+        return lines.joinToString(separator = "\n")
+    }
+
+    fun renderSummaryOnly(result: ProjectScanResult): String {
         val lines = mutableListOf<String>()
         lines += "KMP Project Auditor"
         lines += "Analyzed path: ${result.analyzedPath}"
@@ -31,10 +52,6 @@ class ScanSummaryRenderer {
         lines += "- has custom source sets: ${result.hasCustomSourceSets}"
         lines += "Layout notes:"
         lines += formatList(result.layoutNotes)
-        lines += "Audit findings:"
-        lines += formatFindings(findings)
-        lines += "No AI findings are generated in Milestone 3."
-        lines += "Markdown reports are not generated yet."
         return lines.joinToString(separator = "\n")
     }
 
@@ -54,9 +71,9 @@ class ScanSummaryRenderer {
         return if (items.isEmpty()) "(none)" else items.joinToString(", ")
     }
 
-    private fun formatFindings(findings: List<KmpFinding>): String {
+    private fun formatFindings(findings: List<KmpFinding>, emptyFallback: String): String {
         if (findings.isEmpty()) {
-            return "No deterministic findings found."
+            return emptyFallback
         }
 
         val lines = mutableListOf<String>()
