@@ -6,11 +6,18 @@
 
 Open-source Kotlin monorepo for AI-assisted mobile development tools.
 
-## Purpose
+## Why this project exists
 `mobile-ai-toolkit` provides practical CLI tools that analyze mobile codebases and enforce development guardrails using AI-assisted workflows.
 
 The first tool is:
 - `compose-guardrails`: analyzes Jetpack Compose code and reports guardrail findings.
+
+## Start Here
+If you want to understand the repository quickly, read in this order:
+1. [Monorepo architecture](docs/architecture.md) for module boundaries and design rules.
+2. [compose-guardrails README](tools/compose-guardrails/README.md) for the CLI reference and provider behavior.
+3. [Release checklist](docs/release-checklist.md) for the release workflow and validation steps.
+4. [CHANGELOG](CHANGELOG.md) for the release history and current release line.
 
 ## Current Command
 - `mobile-ai guardrails check <path>`
@@ -30,31 +37,14 @@ Run from repository root:
 MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default --output $PWD/artifacts/compose-guardrails-report.md"
 ```
 
-Rule-set examples:
-
-```bash
-./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default"
-./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set advanced"
-./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set all"
-./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --output $PWD/artifacts/compose-guardrails-report.md"
-```
-
 If `--rule-set` is omitted, the CLI uses the conservative `default` rule set.
 For `./gradlew :tools:compose-guardrails:run`, absolute paths are recommended because Gradle application `--args` handling is sensitive to working-directory assumptions.
+For complete CLI variants and provider examples, see [compose-guardrails README](tools/compose-guardrails/README.md).
 
 Run explicitly with fake provider:
 
 ```bash
 MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample"
-```
-
-Run with OpenAI provider:
-
-```bash
-MOBILE_AI_PROVIDER=openai \
-MOBILE_AI_API_KEY=your_api_key \
-MOBILE_AI_MODEL=gpt-4.1-mini \
-./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample"
 ```
 
 Run tests:

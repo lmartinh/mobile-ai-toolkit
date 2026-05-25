@@ -2,6 +2,8 @@
 
 Kotlin CLI tool for Compose guardrail analysis using a provider-agnostic AI workflow.
 
+If you are learning the repository, start with the root [README](../../README.md) and [architecture guide](../../docs/architecture.md). Use this page as the command and behavior reference for `compose-guardrails`.
+
 Tool roadmap:
 - `docs/roadmaps/compose-guardrails.md`
 
