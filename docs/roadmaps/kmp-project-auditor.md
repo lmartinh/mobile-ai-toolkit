@@ -63,7 +63,7 @@ Initial severities should be conservative: platform API leakage and dependency l
 - README or docs files near the project/module root.
 
 ## Milestone 1: Tool Skeleton And Project Scanning
-Status: planned
+Status: completed
 - Create the Gradle module and CLI command, for example `mobile-ai kmp audit <path>`.
 - Accept a project directory and validate that it exists.
 - Detect Gradle files, Kotlin source roots, and common KMP directory names.
@@ -72,7 +72,7 @@ Status: planned
 - Document local usage with `fake` provider as the default.
 
 ## Milestone 2: Source-Set And Target Heuristics
-Status: planned
+Status: completed
 - Detect `commonMain`, `commonTest`, `androidMain`, `iosMain`, and intermediate source sets.
 - Detect likely Android and iOS target configuration from Gradle text.
 - Report missing or suspicious source-set layouts.
@@ -81,7 +81,7 @@ Status: planned
 - Document supported KMP project shapes and limitations.
 
 ## Milestone 3: Deterministic KMP Findings
-Status: planned
+Status: completed
 - Add deterministic checks for platform APIs in `commonMain`.
 - Add checks for misplaced dependencies based on simple Gradle text heuristics.
 - Add checks for missing test source sets and unclear module structure.
@@ -90,7 +90,7 @@ Status: planned
 - Test every rule with small fixtures.
 
 ## Milestone 4: Prompt Pipeline And Fake AI Review
-Status: planned
+Status: completed
 - Add Markdown prompt assets for KMP audit review and output format.
 - Compose prompts from scan summaries, deterministic findings, and relevant file snippets.
 - Use `AiClient` and `FakeAiClient` for deterministic local and CI behavior.
@@ -99,7 +99,7 @@ Status: planned
 - Do not call real external APIs in tests.
 
 ## Milestone 5: Markdown Audit Report
-Status: planned
+Status: completed
 - Generate a Markdown report with project summary, deterministic findings, AI findings, and recommendations.
 - Include severity, rule id, file path, explanation, suggestion, and confidence where useful.
 - Add `--output <path>` support from the first reporting milestone.
@@ -107,7 +107,7 @@ Status: planned
 - Document report-only behavior as the safe default.
 
 ## Milestone 6: Rule Catalog And Examples
-Status: planned
+Status: completed
 - Add initial audit areas for source sets, platform boundaries, dependency placement, publishing readiness, API cleanliness, tests, and docs.
 - Create bad and clean KMP example projects.
 - Add expected reports for examples.
