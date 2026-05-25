@@ -1,14 +1,23 @@
 package dev.mobileai.toolkit.kmpprojectauditor.core.scan
 
+import dev.mobileai.toolkit.kmpprojectauditor.core.audit.KmpFinding
+
 class ScanSummaryRenderer {
-    fun render(result: ProjectScanResult): String {
+    fun render(result: ProjectScanResult, findings: List<KmpFinding>): String {
         val lines = mutableListOf<String>()
         lines += "KMP Project Auditor"
         lines += "Analyzed path: ${result.analyzedPath}"
         lines += "Gradle files:"
         lines += formatList(result.gradleFiles)
+        lines += "Detected Gradle configuration:"
+        lines += "- Kotlin Multiplatform plugin: ${result.gradleHeuristics.hasKmpPlugin}"
+        lines += "- Android target: ${result.gradleHeuristics.hasAndroidTarget}"
+        lines += "- iOS target: ${result.gradleHeuristics.hasIosTarget}"
+        lines += "- KMP plugin detected in: ${formatInlineList(result.gradleHeuristics.kmpPluginFiles)}"
+        lines += "- Android target detected in: ${formatInlineList(result.gradleHeuristics.androidTargetFiles)}"
+        lines += "- iOS target detected in: ${formatInlineList(result.gradleHeuristics.iosTargetFiles)}"
         lines += "Source sets:"
-        lines += formatList(result.sourceSets)
+        lines += formatSourceSets(result.sourceSetSummaries)
         lines += "Kotlin source roots:"
         lines += formatList(result.kotlinSourceRoots)
         lines += "Detected capabilities:"
@@ -16,11 +25,50 @@ class ScanSummaryRenderer {
         lines += "- has commonTest: ${result.hasCommonTest}"
         lines += "- has Android source set: ${result.hasAndroidSourceSet}"
         lines += "- has iOS source set: ${result.hasIosSourceSet}"
-        lines += "No audit findings are generated in Milestone 1."
+        lines += "- has Android target: ${result.hasAndroidTarget}"
+        lines += "- has iOS target: ${result.hasIosTarget}"
+        lines += "- has intermediate source sets: ${result.hasIntermediateSourceSets}"
+        lines += "- has custom source sets: ${result.hasCustomSourceSets}"
+        lines += "Layout notes:"
+        lines += formatList(result.layoutNotes)
+        lines += "Audit findings:"
+        lines += formatFindings(findings)
+        lines += "No AI findings are generated in Milestone 3."
+        lines += "Markdown reports are not generated yet."
         return lines.joinToString(separator = "\n")
+    }
+
+    private fun formatSourceSets(items: List<SourceSetSummary>): String {
+        return if (items.isEmpty()) {
+            "- (none)"
+        } else {
+            items.joinToString("\n") { "- ${it.name} (${it.kind.name.lowercase()})" }
+        }
     }
 
     private fun formatList(items: List<String>): String {
         return if (items.isEmpty()) "- (none)" else items.joinToString("\n") { "- $it" }
+    }
+
+    private fun formatInlineList(items: List<String>): String {
+        return if (items.isEmpty()) "(none)" else items.joinToString(", ")
+    }
+
+    private fun formatFindings(findings: List<KmpFinding>): String {
+        if (findings.isEmpty()) {
+            return "No deterministic findings found."
+        }
+
+        val lines = mutableListOf<String>()
+        findings.forEach { finding ->
+            lines += "- [${finding.severity}] ${finding.ruleId} - ${finding.title}"
+            lines += "  File: ${finding.file}"
+            if (finding.evidence != null) {
+                lines += "  Evidence: ${finding.evidence}"
+            }
+            lines += "  Explanation: ${finding.explanation}"
+            lines += "  Suggestion: ${finding.suggestion}"
+        }
+        return lines.joinToString("\n")
     }
 }

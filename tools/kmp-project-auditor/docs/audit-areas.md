@@ -2,7 +2,7 @@
 
 This document outlines planned audit areas for `kmp-project-auditor`.
 
-Milestone 1 only scans structure and reports discovered project shape. It does not enforce the rules below yet.
+Milestone 3 adds a first deterministic rule subset on top of structure and target heuristics.
 
 ## Planned Areas
 
@@ -19,10 +19,18 @@ Milestone 1 only scans structure and reports discovered project shape. It does n
 - Test source-set coverage
 - Consumer setup documentation
 
-## Milestone 1 Scope Reminder
+## Milestone 3 Scope Reminder
 
-Current behavior is scanner-only and deterministic:
+Current behavior is deterministic and heuristic-based:
 - discover Gradle files
-- discover source-set names
+- discover and classify source-set names
 - discover Kotlin source roots
-- summarize detected capabilities
+- detect likely KMP/Android/iOS target declarations from Gradle text
+- summarize detected capabilities and layout notes
+- produce deterministic findings for:
+  - Android/iOS/native imports in `commonMain`
+  - missing `commonTest`
+  - Android/iOS target-source-set mismatch
+  - obvious Android dependency leaks in `commonMain` dependencies
+
+No AI calls, no Markdown audit report generation, and no Gradle AST/dependency graph parsing are implemented in Milestone 3.

@@ -4,24 +4,30 @@
 
 ## Status
 
-Milestone 1 is implemented: skeleton + deterministic project scanner.
+Milestone 3 is implemented: deterministic scanner + source-set/target heuristics + first deterministic findings.
 
 ## What It Scans Today
 
 - Project path validation (exists, directory)
 - Gradle files (settings/build files in root and modules)
-- Source-set directory names under `src/`
+- Source-set classification under `src/` (`common`, `android`, `ios`, `intermediate`, `custom`)
+  - Source sets ending in `Main` or `Test` that are not common/Android/iOS-specific are treated as likely intermediate.
 - Kotlin source roots matching `src/*/kotlin`
-- Basic capability summary (commonMain/commonTest/Android/iOS presence)
+- Text-based Gradle target/plugin heuristics (KMP plugin, Android target, iOS target)
+- Basic layout/capability summary and non-finding layout notes
+- Deterministic findings for:
+  - Android/iOS/native imports under `commonMain`
+  - Missing `commonTest`
+  - Android/iOS target-source-set mismatch
+  - Obvious Android dependency leaks in `commonMain` dependency blocks
 - Traversal excludes generated/internal directories (`build`, `.gradle`, `.idea`, `.kotlin`, `out`)
 
 ## What It Does Not Do Yet
 
 - AI-based reviews
 - Prompt composition/execution
-- Deterministic audit findings
-- Dependency placement checks
-- Platform API leakage checks
+- Full dependency graph checks
+- AST/compiler-level platform API analysis
 - `expect`/`actual` analysis
 - Markdown audit report generation
 - CI/release integration for this tool
@@ -45,12 +51,15 @@ You can also run against the incomplete sample:
 - Scanner is read-only.
 - No network calls.
 - No AI client/provider usage in Milestone 1.
+- No AI client/provider usage in Milestone 2.
+- No AI client/provider usage in Milestone 3.
 
 ## Current Limitations
 
 - Scanning is filesystem-pattern based only.
-- It does not parse Gradle/Kotlin semantics yet.
-- It does not emit structured findings yet.
+- Gradle detection is text-based heuristic matching (no Gradle model/AST parsing).
+- Findings are conservative and heuristic-based (no Gradle AST or dependency graph resolution).
+- Markdown report output is not available yet.
 
 ## Roadmap Summary
 

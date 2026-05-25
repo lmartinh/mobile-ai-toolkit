@@ -1,0 +1,272 @@
+package dev.mobileai.toolkit.kmpprojectauditor.core.audit
+
+import dev.mobileai.toolkit.kmpprojectauditor.core.scan.ProjectScanner
+import java.nio.file.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createTempDirectory
+import kotlin.io.path.writeText
+import kotlin.test.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+
+class DeterministicKmpAuditorTest {
+    private val scanner = ProjectScanner()
+    private val auditor = DeterministicKmpAuditor()
+
+    @Test
+    fun `android and androidx imports in commonMain create findings`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText("plugins { kotlin(\"multiplatform\") }")
+        project.resolve("src/commonMain/kotlin/Sample.kt").apply {
+            parent.createDirectories()
+            writeText(
+                """
+                import android.content.Context
+                import androidx.core.content.ContextCompat
+                """.trimIndent()
+            )
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        val ruleFindings = findings.filter { it.ruleId == "kmp.common.no-android-api" }
+        assertEquals(2, ruleFindings.size)
+        assertTrue(ruleFindings.all { it.file == "src/commonMain/kotlin/Sample.kt" })
+    }
+
+    @Test
+    fun `platform and cinterop imports in commonMain create findings`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText("plugins { kotlin(\"multiplatform\") }")
+        project.resolve("src/commonMain/kotlin/Sample.kt").apply {
+            parent.createDirectories()
+            writeText(
+                """
+                import platform.Foundation.NSString
+                import kotlinx.cinterop.CPointer
+                """.trimIndent()
+            )
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        val ruleFindings = findings.filter { it.ruleId == "kmp.common.no-ios-api" }
+        assertEquals(2, ruleFindings.size)
+    }
+
+    @Test
+    fun `kotlin stdlib imports and platform imports outside commonMain do not create commonMain findings`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText("plugins { kotlin(\"multiplatform\") }\nkotlin { ios() }")
+        project.resolve("src/commonMain/kotlin/Shared.kt").apply {
+            parent.createDirectories()
+            writeText("import kotlin.collections.List")
+        }
+        project.resolve("src/iosMain/kotlin/Ios.kt").apply {
+            parent.createDirectories()
+            writeText("import platform.Foundation.NSString")
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        assertTrue(findings.none { it.ruleId == "kmp.common.no-android-api" })
+        assertTrue(findings.none { it.ruleId == "kmp.common.no-ios-api" })
+    }
+
+    @Test
+    fun `commonMain without commonTest creates missing common test finding`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText("plugins { kotlin(\"multiplatform\") }")
+        project.resolve("src/commonMain/kotlin/Shared.kt").apply {
+            parent.createDirectories()
+            writeText("class Shared")
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        assertTrue(findings.any { it.ruleId == "kmp.tests.missing-common-test" })
+    }
+
+    @Test
+    fun `commonMain with commonTest does not create missing common test finding`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText("plugins { kotlin(\"multiplatform\") }")
+        project.resolve("src/commonMain/kotlin/Shared.kt").apply {
+            parent.createDirectories()
+            writeText("class Shared")
+        }
+        project.resolve("src/commonTest/kotlin/SharedTest.kt").apply {
+            parent.createDirectories()
+            writeText("class SharedTest")
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        assertTrue(findings.none { it.ruleId == "kmp.tests.missing-common-test" })
+    }
+
+    @Test
+    fun `target source-set mismatch findings are created`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText(
+            """
+            plugins { id("org.jetbrains.kotlin.multiplatform") }
+            kotlin {
+                androidTarget()
+                ios()
+            }
+            """.trimIndent()
+        )
+        project.resolve("src/commonMain/kotlin/Shared.kt").apply {
+            parent.createDirectories()
+            writeText("class Shared")
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        assertTrue(findings.any { it.ruleId == "kmp.source-sets.android-target-without-source-set" })
+        assertTrue(findings.any { it.ruleId == "kmp.source-sets.ios-target-without-source-set" })
+    }
+
+    @Test
+    fun `source-set without target findings are created in kmp context`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText(
+            """
+            plugins { id("org.jetbrains.kotlin.multiplatform") }
+            """.trimIndent()
+        )
+        project.resolve("src/commonMain/kotlin/Shared.kt").apply {
+            parent.createDirectories()
+            writeText("class Shared")
+        }
+        project.resolve("src/commonTest/kotlin/SharedTest.kt").apply {
+            parent.createDirectories()
+            writeText("class SharedTest")
+        }
+        project.resolve("src/androidMain/kotlin/AndroidCode.kt").apply {
+            parent.createDirectories()
+            writeText("class AndroidCode")
+        }
+        project.resolve("src/iosMain/kotlin/IosCode.kt").apply {
+            parent.createDirectories()
+            writeText("class IosCode")
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        assertTrue(findings.any { it.ruleId == "kmp.source-sets.android-source-set-without-target" })
+        assertTrue(findings.any { it.ruleId == "kmp.source-sets.ios-source-set-without-target" })
+    }
+
+    @Test
+    fun `common dependency block with android dependency creates finding`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText(
+            """
+            plugins { id("org.jetbrains.kotlin.multiplatform") }
+            kotlin {
+                sourceSets {
+                    commonMain.dependencies {
+                        implementation("androidx.core:core-ktx:1.13.1")
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+        project.resolve("src/commonMain/kotlin/Shared.kt").apply {
+            parent.createDirectories()
+            writeText("class Shared")
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        assertTrue(findings.any { it.ruleId == "kmp.dependencies.common-platform-leak" })
+    }
+
+    @Test
+    fun `platform dependency outside common dependency block does not trigger common leak rule`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText(
+            """
+            plugins { id("org.jetbrains.kotlin.multiplatform") }
+            androidMainImplementation("androidx.core:core-ktx:1.13.1")
+            """.trimIndent()
+        )
+        project.resolve("src/commonMain/kotlin/Shared.kt").apply {
+            parent.createDirectories()
+            writeText("class Shared")
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        assertTrue(findings.none { it.ruleId == "kmp.dependencies.common-platform-leak" })
+    }
+
+    @Test
+    fun `findings are deterministic and slash normalized`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText(
+            """
+            plugins {
+                id("org.jetbrains.kotlin.multiplatform")
+                id("com.android.library")
+            }
+            kotlin { ios() }
+            commonMainImplementation("androidx.core:core-ktx:1.13.1")
+            """.trimIndent()
+        )
+        project.resolve("src/commonMain/kotlin/Zeta.kt").apply {
+            parent.createDirectories()
+            writeText("import android.content.Context")
+        }
+        project.resolve("src/commonMain/kotlin/Alpha.kt").apply {
+            parent.createDirectories()
+            writeText("import platform.Foundation.NSString")
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        assertTrue(findings.isNotEmpty())
+        assertTrue(findings.all { !it.file.contains('\\') })
+        assertContentEquals(findings.sortedWith(compareBy<KmpFinding> { it.severity }.thenBy { it.ruleId }.thenBy { it.file }.thenBy { it.title }), findings)
+    }
+
+    @Test
+    fun `generated directories are ignored for platform import checks`() {
+        val project = createTempDirectory()
+        project.resolve("build.gradle.kts").writeText("plugins { kotlin(\"multiplatform\") }")
+        project.resolve("src/commonMain/kotlin/Shared.kt").apply {
+            parent.createDirectories()
+            writeText("class Shared")
+        }
+        project.resolve("build/generated/src/commonMain/kotlin/Fake.kt").apply {
+            parent.createDirectories()
+            writeText("import android.content.Context")
+        }
+
+        val findings = auditor.audit(scanner.scan(project))
+
+        assertFalse(findings.any { it.file.contains("build/generated") })
+        assertTrue(findings.none { it.ruleId == "kmp.common.no-android-api" })
+    }
+
+    @Test
+    fun `clean fixture has no deterministic findings and bad fixture has expected deterministic findings`() {
+        val cleanScan = scanner.scan(Path.of("examples/clean-kmp-library"))
+        val badScan = scanner.scan(Path.of("examples/bad-kmp-library"))
+
+        val cleanFindings = auditor.audit(cleanScan)
+        val badFindings = auditor.audit(badScan)
+
+        assertTrue(cleanFindings.isEmpty())
+        assertTrue(badFindings.isNotEmpty())
+        assertTrue(badFindings.any { it.ruleId == "kmp.common.no-android-api" })
+        assertTrue(badFindings.any { it.ruleId == "kmp.common.no-ios-api" })
+        assertTrue(badFindings.any { it.ruleId == "kmp.tests.missing-common-test" })
+        assertTrue(badFindings.any { it.ruleId == "kmp.source-sets.ios-target-without-source-set" })
+        assertTrue(badFindings.any { it.ruleId == "kmp.dependencies.common-platform-leak" })
+    }
+}

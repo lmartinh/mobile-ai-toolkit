@@ -1,6 +1,7 @@
 package dev.mobileai.toolkit.kmpprojectauditor
 
 import dev.mobileai.toolkit.kmpprojectauditor.core.cli.CommandOptionsParser
+import dev.mobileai.toolkit.kmpprojectauditor.core.audit.DeterministicKmpAuditor
 import dev.mobileai.toolkit.kmpprojectauditor.core.scan.ProjectScanner
 import dev.mobileai.toolkit.kmpprojectauditor.core.scan.ScanSummaryRenderer
 import kotlin.system.exitProcess
@@ -21,7 +22,8 @@ fun main(args: Array<String>) {
         exitProcess(1)
     }
 
-    println(ScanSummaryRenderer().render(scanResult))
+    val findings = DeterministicKmpAuditor().audit(scanResult)
+    println(ScanSummaryRenderer().render(scanResult, findings))
 }
 
 private fun printUsage() {
