@@ -43,16 +43,4 @@
   <rect x="450" y="292" width="700" height="4" rx="2" fill="url(#accent)"/>
   <text x="800" y="355" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="52" fill="#cbd5e1" font-weight="500">AI-assisted mobile code analysis tools</text>
 
-  <g transform="translate(455,430)">
-    <circle cx="0" cy="0" r="10" fill="#22d3ee"/>
-    <text x="28" y="10" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#dbeafe" font-weight="600">Static analysis</text>
-  </g>
-  <g transform="translate(790,430)">
-    <circle cx="0" cy="0" r="10" fill="#34d399"/>
-    <text x="28" y="10" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#dbeafe" font-weight="600">AI insights</text>
-  </g>
-  <g transform="translate(1040,430)">
-    <circle cx="0" cy="0" r="10" fill="#818cf8"/>
-    <text x="28" y="10" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#dbeafe" font-weight="600">Mobile quality guardrails</text>
-  </g>
 </svg>
