@@ -1,6 +1,16 @@
-# compose-guardrails
+# Compose Guardrails
+
+> **Read in another language:** **English** · [Español](README.es.md)
 
 `compose-guardrails` is a Kotlin CLI that analyzes Jetpack Compose code with provider-agnostic AI-assisted guardrails.
+
+It helps teams catch architecture, state-management, side-effect, accessibility, and multiplatform boundary issues early, before they become expensive review or production problems. The tool is designed for practical CI usage: deterministic input scanning, structured findings, and stable Markdown reporting.
+
+## Why teams use it
+
+- Faster review loops for Compose-heavy codebases.
+- More consistent guardrail enforcement across contributors.
+- CI-friendly reports that can be shared as artifacts.
 
 If you are new to this repository, start with the root [README](../../README.md) and [architecture guide](../../docs/architecture.md).
 
@@ -119,32 +129,32 @@ Automation note:
 ## Rule Sets
 
 `default` (recommended for routine CI):
-- `compose.no-business-logic-in-composables`
-- `compose.state-hoisting`
-- `compose.viewmodel-in-leaf-composable`
-- `compose.unidirectional-data-flow`
-- `compose.no-side-effects-in-composition`
-- `compose.effect-key-quality`
-- `compose.lazy-list-keys`
-- `compose.missing-modifier-parameter`
-- `compose.modifier-parameter-position`
-- `compose.missing-content-description`
-- `compose.clickable-without-semantics`
-- `compose.android.collect-as-state-with-lifecycle`
-- `compose.android.context-leak-risk`
-- `compose.multiplatform.no-android-api-in-common`
-- `compose.multiplatform.platform-specific-ui-leak`
-- `compose.multiplatform.public-api-cleanliness`
+- `compose.no-business-logic-in-composables`: Detects business/domain logic leaking into UI composables.
+- `compose.state-hoisting`: Checks that state is hoisted to callers when local ownership is not required.
+- `compose.viewmodel-in-leaf-composable`: Flags ViewModel usage directly inside leaf UI components.
+- `compose.unidirectional-data-flow`: Validates one-way data flow and event-up patterns.
+- `compose.no-side-effects-in-composition`: Detects side effects executed directly during composition.
+- `compose.effect-key-quality`: Checks whether effect keys are stable and semantically correct.
+- `compose.lazy-list-keys`: Ensures `Lazy*` lists use stable keys to avoid recomposition glitches.
+- `compose.missing-modifier-parameter`: Flags composables that should expose a `Modifier` but do not.
+- `compose.modifier-parameter-position`: Enforces `Modifier` as an early parameter (typically first optional UI param).
+- `compose.missing-content-description`: Detects missing accessibility descriptions for meaningful visual elements.
+- `compose.clickable-without-semantics`: Flags clickable UI that lacks semantic/accessibility context.
+- `compose.android.collect-as-state-with-lifecycle`: Recommends lifecycle-aware state collection on Android.
+- `compose.android.context-leak-risk`: Detects potential long-lived references to Android `Context`.
+- `compose.multiplatform.no-android-api-in-common`: Flags Android API usage inside `commonMain`.
+- `compose.multiplatform.platform-specific-ui-leak`: Detects platform-specific UI details leaking into shared UI APIs.
+- `compose.multiplatform.public-api-cleanliness`: Checks that shared public APIs remain platform-neutral and stable.
 
 `advanced` (opt-in, noisier):
-- `compose.expensive-work-in-composition`
-- `compose.unstable-parameters`
-- `compose.derived-state-usage`
-- `compose.large-composable`
-- `compose.hardcoded-dimensions-and-colors`
-- `compose.missing-preview`
-- `compose.preview-with-real-dependencies`
-- `compose.multiplatform.resources-usage`
+- `compose.expensive-work-in-composition`: Detects heavy calculations or allocations inside composition paths.
+- `compose.unstable-parameters`: Flags parameters likely to be unstable and cause extra recompositions.
+- `compose.derived-state-usage`: Suggests `derivedStateOf` when computed state is repeatedly recalculated.
+- `compose.large-composable`: Detects oversized composables that are harder to test and maintain.
+- `compose.hardcoded-dimensions-and-colors`: Flags hardcoded UI constants that should come from theme/design tokens.
+- `compose.missing-preview`: Detects composables lacking preview coverage for fast visual feedback.
+- `compose.preview-with-real-dependencies`: Flags previews wired to real dependencies instead of preview-safe fakes.
+- `compose.multiplatform.resources-usage`: Reviews shared resource-access patterns in multiplatform UI code.
 
 Severity guidance:
 - `error`: high-confidence correctness/architecture risk.

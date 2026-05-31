@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="docs/assets/mobile-ai-toolkit-hero.svg" alt="mobile-ai-toolkit — AI-assisted mobile code analysis tools" width="100%">
+  <img src="docs/assets/mobile-ai-toolkit-hero.png" alt="mobile-ai-toolkit — AI-assisted mobile code analysis tools" width="100%">
 </div>
 
-# mobile-ai-toolkit
+# Mobile AI Toolkit
 
 > **Read in another language:** **English** · [Español](README.es.md)
 

@@ -1,6 +1,16 @@
-# kmp-project-auditor
+# KMP Project Auditor
+
+> **Read in another language:** **English** · [Español](README.es.md)
 
 `kmp-project-auditor` is a Kotlin CLI for auditing Kotlin Multiplatform mobile projects.
+
+It helps teams validate project structure, source-set boundaries, and platform separation early, before architecture drift becomes expensive maintenance work. The tool combines deterministic checks with optional AI-assisted review and produces CI-friendly Markdown reports.
+
+## Why teams use it
+
+- Faster architecture feedback on KMP modules and source sets.
+- Early detection of platform leaks into shared code (`commonMain`).
+- Repeatable reports for pull requests and release readiness checks.
 
 If you are new to this repository, start with the root [README](../../README.md) and [architecture guide](../../docs/architecture.md).
 
@@ -106,6 +116,40 @@ Automation note:
 - Heading names above are intended to remain stable.
 - Free-text details can vary by provider/model.
 
+## Rule Sets
+
+`deterministic` (implemented, higher confidence):
+- `kmp.common.no-android-api`: Detects Android imports inside `commonMain`.
+- `kmp.common.no-ios-api`: Detects iOS/native imports inside `commonMain`.
+- `kmp.tests.missing-common-test`: Flags projects with `commonMain` but missing `commonTest`.
+- `kmp.source-sets.android-target-without-source-set`: Detects Android target declarations without Android source sets.
+- `kmp.source-sets.ios-target-without-source-set`: Detects iOS target declarations without iOS source sets.
+- `kmp.source-sets.android-source-set-without-target`: Detects Android source sets without matching Android target declarations.
+- `kmp.source-sets.ios-source-set-without-target`: Detects iOS source sets without matching iOS target declarations.
+- `kmp.dependencies.common-platform-leak`: Detects obvious Android dependency coordinates leaking into `commonMain` dependencies.
+
+`ai-assisted` (implemented, advisory):
+- `kmp.ai.source-set-clarity`: Reviews intermediate/custom source-set clarity and intent.
+- `kmp.project.structure`: Reviews overall KMP module/source-set organization signals.
+- `kmp.source-sets.intermediate-clarity`: Reviews purpose and ownership signals of intermediate source sets.
+- `kmp.dependencies.platform-placement`: Reviews suspicious dependency placement when evidence is explicit.
+- `kmp.resources.common-usage`: Reviews shared resource usage signals when resource evidence exists.
+- `kmp.publishing.metadata`: Reviews publication-readiness signals when publishing blocks are present.
+- `kmp.api.public-surface-cleanliness`: Reviews broad public API cleanliness/stability signals.
+- `kmp.docs.consumer-setup`: Reviews likely gaps in consumer integration documentation.
+
+`future` (documented, not implemented yet):
+- `kmp.expect-actual.missing-actual`: Planned check for `expect` declarations missing platform `actual` implementations.
+- `kmp.expect-actual.unnecessary-expect`: Planned check for overuse of `expect` abstractions.
+- `kmp.tests.source-set-coverage`: Planned check for broader test coverage across source sets.
+
+Full catalog and detection notes:
+- [docs/rules.md](docs/rules.md)
+
+Severity guidance:
+- `warning`: likely architecture/boundary risk.
+- `info`: lower-confidence or advisory recommendation.
+
 ## What It Scans
 
 - Project path validation (`exists`, `is directory`).
@@ -113,14 +157,6 @@ Automation note:
 - Source-set classification under `src/` (`common`, `android`, `ios`, `intermediate`, `custom`).
 - Kotlin roots matching `src/*/kotlin`.
 - Text-based target/plugin heuristics (KMP, Android, iOS).
-- Deterministic findings for:
-  - Android/iOS/native imports under `commonMain`.
-  - Missing `commonTest`.
-  - Android/iOS target-source-set mismatch.
-  - Obvious Android dependency leaks in `commonMain` dependency blocks.
-
-Rule catalog:
-- [docs/rules.md](docs/rules.md)
 
 ## Safe Defaults
 
@@ -147,3 +183,9 @@ Rule catalog:
 - No fail-on-findings mode yet.
 - No SARIF/JSON outputs yet.
 - AI findings require manual review.
+
+## Scope (Current)
+
+- Analysis only.
+- No code generation.
+- No autofix behavior.
