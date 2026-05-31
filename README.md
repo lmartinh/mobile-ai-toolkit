@@ -1,260 +1,178 @@
+<div align="center">
+  <img src="docs/assets/mobile-ai-toolkit-hero.svg" alt="mobile-ai-toolkit — AI-assisted mobile code analysis tools" width="100%">
+</div>
+
 # mobile-ai-toolkit
+
+> **Read in another language:** **English** · [Español](README.es.md)
 
 [![CI](https://img.shields.io/badge/CI-GitHub%20Actions-blue)](.github/workflows/compose-guardrails.yml)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Release Packaging](https://img.shields.io/badge/Release%20Packaging-compose--guardrails-orange)](docs/roadmaps/compose-guardrails.md)
+[![Kotlin](https://img.shields.io/badge/Kotlin-JVM%20%2B%20KMP-7F52FF)](https://kotlinlang.org/)
+[![Status](https://img.shields.io/badge/Status-Active%20Development-2ea44f)](docs/roadmaps/README.md)
 
-Open-source Kotlin monorepo for AI-assisted mobile development tools.
+Open-source Kotlin monorepo for AI-assisted mobile code analysis tools.
 
-## Why this project exists
-`mobile-ai-toolkit` provides practical CLI tools that analyze mobile codebases and enforce development guardrails using AI-assisted workflows.
+`mobile-ai-toolkit` provides practical CLIs that analyze mobile codebases, surface architecture and quality risks, and generate actionable Markdown reports.
 
-The first tool is:
-- `compose-guardrails`: analyzes Jetpack Compose code and reports guardrail findings.
+## Why this project
 
-## Start Here
-If you want to understand the repository quickly, read in this order:
-1. [Monorepo architecture](docs/architecture.md) for module boundaries and design rules.
-2. [compose-guardrails README](tools/compose-guardrails/README.md) for the CLI reference and provider behavior.
-3. [Release checklist](docs/release-checklist.md) for the release workflow and validation steps.
-4. [CHANGELOG](CHANGELOG.md) for the release history and current release line.
+- Mobile teams need fast, repeatable analysis before code review or CI gates.
+- Existing static checks often miss architecture-level and workflow-level issues.
+- AI-assisted guardrails can improve signal if prompts, schemas, and outputs stay deterministic.
 
-## Current Command
-- `mobile-ai guardrails check <path>`
+This repository is structured as a multi-tool platform: one shared foundation plus independent tools under `tools/`.
 
-Current implementation supports:
-- Kotlin file discovery (`.kt` file or recursive directory scan).
-- Text-based Compose candidate and `@Composable` detection.
-- Prompt assembly from versioned Markdown assets.
-- AI client abstraction with deterministic fake adapter.
-- Structured finding parsing (`severity`, `rule_id`, `title`, `file_path`, `explanation`, `suggestion`, optional `code_example`).
-- Stable Markdown report generation from parsed findings.
+## What is in this repository?
+
+`mobile-ai-toolkit` is an ecosystem of focused tooling for mobile teams:
+
+| Component | What it does | Where to read more |
+| --- | --- | --- |
+| `compose-guardrails` | Reviews Jetpack Compose code against architecture, state, side-effect, accessibility, and MPP boundary guardrails. | [tools/compose-guardrails/README.md](tools/compose-guardrails/README.md) |
+| `kmp-project-auditor` | Audits Kotlin Multiplatform project structure, source-set boundaries, and common platform leaks. | [tools/kmp-project-auditor/README.md](tools/kmp-project-auditor/README.md) |
+| `shared/ai-client` | Provider-agnostic AI client abstraction used by tools (`fake`, `openai`, `anthropic`, `gemini`). | [shared/ai-client](shared/ai-client) |
+| `shared/report-common` | Shared finding schema and Markdown report rendering utilities. | [shared/report-common](shared/report-common) |
+
+## Tooling
+
+| Tool | Command | Focus | Status |
+| --- | --- | --- | --- |
+| `compose-guardrails` | `mobile-ai guardrails check <path>` | Jetpack Compose guardrails for architecture, state, side effects, accessibility, and MPP boundaries | Active |
+| `kmp-project-auditor` | `kmp audit <path>` | Kotlin Multiplatform project layout and platform-boundary auditing | Active |
+
+Tool-specific docs:
+- [compose-guardrails README](tools/compose-guardrails/README.md)
+- [kmp-project-auditor README](tools/kmp-project-auditor/README.md)
 
 ## Quick Start
-Run from repository root:
+
+Run from repository root.
+
+1. Compose guardrails (deterministic fake provider):
 
 ```bash
 MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default --output $PWD/artifacts/compose-guardrails-report.md"
 ```
 
-If `--rule-set` is omitted, the CLI uses the conservative `default` rule set.
-For `./gradlew :tools:compose-guardrails:run`, absolute paths are recommended because Gradle application `--args` handling is sensitive to working-directory assumptions.
-For complete CLI variants and provider examples, see [compose-guardrails README](tools/compose-guardrails/README.md).
-
-Run explicitly with fake provider:
+2. KMP project audit:
 
 ```bash
-MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample"
+MOBILE_AI_PROVIDER=fake ./gradlew :tools:kmp-project-auditor:run --args="kmp audit $PWD/tools/kmp-project-auditor/examples/bad-kmp-library --output $PWD/artifacts/kmp-project-auditor-report.md"
 ```
 
-Run tests:
+3. Run core tests:
 
 ```bash
-./gradlew :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test
+./gradlew :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test :tools:kmp-project-auditor:test
 ```
 
-## CI Integration
-A baseline GitHub Actions workflow is provided at:
-- `.github/workflows/compose-guardrails.yml`
+## Current Status
 
-Current CI behavior (report-only):
-- Runs module tests.
-- Runs `compose-guardrails` with `MOBILE_AI_PROVIDER=fake`.
-- Uses `COMPOSE_GUARDRAILS_TARGET` and `COMPOSE_GUARDRAILS_RULE_SET` to configure scan scope and rules.
-- Writes a clean Markdown report to `artifacts/compose-guardrails-report.md`.
-- Uploads the report artifact (`compose-guardrails-report`).
-- Findings do not fail the build yet.
-
-For deterministic CI, keep `fake` provider.
-For real-provider CI runs, use repository secrets for:
-- `MOBILE_AI_PROVIDER`
-- `MOBILE_AI_API_KEY`
-- `MOBILE_AI_MODEL`
-
-
-CI workflow knobs (environment variables):
-- `COMPOSE_GUARDRAILS_TARGET` (default: `tools/compose-guardrails/src/main`)
-- `COMPOSE_GUARDRAILS_RULE_SET` (default: `default`)
-- `COMPOSE_GUARDRAILS_REPORT_PATH` (default: `artifacts/compose-guardrails-report.md`)
-- `COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY` (default: `false`)
-- `COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS` (default: `false`)
-- `COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY` (default: `true`)
-
-Behavior defaults remain non-breaking:
-- fake provider
-- default rule set
-- report-only mode (no fail on findings)
-- full configured target path analysis
-
-Changed-files-only mode:
-- Set `COMPOSE_GUARDRAILS_CHANGED_FILES_ONLY=true` to analyze changed `.kt` files on pull requests.
-- Changed-files-only mode analyzes only files inside `COMPOSE_GUARDRAILS_TARGET`.
-- Files outside target scope are ignored (for example tests/examples when target is `src/main`).
-- If no changed Kotlin files match the target scope, CI writes a clean no-files Markdown report and succeeds.
-- On non-PR events, changed-files-only falls back to full analysis of `COMPOSE_GUARDRAILS_TARGET`.
-
-Fail-on-findings mode:
-- Set `COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS=true` to fail CI when the report contains findings.
-
-Report artifact:
-- Uploaded as `compose-guardrails-report`.
-
-Step Summary:
-- Includes provider, rule set, target path, changed-files-only status, report mode, report path, and fallback status.
-
-Release packaging:
-- Build an installable distribution with `./gradlew :tools:compose-guardrails:installDist`.
-- Build release archives with `./gradlew :tools:compose-guardrails:distZip :tools:compose-guardrails:distTar`.
-- Local development uses `0.1.0-SNAPSHOT`; tagged release builds pass `-PreleaseVersion=0.1.2` so ZIP/TAR names are stable and do not include `SNAPSHOT`.
-- The release workflow derives the release version from the tag name and passes it into Gradle.
-- The packaged launcher lives under `tools/compose-guardrails/build/install/compose-guardrails/bin/compose-guardrails`.
-- Tagged releases use `.github/workflows/release-compose-guardrails.yml` to run tests, validate the distribution, and upload ZIP/TAR workflow artifacts. GitHub Release publishing is not implemented yet.
-- `v0.1.2` is the recommended public patch release; it supersedes the earlier `v0.1.1` and `v0.1.0` tags.
-
-Project docs:
-- [Changelog](CHANGELOG.md)
-- [Contributing](CONTRIBUTING.md)
-- [Security](SECURITY.md)
-- [Release checklist](docs/release-checklist.md)
-- Issue templates live under `.github/ISSUE_TEMPLATE/` for bugs, features, and guardrail proposals.
-
-Path handling note:
-- CI uses absolute analysis paths to avoid Gradle module working-directory ambiguity.
-- Current CI script rejects analysis/report paths containing whitespace with a clear error to avoid Gradle `--args` splitting issues.
-
-## Limitations
-- Compose detection is heuristic/text-based; there is no AST parser yet.
-- AI findings can contain false positives or false negatives and should be reviewed manually.
-- PR comments are not implemented yet.
-- SARIF and JSON output are not implemented yet.
-- Paths with spaces are currently unsupported in CI scripts.
-- The reusable GitHub Action still runs through the toolkit checkout and Gradle; packaged CLI usage is available for local and release workflows.
-- Local builds default to `0.1.0-SNAPSHOT`; release workflows override the version for tagged releases.
-
-## License
-This project is licensed under the MIT License. See `LICENSE` for details.
-
-## Repository Layout
-- `tools/`: individual tools and tool-specific logic.
-- `shared/`: reusable modules across tools.
-- `docs/`: architecture and cross-repository documentation.
-- `docs/roadmaps/`: per-tool roadmaps (`compose-guardrails` today, more tools later).
-
-Reusable GitHub Action:
-The reusable Action is designed for external repositories. It runs the tool checkout from `mobile-ai-toolkit` and analyzes the consumer repository workspace. It still uses the toolkit checkout and Gradle; packaged-distribution execution remains future work.
-
-Safe first run:
-```yaml
-name: Compose Guardrails
-on:
-  pull_request:
-
-permissions:
-  contents: read
-
-jobs:
-  compose-guardrails:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: gradle/actions/setup-gradle@v4
-      - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
-        with:
-          target: .
-          rule-set: default
-          provider: fake
-          report-path: artifacts/compose-guardrails-report.md
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: compose-guardrails-report
-          path: ${{ steps.compose-guardrails.outputs.report-path }}
-```
-
-`fake` is deterministic scaffolding for CI validation, not a real AI review.
-
-Real provider:
-```yaml
-      - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
-        with:
-          target: app/src/main
-          rule-set: default
-          provider: anthropic
-          model: claude-3-5-sonnet
-          api-key: ${{ secrets.MOBILE_AI_API_KEY }}
-          report-path: artifacts/compose-guardrails-report.md
-```
-
-Changed-files-only PR mode:
-```yaml
-      - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
-        with:
-          target: .
-          changed-files-only: true
-          provider: fake
-```
-
-Fail-on-findings:
-```yaml
-      - id: compose-guardrails
-        uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
-        with:
-          target: .
-          provider: fake
-          fail-on-findings: true
-```
-
-The reusable Action keeps `fake` and report-only behavior as the default. Step Summary is handled by the Action; artifact upload remains the caller’s responsibility.
-For public repositories, `fake` is the safest default for untrusted pull requests. Real providers require GitHub Secrets and may be unavailable on forked PRs depending on repository settings.
-
-The reusable Action has external-workspace validation: changed-files-only mode is scoped to `COMPOSE_GUARDRAILS_TARGET`, and changed files are resolved under the consumer workspace rather than the toolkit checkout.
-
-## Design Principles
-- Kotlin/JVM with Gradle Kotlin DSL.
-- Keep architecture simple and modular.
-- No hardcoded AI provider/API keys in core logic.
-- Prompts are Markdown assets, never hardcoded in Kotlin.
+| Area | Status |
+| --- | --- |
+| `compose-guardrails` CLI | Stable baseline |
+| `kmp-project-auditor` CLI | Stable baseline |
+| Shared AI provider layer | Stable baseline |
+| Markdown reporting | Stable baseline |
+| AST/compiler-level analysis | Planned |
+| SARIF/JSON parity across tools | Planned |
 
 ## Runtime Configuration
-Environment variables are used at runtime for provider selection:
+
+Runtime provider configuration is shared across tools:
+
 - `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
 - `MOBILE_AI_API_KEY` (required for real providers)
 - `MOBILE_AI_MODEL` (required for real providers)
 
-Security note:
-- Never commit API keys or secrets to this repository.
+For deterministic local/CI runs, use `MOBILE_AI_PROVIDER=fake`.
 
-GitHub Actions example:
+Security:
+- Never commit API keys or tokens.
+- Keep secrets in environment variables or CI secrets.
+
+## CI and GitHub Action
+
+Current baseline workflow:
+- [.github/workflows/compose-guardrails.yml](.github/workflows/compose-guardrails.yml)
+
+Current behavior is report-first by default:
+- Runs tests.
+- Runs `compose-guardrails`.
+- Uploads Markdown report artifact.
+- Keeps fail-on-findings opt-in.
+
+Reusable action for external repositories:
+- [.github/actions/compose-guardrails/action.yml](.github/actions/compose-guardrails/action.yml)
+
+Minimal usage:
 
 ```yaml
-env:
-  MOBILE_AI_PROVIDER: anthropic
-  MOBILE_AI_API_KEY: ${{ secrets.MOBILE_AI_API_KEY }}
-  MOBILE_AI_MODEL: ${{ secrets.MOBILE_AI_MODEL }}
+- id: compose-guardrails
+  uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
+  with:
+    target: .
+    provider: fake
+    rule-set: default
+    report-path: artifacts/compose-guardrails-report.md
 ```
 
-Use `MOBILE_AI_PROVIDER=fake` for deterministic CI checks without external API calls.
+For complete options (`changed-files-only`, `fail-on-findings`, step summary behavior), see:
+- [tools/compose-guardrails/README.md](tools/compose-guardrails/README.md)
 
-Current provider-layer limitations:
-- No streaming support yet.
-- No retries/backoff yet.
-- No chat history support.
-- No live API tests in the automated test suite.
+## How It Works
 
-Guardrail quality note:
-- AI findings should be treated as review assistance and validated manually by developers.
-- Compose rule detection is heuristic/text-based (no AST parser yet).
-- Default rules are intentionally conservative to reduce noisy findings.
-- Advanced rules are exploratory and may produce noisier findings.
+1. Choose a tool and target path (`compose` UI code or KMP project root).
+2. The scanner collects deterministic local evidence from source files.
+3. Prompt assets are assembled from versioned Markdown rule files.
+4. The selected AI provider reviews only the collected evidence.
+5. Findings are parsed into a strict schema and rendered to Markdown reports.
 
-## Status
-Milestones 1-14 are complete, including baseline GitHub Actions integration, a reusable GitHub Action, release packaging, open source polish, and the recovered `v0.1.2` patch release line for deterministic `compose-guardrails` checks and report artifacts.
+This design keeps behavior deterministic where possible and isolates provider-specific logic behind interfaces.
+
+## Architecture
+
+- CLI modules handle argument parsing, orchestration, and output.
+- Tool-specific core logic lives under `tools/<tool-name>/`.
+- Shared abstractions live under `shared/`.
+- AI providers are behind interfaces (`AiClient`), never coupled to domain logic.
+- Prompt assets are Markdown files, not hardcoded Kotlin strings.
+
+Read:
+- [Architecture guide](docs/architecture.md)
+
+## Repository Layout
+
+- `tools/`: tool CLIs and tool-specific analysis logic.
+- `shared/`: reusable AI client and report modules.
+- `docs/`: architecture, checklists, and roadmap docs.
+- `artifacts/`: generated sample reports.
+
+## Roadmaps and Project Docs
+
+- [Compose Guardrails Roadmap](docs/roadmaps/compose-guardrails.md)
+- [KMP Project Auditor Roadmap](docs/roadmaps/kmp-project-auditor.md)
+- [Roadmaps Index](docs/roadmaps/README.md)
+- [Release Checklist](docs/release-checklist.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)
+
+## Roadmap
+
+1. Improve analysis precision (move key checks from text heuristics to stronger static analysis).
+2. Expand machine-readable output support (SARIF/JSON) across tools.
+3. Deepen CI integration patterns for report gating and team workflows.
+4. Add new mobile-focused analyzers under `tools/` using the same shared architecture.
+
+## Current Limitations
+
+- Most detection is currently heuristic/text-based (not full AST or compiler analysis).
+- AI findings can contain false positives/false negatives.
+- Report formats are Markdown-first; SARIF/JSON are not fully available across tools.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
