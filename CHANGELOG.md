@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v0.1.3
 - Add Milestone 8 release-readiness support for `kmp-project-auditor`.
 - Add release packaging validation script for `installDist`, `distZip`, and `distTar`.
 - Add tag-triggered release workflow that validates packaging and uploads ZIP/TAR artifacts for `kmp-project-auditor`.

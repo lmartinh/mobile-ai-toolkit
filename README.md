@@ -8,7 +8,7 @@
 
 [![CI](https://img.shields.io/badge/CI-GitHub%20Actions-blue)](.github/workflows/compose-guardrails.yml)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![Release Packaging](https://img.shields.io/badge/Release%20Packaging-compose--guardrails-orange)](docs/roadmaps/compose-guardrails.md)
+[![Release Packaging](https://img.shields.io/badge/Release%20Packaging-compose--guardrails%20%26%20kmp--project--auditor-orange)](docs/release-checklist.md)
 [![Kotlin](https://img.shields.io/badge/Kotlin-JVM%20%2B%20KMP-7F52FF)](https://kotlinlang.org/)
 [![Status](https://img.shields.io/badge/Status-Active%20Development-2ea44f)](docs/roadmaps/README.md)
 
@@ -95,8 +95,13 @@ Security:
 
 ## CI and GitHub Action
 
-Current baseline workflow:
+Current baseline workflows:
 - [.github/workflows/compose-guardrails.yml](.github/workflows/compose-guardrails.yml)
+- [.github/workflows/kmp-project-auditor.yml](.github/workflows/kmp-project-auditor.yml)
+
+Current release workflows:
+- [.github/workflows/release-compose-guardrails.yml](.github/workflows/release-compose-guardrails.yml)
+- [.github/workflows/release-kmp-project-auditor.yml](.github/workflows/release-kmp-project-auditor.yml)
 
 Current behavior is report-first by default:
 - Runs tests.
@@ -111,7 +116,7 @@ Minimal usage:
 
 ```yaml
 - id: compose-guardrails
-  uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
+  uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.3
   with:
     target: .
     provider: fake
