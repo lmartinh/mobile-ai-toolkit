@@ -116,7 +116,7 @@ Status: completed
 - Document each rule with what to detect, what not to detect, and false-positive notes.
 
 ## Milestone 7: CI Integration
-Status: planned
+Status: in progress
 - Add a GitHub Actions workflow or reusable script for running the auditor with `fake` provider.
 - Upload the Markdown report artifact.
 - Add Step Summary output.

@@ -66,48 +66,32 @@ Security:
 
 ## Integration in CI
 
-Minimal GitHub Actions example:
+Repository-local workflow:
+- `.github/workflows/kmp-project-auditor.yml`
+- `.github/scripts/run-kmp-project-auditor.sh`
 
-```yaml
-name: KMP Project Auditor
-on:
-  pull_request:
+Defaults are safe:
+- `MOBILE_AI_PROVIDER=fake`
+- report-only mode by default (`KMP_PROJECT_AUDITOR_FAIL_ON_FINDINGS=false`)
+- no secrets required by default
+- no PR comments
+- no SARIF/JSON output
 
-permissions:
-  contents: read
+Artifacts and summary:
+- Markdown artifact name: `kmp-project-auditor-report`
+- default report path: `artifacts/kmp-project-auditor-report.md`
+- GitHub Step Summary is written when `KMP_PROJECT_AUDITOR_WRITE_STEP_SUMMARY=true`
 
-jobs:
-  kmp-audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: gradle/actions/setup-gradle@v4
-      - name: Run audit
-        env:
-          MOBILE_AI_PROVIDER: fake
-        run: |
-          ./gradlew :tools:kmp-project-auditor:run --args="kmp audit $GITHUB_WORKSPACE --output $GITHUB_WORKSPACE/artifacts/kmp-project-auditor-report.md"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: kmp-project-auditor-report
-          path: artifacts/kmp-project-auditor-report.md
-```
-
-Notes:
-- The tool currently does not implement fail-on-findings mode.
-- Use workflow-level policy if you want to gate merges.
+Real providers:
+- set `MOBILE_AI_PROVIDER`, `MOBILE_AI_API_KEY`, and `MOBILE_AI_MODEL` via GitHub Secrets
+- real providers are opt-in and not the CI default
 
 ## Output Contract
 
 Report format is Markdown-first with deterministic + AI sections.
 
 Stable top-level sections:
-- `# KMP Project Auditor Report`
+- `# KMP Project Audit Report`
 - `## Summary`
 - `## Deterministic Findings`
 - `## AI Findings`
@@ -180,7 +164,7 @@ Severity guidance:
 - Filesystem/text heuristics only (no full AST/compiler model).
 - No full dependency-graph analysis.
 - No `expect`/`actual` analysis yet.
-- No fail-on-findings mode yet.
+- No CLI `--fail-on-findings` flag (CI script supports opt-in fail mode via `KMP_PROJECT_AUDITOR_FAIL_ON_FINDINGS`).
 - No SARIF/JSON outputs yet.
 - AI findings require manual review.
 

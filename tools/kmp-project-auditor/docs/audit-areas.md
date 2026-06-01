@@ -3,7 +3,7 @@
 This document outlines planned audit areas for `kmp-project-auditor`.
 Detailed rule metadata now lives in `docs/rules.md`.
 
-Milestone 5 adds Markdown audit report generation on top of deterministic findings and fake AI review.
+Milestone 7 adds repository-local CI integration on top of Markdown reports and fake AI defaults.
 
 ## Planned Areas (High Level)
 
@@ -20,7 +20,7 @@ Milestone 5 adds Markdown audit report generation on top of deterministic findin
 - Test source-set coverage
 - Consumer setup documentation
 
-## Milestone 6 Scope Reminder
+## Milestone 7 Scope Reminder
 
 Current behavior is deterministic and heuristic-based:
 - discover Gradle files
@@ -39,5 +39,7 @@ Current behavior is deterministic and heuristic-based:
 - render a deterministic Markdown report
 - support `--output <path>` for report files
 - maintain a documented rule catalog aligned with deterministic checks, AI guidance, and future rules
+- run a repository-local GitHub Actions workflow with fake provider defaults
+- upload Markdown report artifacts and write a Step Summary
 
-No CI integration, no fail-on-findings mode, and no Gradle AST/dependency graph parsing are implemented in Milestone 6.
+No reusable external action, no release packaging, no SARIF/JSON, and no Gradle AST/dependency graph parsing are implemented in Milestone 7.

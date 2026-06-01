@@ -1,0 +1,50 @@
+name: KMP Project Auditor
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  MOBILE_AI_PROVIDER: fake
+  KMP_PROJECT_AUDITOR_TARGET: tools/kmp-project-auditor/examples/bad-kmp-library
+  KMP_PROJECT_AUDITOR_REPORT_PATH: artifacts/kmp-project-auditor-report.md
+  KMP_PROJECT_AUDITOR_FAIL_ON_FINDINGS: false
+  KMP_PROJECT_AUDITOR_WRITE_STEP_SUMMARY: true
+
+jobs:
+  kmp-project-auditor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run tests
+        run: ./gradlew :tools:kmp-project-auditor:test
+
+      - name: Validate CI run script
+        run: .github/scripts/test-run-kmp-project-auditor.sh
+
+      - name: Run kmp-project-auditor
+        id: audit
+        run: .github/scripts/run-kmp-project-auditor.sh
+
+      - name: Upload kmp-project-auditor report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kmp-project-auditor-report
+          path: ${{ steps.audit.outputs.report_path || env.KMP_PROJECT_AUDITOR_REPORT_PATH }}
