@@ -116,21 +116,26 @@ Status: completed
 - Document each rule with what to detect, what not to detect, and false-positive notes.
 
 ## Milestone 7: CI Integration
-Status: in progress
-- Add a GitHub Actions workflow or reusable script for running the auditor with `fake` provider.
+Status: completed
+- Add a GitHub Actions workflow for running the auditor with `fake` provider.
 - Upload the Markdown report artifact.
 - Add Step Summary output.
 - Keep fail-on-findings opt-in.
 - Support configurable target path and report path.
-- Document usage with real providers through secrets.
+- Add robust report-path handling for CI artifact upload.
+- Generate a fallback Markdown report when the audit fails before producing a full report.
+- Document usage with real providers through GitHub Secrets.
 
 ## Milestone 8: Release Readiness
 Status: planned
-- Add final README, quickstart, examples, and limitations.
-- Add release packaging if it is already solved for `compose-guardrails`.
-- Verify prompt resources are packaged correctly.
-- Add changelog entries.
-- Prepare a first public release after a sample third-party KMP project can run the tool in CI.
+- Finalize the tool README with quickstart, local usage, CI usage, providers, examples, limitations, and rule catalog links.
+- Add or update changelog entries for `kmp-project-auditor`.
+- Add release packaging if it can reuse the existing `compose-guardrails` Gradle application distribution pattern safely.
+- Verify packaged distributions include prompt resources and can run outside the repository checkout.
+- Verify the CI workflow can run on a sample KMP project with `fake` provider.
+- Verify real-provider configuration works through environment variables and GitHub Secrets.
+- Keep report-only behavior as the default.
+- Do not add a reusable external GitHub Action unless explicitly split into a later milestone.
 
 ## MVP Definition
 - CLI scans a KMP Android+iOS project directory.
@@ -161,6 +166,9 @@ Status: planned
 - Maven Central publishing checks beyond lightweight heuristics.
 - Company-specific architecture rules.
 - Swift/Objective-C source analysis.
+- SARIF/JSON outputs.
+- PR comments.
+- Reusable external GitHub Action for `kmp-project-auditor`.
 
 ## Risks And Mitigations
 - Gradle configuration is highly variable: start with conservative text heuristics and document limitations.
@@ -169,12 +177,13 @@ Status: planned
 - AI can invent architecture advice: prompt for evidence-based findings only and keep deterministic checks visible.
 
 ## Suggested Commit Or PR Sequence
-- Add module skeleton, docs, and example fixtures.
-- Add project/source-set scanner and tests.
-- Add deterministic KMP checks.
-- Add prompt pipeline and fake AI integration.
-- Add Markdown report generation.
-- Add examples, rule docs, and CI integration.
+- Add module skeleton, docs, and example fixtures. ✅
+- Add project/source-set scanner and tests. ✅
+- Add deterministic KMP checks. ✅
+- Add prompt pipeline and fake AI integration. ✅
+- Add Markdown report generation. ✅
+- Add examples, rule docs, and expected reports. ✅
+- Add safe CI integration with report artifacts and Step Summary. ✅
 - Add release-readiness docs and changelog.
 
 ## Recommended Tests Per Milestone
