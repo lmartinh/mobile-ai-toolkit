@@ -17,6 +17,10 @@ If you are new to this repository, start with the root [README](../../README.md)
 Roadmap:
 - [docs/roadmaps/kmp-project-auditor.md](../../docs/roadmaps/kmp-project-auditor.md)
 
+Current status:
+- Milestones 1-8 are implemented for first public release readiness.
+- Rule catalog, examples, and expected Markdown reports are documented and versioned.
+
 ## Command
 
 `kmp audit <path>`
@@ -36,6 +40,21 @@ Run tests:
 
 ```bash
 ./gradlew :shared:ai-client:test :shared:report-common:test :tools:kmp-project-auditor:test
+```
+
+Validate packaging:
+
+```bash
+./gradlew :tools:kmp-project-auditor:installDist :tools:kmp-project-auditor:distZip :tools:kmp-project-auditor:distTar
+```
+
+Run packaged CLI:
+
+```bash
+MOBILE_AI_PROVIDER=fake \
+tools/kmp-project-auditor/build/install/kmp-project-auditor/bin/kmp-project-auditor \
+kmp audit "$PWD/tools/kmp-project-auditor/examples/bad-kmp-library" \
+--output "$PWD/artifacts/kmp-project-auditor-report.md"
 ```
 
 ## Runtime Configuration
@@ -69,6 +88,7 @@ Security:
 Repository-local workflow:
 - `.github/workflows/kmp-project-auditor.yml`
 - `.github/scripts/run-kmp-project-auditor.sh`
+- Release tags workflow: `.github/workflows/release-kmp-project-auditor.yml`
 
 Defaults are safe:
 - `MOBILE_AI_PROVIDER=fake`
@@ -81,6 +101,7 @@ Artifacts and summary:
 - Markdown artifact name: `kmp-project-auditor-report`
 - default report path: `artifacts/kmp-project-auditor-report.md`
 - GitHub Step Summary is written when `KMP_PROJECT_AUDITOR_WRITE_STEP_SUMMARY=true`
+- release package artifact name: `kmp-project-auditor-release-packages-<tag>`
 
 Real providers:
 - set `MOBILE_AI_PROVIDER`, `MOBILE_AI_API_KEY`, and `MOBILE_AI_MODEL` via GitHub Secrets
@@ -166,7 +187,10 @@ Severity guidance:
 - No `expect`/`actual` analysis yet.
 - No CLI `--fail-on-findings` flag (CI script supports opt-in fail mode via `KMP_PROJECT_AUDITOR_FAIL_ON_FINDINGS`).
 - No SARIF/JSON outputs yet.
+- No PR comments.
+- No reusable external GitHub Action for this tool yet.
 - AI findings require manual review.
+- Paths with spaces are currently unsupported in CI scripts.
 
 ## Scope (Current)
 

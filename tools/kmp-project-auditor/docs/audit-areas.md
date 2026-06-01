@@ -3,7 +3,7 @@
 This document outlines planned audit areas for `kmp-project-auditor`.
 Detailed rule metadata now lives in `docs/rules.md`.
 
-Milestone 7 adds repository-local CI integration on top of Markdown reports and fake AI defaults.
+Milestone 8 adds release-readiness packaging and tag workflow validation on top of repository-local CI integration.
 
 ## Planned Areas (High Level)
 
@@ -20,7 +20,7 @@ Milestone 7 adds repository-local CI integration on top of Markdown reports and 
 - Test source-set coverage
 - Consumer setup documentation
 
-## Milestone 7 Scope Reminder
+## Milestone 8 Scope Reminder
 
 Current behavior is deterministic and heuristic-based:
 - discover Gradle files
@@ -41,5 +41,8 @@ Current behavior is deterministic and heuristic-based:
 - maintain a documented rule catalog aligned with deterministic checks, AI guidance, and future rules
 - run a repository-local GitHub Actions workflow with fake provider defaults
 - upload Markdown report artifacts and write a Step Summary
+- validate installDist/distZip/distTar packaging for the tool
+- validate packaged prompt resources and packaged CLI execution with fake provider
+- run a tag-triggered release workflow that uploads ZIP/TAR package artifacts
 
-No reusable external action, no release packaging, no SARIF/JSON, and no Gradle AST/dependency graph parsing are implemented in Milestone 7.
+No reusable external action, no SARIF/JSON, and no Gradle AST/dependency graph parsing are implemented in Milestone 8.

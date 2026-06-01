@@ -1,6 +1,12 @@
 # Changelog
 
 ## Unreleased
+- Add Milestone 8 release-readiness support for `kmp-project-auditor`.
+- Add release packaging validation script for `installDist`, `distZip`, and `distTar`.
+- Add tag-triggered release workflow that validates packaging and uploads ZIP/TAR artifacts for `kmp-project-auditor`.
+- Finalize `kmp-project-auditor` docs with packaged CLI usage, release-readiness status, and limitations.
+- Keep fake provider as the default and do not add reusable external action, SARIF/JSON, or PR comments in this milestone.
+
 ## v0.1.2
 - Fix the release publication infrastructure by tracking the Gradle wrapper JAR in Git so tagged GitHub Actions runs can execute the build.
 - Keep the release artifact naming and packaging flow stable for the next patch release.

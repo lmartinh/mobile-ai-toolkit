@@ -127,15 +127,26 @@ Status: completed
 - Document usage with real providers through GitHub Secrets.
 
 ## Milestone 8: Release Readiness
-Status: planned
+Status: completed
 - Finalize the tool README with quickstart, local usage, CI usage, providers, examples, limitations, and rule catalog links.
 - Add or update changelog entries for `kmp-project-auditor`.
-- Add release packaging if it can reuse the existing `compose-guardrails` Gradle application distribution pattern safely.
+- Add release packaging reusing the existing `compose-guardrails` Gradle application distribution pattern safely.
 - Verify packaged distributions include prompt resources and can run outside the repository checkout.
 - Verify the CI workflow can run on a sample KMP project with `fake` provider.
 - Verify real-provider configuration works through environment variables and GitHub Secrets.
 - Keep report-only behavior as the default.
 - Do not add a reusable external GitHub Action unless explicitly split into a later milestone.
+
+## Post-Release Improvements
+- Reusable external GitHub Action for `kmp-project-auditor`.
+- SARIF/JSON output modes.
+- PR comments integration.
+- Changed-files-only CI mode.
+- Improved fail-on-findings behavior using structured output.
+- Path-with-spaces support in CI scripts.
+- Richer `expect`/`actual` heuristics.
+- Publishing metadata heuristics improvements.
+- Optional real-provider CI examples.
 
 ## MVP Definition
 - CLI scans a KMP Android+iOS project directory.
@@ -184,7 +195,7 @@ Status: planned
 - Add Markdown report generation. ✅
 - Add examples, rule docs, and expected reports. ✅
 - Add safe CI integration with report artifacts and Step Summary. ✅
-- Add release-readiness docs and changelog.
+- Add release-readiness docs, changelog, and packaging validation. ✅
 
 ## Recommended Tests Per Milestone
 - Scanner tests for project roots, source sets, and Gradle file discovery.

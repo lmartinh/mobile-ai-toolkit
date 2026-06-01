@@ -1,6 +1,7 @@
 # KMP Rule Catalog
 
 This catalog documents the current audit rules for `kmp-project-auditor`.
+Milestone 8 is release-readiness focused and does not add new rule families.
 
 Rule status values:
 - `deterministic`: implemented as text/path-based checks in the current tool.

@@ -1,0 +1,50 @@
+name: Release KMP Project Auditor
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+env:
+  MOBILE_AI_PROVIDER: fake
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run tests
+        run: ./gradlew :tools:kmp-project-auditor:test
+
+      - name: Validate CI run script
+        run: .github/scripts/test-run-kmp-project-auditor.sh
+
+      - name: Validate release packaging
+        run: .github/scripts/test-kmp-project-auditor-release-packaging.sh
+
+      - name: Build release distributions
+        run: ./gradlew -PreleaseVersion=${RELEASE_VERSION#v} :tools:kmp-project-auditor:distZip :tools:kmp-project-auditor:distTar
+
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kmp-project-auditor-release-packages-${{ github.ref_name }}
+          path: tools/kmp-project-auditor/build/distributions/*
