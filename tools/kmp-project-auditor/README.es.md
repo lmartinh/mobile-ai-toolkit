@@ -9,7 +9,7 @@ Ayuda a los equipos a validar estructura de proyecto, límites entre source sets
 ## Por qué lo usan los equipos
 
 - Feedback más rápido de arquitectura en módulos y source sets KMP.
-- Detección temprana de fugas de plataforma hacia código compartido (`commonMain`).
+- Detección temprana de fugas de plataforma hacia código compartido en `commonMain`.
 - Reportes repetibles para pull requests y validaciones de release.
 
 Si eres nuevo en este repositorio, empieza por el [README raíz](../../README.md) y la [guía de arquitectura](../../docs/architecture.md).
@@ -126,9 +126,9 @@ Nota para automatización:
 ## Rule Sets
 
 `deterministic` (implementadas, mayor confianza):
-- `kmp.common.no-android-api`: Detecta imports Android dentro de `commonMain`.
-- `kmp.common.no-ios-api`: Detecta imports iOS/native dentro de `commonMain`.
-- `kmp.tests.missing-common-test`: Marca proyectos con `commonMain` pero sin `commonTest`.
+- `kmp.common.no-android-api`: Detecta imports Android dentro de código compartido en `commonMain`.
+- `kmp.common.no-ios-api`: Detecta imports iOS/native dentro de código compartido en `commonMain`.
+- `kmp.tests.missing-common-test`: Marca proyectos con código compartido en `commonMain` pero sin `commonTest`.
 - `kmp.source-sets.android-target-without-source-set`: Detecta targets Android declarados sin source sets Android.
 - `kmp.source-sets.ios-target-without-source-set`: Detecta targets iOS declarados sin source sets iOS.
 - `kmp.source-sets.android-source-set-without-target`: Detecta source sets Android sin target Android declarado.

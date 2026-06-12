@@ -10,10 +10,15 @@ It combines deterministic project scanning, source-set and Gradle evidence colle
 
 The tool helps teams review project structure, source-set boundaries, platform leaks, dependency organization, and maintainability risks early, before they become expensive refactors.
 
+## Prompt System
+
+Prompt formation follows the shared repository pattern documented in [docs/architecture.md](../../docs/architecture.md#shared-prompt-pipeline).
+The rule catalog is documented in [docs/rules.md](docs/rules.md).
+
 ## What it checks
 
 - Kotlin Multiplatform source-set structure.
-- `commonMain` / `commonTest` platform-boundary risks.
+- Shared code in `commonMain` / `commonTest` platform-boundary risks.
 - Android and iOS API leaks in shared code.
 - Gradle module and dependency organization.
 - `commonTest` presence when shared code is present.
@@ -187,9 +192,9 @@ Automation note:
 ## Rule Sets
 
 `deterministic` (implemented, higher confidence):
-- `kmp.common.no-android-api`: Detects Android imports inside `commonMain`.
-- `kmp.common.no-ios-api`: Detects iOS/native imports inside `commonMain`.
-- `kmp.tests.missing-common-test`: Flags projects with `commonMain` but missing `commonTest`.
+- `kmp.common.no-android-api`: Detects Android imports inside shared code in `commonMain`.
+- `kmp.common.no-ios-api`: Detects iOS/native imports inside shared code in `commonMain`.
+- `kmp.tests.missing-common-test`: Flags projects with shared code in `commonMain` but missing `commonTest`.
 - `kmp.source-sets.android-target-without-source-set`: Detects Android target declarations without Android source sets.
 - `kmp.source-sets.ios-target-without-source-set`: Detects iOS target declarations without iOS source sets.
 - `kmp.source-sets.android-source-set-without-target`: Detects Android source sets without matching Android target declarations.
@@ -205,6 +210,8 @@ Automation note:
 - `kmp.publishing.metadata`: Reviews publication-readiness signals when publishing blocks are present.
 - `kmp.api.public-surface-cleanliness`: Reviews broad public API cleanliness/stability signals.
 - `kmp.docs.consumer-setup`: Reviews likely gaps in consumer integration documentation.
+
+AI findings are advisory by design. The tool normalizes AI output to avoid high-severity claims when the evidence is only heuristic, and it rejects Android API leakage claims in `commonMain` when the only imports are valid Compose Multiplatform APIs under `androidx.compose.*`.
 
 `future` (documented, not implemented yet):
 - `kmp.expect-actual.missing-actual`: Planned check for `expect` declarations missing platform `actual` implementations.
@@ -232,7 +239,7 @@ Severity guidance:
 - Traversal excludes generated/internal directories (`.git`, `build`, `.gradle`, `.idea`, `.kotlin`, `out`).
 - Nested checkouts that match the toolkit repository layout are ignored so external repository reports stay scoped to the audited project.
 - `fake` provider works without API key/model.
-- Compose Multiplatform imports under `androidx.compose.*` are allowed in `commonMain`; Android-only imports such as `android.*`, `androidx.activity.*`, `androidx.appcompat.*`, `androidx.core.*`, and `androidx.lifecycle.*` are still flagged.
+- Compose Multiplatform imports under `androidx.compose.*` are allowed in shared code in `commonMain`; Android-only imports such as `android.*`, `androidx.activity.*`, `androidx.appcompat.*`, `androidx.core.*`, and `androidx.lifecycle.*` are still flagged.
 
 ## Troubleshooting
 

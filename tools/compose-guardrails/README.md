@@ -10,6 +10,12 @@ It combines deterministic source scanning, versioned Markdown prompt assets, pro
 
 The tool helps teams catch architecture, state, side-effect, accessibility, maintainability, and Kotlin Multiplatform boundary risks early. It is designed for practical CI usage with safe defaults and stable Markdown reporting.
 
+## Prompt System
+
+Prompt formation is documented in [docs/prompt-system.md](docs/prompt-system.md).
+That page explains where prompt assets live, how the final prompt is composed, how rule catalogs are selected, how the JSON output contract works, and how to modify prompts safely.
+The shared repository pattern is summarized in [docs/architecture.md](../../docs/architecture.md#shared-prompt-pipeline).
+
 ## What it checks
 
 - State hoisting and unidirectional data flow.
