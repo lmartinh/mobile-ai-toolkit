@@ -42,7 +42,7 @@ commonMain should avoid iOS/native-specific APIs.
 ### WARNING - kmp.dependencies.common-platform-leak
 **Title:** Platform-specific dependency in common dependencies  
 **File:** `build.gradle.kts`  
-**Evidence:** `implementation("androidx.core:core-ktx:1.13.1")`
+**Evidence:** `implementation("androidx.core:core-ktx:1.17.0")`
 commonMain dependencies should avoid Android-specific artifacts.
 
 **Suggestion:** Move Android dependencies to androidMain-specific configurations.
