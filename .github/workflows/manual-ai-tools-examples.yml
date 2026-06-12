@@ -3,11 +3,6 @@ name: Manual AI Tools Examples
 on:
   workflow_dispatch:
     inputs:
-      ref:
-        description: Git branch, tag, or SHA to run.
-        required: true
-        default: main
-        type: string
       tool:
         description: Tool to run.
         required: true
@@ -52,10 +47,9 @@ jobs:
       KMP_PROJECT_AUDITOR_CLEAN_REPORT_PATH: artifacts/manual-ai-tools-examples/kmp-project-auditor-clean-example-report.md
       KMP_PROJECT_AUDITOR_BAD_REPORT_PATH: artifacts/manual-ai-tools-examples/kmp-project-auditor-bad-example-report.md
     steps:
-      - name: Checkout selected ref
+      - name: Checkout selected branch
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.ref }}
           fetch-depth: 0
 
       - name: Setup Java
@@ -174,7 +168,7 @@ jobs:
       - name: Write workflow summary
         if: always()
         env:
-          SELECTED_REF: ${{ inputs.ref }}
+          SELECTED_BRANCH: ${{ github.ref_name }}
           SELECTED_TOOL: ${{ inputs.tool }}
           SELECTED_PROVIDER: ${{ inputs.provider }}
           FAIL_ON_FINDINGS: ${{ inputs['fail-on-findings'] }}
@@ -254,7 +248,7 @@ jobs:
           {
             echo "## Manual AI Tools Examples"
             echo ""
-            echo "- Ref: \`$SELECTED_REF\`"
+            echo "- Branch: \`$SELECTED_BRANCH\`"
             echo "- Provider: \`$SELECTED_PROVIDER\`"
             echo "- Model: \`$selected_model\`"
             echo "- Tool: \`$SELECTED_TOOL\`"
