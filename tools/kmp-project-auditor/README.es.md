@@ -42,8 +42,14 @@ Ejecutar tests:
 
 Variables de entorno:
 - `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
-- `MOBILE_AI_API_KEY` (requerida para proveedores reales)
-- `MOBILE_AI_MODEL` (requerido para proveedores reales)
+- `MOBILE_AI_API_KEY` (requerida solo para proveedores reales)
+- `MOBILE_AI_MODEL` (fijo por proveedor)
+
+| Proveedor | Modelo |
+| --- | --- |
+| `openai` | `gpt-4.1-mini` |
+| `anthropic` | `claude-3-5-sonnet` |
+| `gemini` | `gemini-1.5-pro` |
 
 Modo determinista para local/CI:
 
@@ -169,7 +175,7 @@ Guía de severidad:
 - `Path does not exist` o `not a directory`:
   - Confirma que `<path>` apunta a la raíz del proyecto KMP.
 - Falta API key/model con proveedor real:
-  - Configura ambos `MOBILE_AI_API_KEY` y `MOBILE_AI_MODEL`.
+  - Configura `MOBILE_AI_API_KEY`; el modelo queda fijo por proveedor.
 - Salida de IA vacía o malformada:
   - El parser aplica fallback seguro; revisa la sección AI Findings y re-ejecuta con `fake` para validar el comportamiento determinista.
 - Findings poco útiles:

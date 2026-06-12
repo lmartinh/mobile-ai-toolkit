@@ -43,8 +43,14 @@ Ejecutar tests:
 
 Variables de entorno:
 - `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
-- `MOBILE_AI_API_KEY` (requerida para proveedores reales)
-- `MOBILE_AI_MODEL` (requerido para proveedores reales)
+- `MOBILE_AI_API_KEY` (requerida solo para proveedores reales)
+- `MOBILE_AI_MODEL` (fijo por proveedor)
+
+| Proveedor | Modelo |
+| --- | --- |
+| `openai` | `gpt-4.1-mini` |
+| `anthropic` | `claude-3-5-sonnet` |
+| `gemini` | `gemini-1.5-pro` |
 
 Ejemplos por proveedor:
 
@@ -187,7 +193,7 @@ MOBILE_AI_PROVIDER=fake \
 - `Invalid rule-set value`:
   - Usa solo `default`, `advanced` o `all`.
 - `Missing API key/model` con proveedor real:
-  - Configura ambos `MOBILE_AI_API_KEY` y `MOBILE_AI_MODEL`.
+  - Configura `MOBILE_AI_API_KEY`; el modelo queda fijo por proveedor.
 - Rutas con espacios en CI:
   - Los scripts actuales de CI las rechazan para evitar problemas de splitting en Gradle `--args`.
 - Salida de IA vacía o malformada:

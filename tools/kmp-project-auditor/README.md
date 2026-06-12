@@ -63,8 +63,14 @@ kmp audit "$PWD/tools/kmp-project-auditor/examples/bad-kmp-library" \
 
 Environment variables:
 - `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
-- `MOBILE_AI_API_KEY` (required for real providers)
-- `MOBILE_AI_MODEL` (required for real providers)
+- `MOBILE_AI_API_KEY` (required only for real providers)
+- `MOBILE_AI_MODEL` (fixed by provider)
+
+| Provider | Model |
+| --- | --- |
+| `openai` | `gpt-4.1-mini` |
+| `anthropic` | `claude-3-5-sonnet` |
+| `gemini` | `gemini-1.5-pro` |
 
 Deterministic mode for local/CI:
 
@@ -107,7 +113,7 @@ Artifacts and summary:
 - release package artifact name: `kmp-project-auditor-release-packages-<tag>`
 
 Real providers:
-- set `MOBILE_AI_PROVIDER`, `MOBILE_AI_API_KEY`, and `MOBILE_AI_MODEL` via GitHub Secrets
+- set `MOBILE_AI_PROVIDER` and `MOBILE_AI_API_KEY` via GitHub Secrets; the model is fixed by provider
 - real providers are opt-in and not the CI default
 
 ## Output Contract
@@ -180,7 +186,7 @@ Severity guidance:
 - `Path does not exist` or `not a directory`:
   - Confirm `<path>` points to the KMP project root.
 - Missing API key/model with real provider:
-  - Set both `MOBILE_AI_API_KEY` and `MOBILE_AI_MODEL`.
+  - Set `MOBILE_AI_API_KEY`; the model is fixed by provider.
 - Empty or malformed AI output:
   - Parser falls back safely; inspect AI findings and AI warnings sections and re-run with `fake` to validate deterministic behavior.
 - No useful findings:

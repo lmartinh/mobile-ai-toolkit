@@ -84,8 +84,14 @@ MOBILE_AI_PROVIDER=fake ./gradlew :tools:kmp-project-auditor:run --args="kmp aud
 La configuración del proveedor en runtime es compartida entre herramientas:
 
 - `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
-- `MOBILE_AI_API_KEY` (requerida para proveedores reales)
-- `MOBILE_AI_MODEL` (requerido para proveedores reales)
+- `MOBILE_AI_API_KEY` (requerida solo para proveedores reales)
+- `MOBILE_AI_MODEL` (fijo por proveedor)
+
+| Proveedor | Modelo |
+| --- | --- |
+| `openai` | `gpt-4.1-mini` |
+| `anthropic` | `claude-3-5-sonnet` |
+| `gemini` | `gemini-1.5-pro` |
 
 Para ejecuciones deterministas en local/CI, usa `MOBILE_AI_PROVIDER=fake`.
 

@@ -43,8 +43,14 @@ Run tests:
 
 Environment variables:
 - `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
-- `MOBILE_AI_API_KEY` (required for real providers)
-- `MOBILE_AI_MODEL` (required for real providers)
+- `MOBILE_AI_API_KEY` (required only for real providers)
+- `MOBILE_AI_MODEL` (fixed by provider)
+
+| Provider | Model |
+| --- | --- |
+| `openai` | `gpt-4.1-mini` |
+| `anthropic` | `claude-3-5-sonnet` |
+| `gemini` | `gemini-1.5-pro` |
 
 Provider examples:
 
@@ -187,7 +193,7 @@ MOBILE_AI_PROVIDER=fake \
 - `Invalid rule-set value`:
   - Use only `default`, `advanced`, or `all`.
 - `Missing API key/model` with real provider:
-  - Set both `MOBILE_AI_API_KEY` and `MOBILE_AI_MODEL`.
+  - Set `MOBILE_AI_API_KEY`; the model is fixed by provider.
 - Paths with spaces in CI:
   - Current CI scripts reject them to avoid Gradle `--args` splitting issues.
 - Empty or malformed AI output:
