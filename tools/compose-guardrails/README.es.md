@@ -97,7 +97,7 @@ Uso mínimo externo:
 
 ```yaml
 - id: compose-guardrails
-  uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
+  uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.4
   with:
     target: .
     provider: fake
