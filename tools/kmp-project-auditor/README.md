@@ -2,15 +2,32 @@
 
 > **Read in another language:** **English** · [Español](README.es.md)
 
-`kmp-project-auditor` is a Kotlin CLI for auditing Kotlin Multiplatform mobile projects.
+AI-assisted project audits for Kotlin Multiplatform repositories.
 
-It helps teams validate project structure, source-set boundaries, and platform separation early, before architecture drift becomes expensive maintenance work. The tool combines deterministic checks with optional AI-assisted review and produces CI-friendly Markdown reports.
+`kmp-project-auditor` is an AI-assisted CLI for auditing Kotlin Multiplatform project structure and platform-boundary risks.
 
-## Why teams use it
+It combines deterministic project scanning, source-set and Gradle evidence collection, versioned Markdown prompt assets, provider-agnostic AI analysis, structured finding parsing, Markdown report rendering, and safe CI defaults. AI is used as a review aid, not as a replacement for human architecture review.
 
-- Faster architecture feedback on KMP modules and source sets.
-- Early detection of platform leaks into shared code (`commonMain`).
-- Repeatable reports for pull requests and release readiness checks.
+The tool helps teams review project structure, source-set boundaries, platform leaks, dependency organization, and maintainability risks early, before they become expensive refactors.
+
+## What it checks
+
+- Kotlin Multiplatform source-set structure.
+- `commonMain` / `commonTest` platform-boundary risks.
+- Android and iOS API leaks in shared code.
+- Gradle module and dependency organization.
+- `commonTest` presence when shared code is present.
+- Project layout maintainability.
+- CI/reporting readiness.
+
+## When to use it
+
+- Before opening a PR that changes KMP structure.
+- During KMP refactors.
+- Before publishing a shared mobile library.
+- When reviewing source-set boundaries.
+- In CI as a Markdown report artifact.
+- As a lightweight architecture review aid.
 
 If you are new to this repository, start with the root [README](../../README.md) and [architecture guide](../../docs/architecture.md).
 
@@ -23,7 +40,17 @@ Current status:
 
 ## Command
 
-`kmp audit <path>`
+Installed launcher:
+
+```bash
+kmp-project-auditor kmp audit <path>
+```
+
+Gradle during development:
+
+```bash
+./gradlew :tools:kmp-project-auditor:run --args="kmp audit <path> --output artifacts/kmp-project-auditor-report.md"
+```
 
 Flags:
 - `--output <path>` (write Markdown report to file)
@@ -35,7 +62,9 @@ The `<path>` is the project root to audit. Report paths stay relative to that ro
 Run from repository root with absolute paths:
 
 ```bash
-MOBILE_AI_PROVIDER=fake ./gradlew :tools:kmp-project-auditor:run --args="kmp audit $PWD/tools/kmp-project-auditor/examples/bad-kmp-library --output $PWD/artifacts/kmp-project-auditor-report.md"
+MOBILE_AI_PROVIDER=fake \
+  ./gradlew :tools:kmp-project-auditor:run \
+  --args="kmp audit $PWD/tools/kmp-project-auditor/examples/bad-kmp-library --output $PWD/artifacts/kmp-project-auditor-report.md"
 ```
 
 Run tests:
@@ -64,7 +93,7 @@ kmp audit "$PWD/tools/kmp-project-auditor/examples/bad-kmp-library" \
 Environment variables:
 - `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
 - `MOBILE_AI_API_KEY` (required only for real providers)
-- `MOBILE_AI_MODEL` (fixed by provider)
+- `MOBILE_AI_MODEL` (required for real providers in the current implementation)
 
 | Provider | Model |
 | --- | --- |
@@ -75,7 +104,9 @@ Environment variables:
 Deterministic mode for local/CI:
 
 ```bash
-MOBILE_AI_PROVIDER=fake ./gradlew :tools:kmp-project-auditor:run --args="kmp audit $PWD/tools/kmp-project-auditor/examples/clean-kmp-library"
+MOBILE_AI_PROVIDER=fake \
+  ./gradlew :tools:kmp-project-auditor:run \
+  --args="kmp audit $PWD/tools/kmp-project-auditor/examples/clean-kmp-library"
 ```
 
 Real provider example:
@@ -92,12 +123,14 @@ Security:
 - Use CI secrets for real providers.
 - Real providers are optional; `fake` remains the safe default for local and CI runs.
 
+For provider-specific setup and key permissions, see [Provider configuration](../../docs/provider-configuration.md).
+
 ## Integration in CI
 
 Repository-local workflow:
-- `.github/workflows/kmp-project-auditor.yml`
-- `.github/scripts/run-kmp-project-auditor.sh`
-- Release tags workflow: `.github/workflows/release-kmp-project-auditor.yml`
+- [`../../.github/workflows/kmp-project-auditor.yml`](../../.github/workflows/kmp-project-auditor.yml)
+- [`../../.github/scripts/run-kmp-project-auditor.sh`](../../.github/scripts/run-kmp-project-auditor.sh)
+- Release tags workflow: [`../../.github/workflows/release-kmp-project-auditor.yml`](../../.github/workflows/release-kmp-project-auditor.yml)
 
 Defaults are safe:
 - `MOBILE_AI_PROVIDER=fake`
@@ -113,8 +146,28 @@ Artifacts and summary:
 - release package artifact name: `kmp-project-auditor-release-packages-<tag>`
 
 Real providers:
-- set `MOBILE_AI_PROVIDER` and `MOBILE_AI_API_KEY` via GitHub Secrets; the model is fixed by provider
+- set `MOBILE_AI_PROVIDER` and `MOBILE_AI_API_KEY` via GitHub Secrets; `MOBILE_AI_MODEL` remains required for real providers in the current implementation
 - real providers are opt-in and not the CI default
+
+## Example report
+
+Reports are written in Markdown so they can be reviewed locally or uploaded as CI artifacts.
+
+The report includes:
+- analyzed path
+- summary
+- deterministic findings
+- AI findings
+- AI warnings
+- severity
+- rule id
+- file path
+- explanation
+- suggestion
+- optional code example
+
+Example:
+- [tools/kmp-project-auditor/examples/bad-kmp-library/expected-report.md](examples/bad-kmp-library/expected-report.md)
 
 ## Output Contract
 
@@ -186,7 +239,8 @@ Severity guidance:
 - `Path does not exist` or `not a directory`:
   - Confirm `<path>` points to the KMP project root.
 - Missing API key/model with real provider:
-  - Set `MOBILE_AI_API_KEY`; the model is fixed by provider.
+  - Set `MOBILE_AI_API_KEY` for real providers.
+  - `MOBILE_AI_MODEL` is required for real providers in the current implementation.
 - Empty or malformed AI output:
   - Parser falls back safely; inspect AI findings and AI warnings sections and re-run with `fake` to validate deterministic behavior.
 - No useful findings:

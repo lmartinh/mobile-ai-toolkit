@@ -12,39 +12,44 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-JVM%20%2B%20KMP-7F52FF)](https://kotlinlang.org/)
 [![Status](https://img.shields.io/badge/Status-Active%20Development-2ea44f)](docs/roadmaps/README.md)
 
-Open-source Kotlin monorepo for AI-assisted mobile code analysis tools.
+AI-assisted code review tools for Kotlin, Jetpack Compose, and Kotlin Multiplatform projects.
 
-`mobile-ai-toolkit` provides practical CLIs that analyze mobile codebases, surface architecture and quality risks, and generate actionable Markdown reports.
+`mobile-ai-toolkit` is an open-source Kotlin monorepo for practical mobile development tooling. It combines mobile engineering expertise with AI-assisted analysis to help teams inspect real codebases instead of treating AI as a generic wrapper around a chat model.
 
-## Why this project
+The repository focuses on Jetpack Compose, Compose Multiplatform, and Kotlin Multiplatform workflows. Its CLIs analyze mobile codebases, surface architecture and maintainability risks, and produce actionable Markdown reports that work in local development and in GitHub Actions.
 
-- Mobile teams need fast, repeatable analysis before code review or CI gates.
-- Existing static checks often miss architecture-level and workflow-level issues.
-- AI-assisted guardrails can improve signal if prompts, schemas, and outputs stay deterministic.
+AI is used as a review aid, not a replacement for human reviewers. The tooling is designed to stay safe by default, with a shared provider abstraction, prompt-driven analysis, deterministic fake-provider support for tests and CI, and outputs that are easy to inspect and diff.
 
-This repository is structured as a multi-tool platform: one shared foundation plus independent tools under `tools/`.
+## Built for mobile engineers
+
+- Compose state and side-effect patterns that deserve architecture-aware review.
+- UI architecture and data-flow boundaries that are easy to blur in larger mobile codebases.
+- Compose accessibility and maintainability issues that benefit from structured analysis.
+- Kotlin Multiplatform source-set boundaries and platform API leaks in shared code.
+- CI-friendly review reports that can be read without opening the codebase.
+
+## Technical highlights
+
+- Kotlin/JVM CLI development with small, focused tool entry points.
+- Mobile architecture and Jetpack Compose knowledge applied to code analysis.
+- Kotlin Multiplatform project structure knowledge, including source-set boundaries.
+- AI provider abstraction through a shared `AiClient`.
+- Prompt assets stored as Markdown resources rather than hardcoded strings.
+- Structured finding parsing and Markdown report rendering.
+- Safe CI defaults with deterministic `fake` provider support.
+- Reusable GitHub Actions that can run from external repositories.
+- Documentation discipline and release packaging workflows that are kept in version control.
 
 ## What is in this repository?
 
-`mobile-ai-toolkit` is an ecosystem of focused tooling for mobile teams:
+`mobile-ai-toolkit` is an ecosystem of focused tooling for mobile teams and the shared code that powers it:
 
 | Component | What it does | Where to read more |
 | --- | --- | --- |
-| `compose-guardrails` | Reviews Jetpack Compose code against architecture, state, side-effect, accessibility, and MPP boundary guardrails. | [tools/compose-guardrails/README.md](tools/compose-guardrails/README.md) |
+| `compose-guardrails` | Reviews Jetpack Compose code against architecture, state, side-effect, accessibility, and Kotlin Multiplatform boundary guardrails, then renders Markdown reports. | [tools/compose-guardrails/README.md](tools/compose-guardrails/README.md) |
 | `kmp-project-auditor` | Audits Kotlin Multiplatform project structure, source-set boundaries, and common platform leaks. | [tools/kmp-project-auditor/README.md](tools/kmp-project-auditor/README.md) |
-| `shared/ai-client` | Provider-agnostic AI client abstraction used by tools (`fake`, `openai`, `anthropic`, `gemini`). | [shared/ai-client](shared/ai-client) |
+| `shared/ai-client` | Provider-agnostic AI client abstraction used by the tools. | [shared/ai-client](shared/ai-client) |
 | `shared/report-common` | Shared finding schema and Markdown report rendering utilities. | [shared/report-common](shared/report-common) |
-
-## Tooling
-
-| Tool | Command | Focus | Status |
-| --- | --- | --- | --- |
-| `compose-guardrails` | `mobile-ai guardrails check <path>` | Jetpack Compose guardrails for architecture, state, side effects, accessibility, and MPP boundaries | Active |
-| `kmp-project-auditor` | `kmp audit <path>` | Kotlin Multiplatform project layout and platform-boundary auditing | Active |
-
-Tool-specific docs:
-- [compose-guardrails README](tools/compose-guardrails/README.md)
-- [kmp-project-auditor README](tools/kmp-project-auditor/README.md)
 
 ## Quick Start
 
@@ -53,13 +58,17 @@ Run from repository root.
 1. Compose guardrails (deterministic fake provider):
 
 ```bash
-MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default --output $PWD/artifacts/compose-guardrails-report.md"
+MOBILE_AI_PROVIDER=fake \
+  ./gradlew :tools:compose-guardrails:run \
+  --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default --output $PWD/artifacts/compose-guardrails-report.md"
 ```
 
 2. KMP project audit:
 
 ```bash
-MOBILE_AI_PROVIDER=fake ./gradlew :tools:kmp-project-auditor:run --args="kmp audit $PWD/tools/kmp-project-auditor/examples/bad-kmp-library --output $PWD/artifacts/kmp-project-auditor-report.md"
+MOBILE_AI_PROVIDER=fake \
+  ./gradlew :tools:kmp-project-auditor:run \
+  --args="kmp audit $PWD/tools/kmp-project-auditor/examples/bad-kmp-library --output $PWD/artifacts/kmp-project-auditor-report.md"
 ```
 
 3. Run core tests:
@@ -81,53 +90,19 @@ MOBILE_AI_PROVIDER=fake ./gradlew :tools:kmp-project-auditor:run --args="kmp aud
 
 ## Runtime Configuration
 
-Runtime provider configuration is shared across tools:
+Provider settings are read from environment variables:
 
 - `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
-- `MOBILE_AI_API_KEY` (required only for real providers)
-- `MOBILE_AI_MODEL` (fixed by provider)
+- `MOBILE_AI_API_KEY` (required for real providers)
+- `MOBILE_AI_MODEL` (required for real providers in the current implementation)
 
-| Provider | Model |
-| --- | --- |
-| `openai` | `gpt-4.1-mini` |
-| `anthropic` | `claude-3-5-sonnet` |
-| `gemini` | `gemini-1.5-pro` |
-
-For deterministic local/CI runs, use `MOBILE_AI_PROVIDER=fake`.
+For deterministic local and CI runs, use `MOBILE_AI_PROVIDER=fake`.
 
 Security:
 - Never commit API keys or tokens.
 - Keep secrets in environment variables or CI secrets.
 
-### OpenAI API key permissions
-
-Use a restricted OpenAI key for this workflow instead of an unrestricted key.
-
-Recommended OpenAI key permissions:
-
-| Permission area | Access |
-|---|---|
-| List models | Read |
-| Responses (`/v1/responses`) | Write |
-| Chat completions (`/v1/chat/completions`) | Write |
-| Text-to-speech | None |
-| Realtime | None |
-| Embeddings | None |
-| Images | None |
-| Moderations | None |
-| Assistants | None |
-| Threads | None |
-| Evals | None |
-
-Responses: Write supports the newer OpenAI responses endpoint. Chat completions: Write keeps compatibility if the toolkit provider uses the chat completions endpoint. List models: Read is useful if the provider or diagnostics need to check available models. The other permissions are not needed for QR Guardian AI reports.
-
-After creating the key, add it as a GitHub Actions repository secret: `OPENAI_API_KEY`
-
-Settings → Secrets and variables → Actions → Repository secrets → New repository secret
-
-If you are using a fork, configure `OPENAI_API_KEY` in your fork. The upstream repository owner’s secrets are not shared with forks.
-
-Do not paste API keys into workflow inputs, Gradle files, `local.properties`, `.env` files committed to git, documentation, or source code.
+Provider-specific setup, including OpenAI API key permissions, is documented in [docs/provider-configuration.md](docs/provider-configuration.md).
 
 ## CI and GitHub Action
 
@@ -153,7 +128,8 @@ Manual example testing workflow:
 - Runs through `workflow_dispatch` against repository example projects.
 - Lets you select the checkout ref, provider, tool, and fail-on-findings behavior.
 - Defaults to `fake`, which needs no secrets.
-- Real providers require GitHub Secrets for the provider API key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GEMINI_API_KEY`); the model is fixed by provider.
+- Real providers require GitHub Secrets for the provider API key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GEMINI_API_KEY`) and use workflow convenience defaults for `MOBILE_AI_MODEL`.
+- Direct CLI usage and reusable actions should pass `MOBILE_AI_MODEL` explicitly when using a real provider.
 - It is report-first by default and does not comment on PRs.
 
 Minimal usage:
