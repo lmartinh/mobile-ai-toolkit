@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## v0.1.4
+- Improve the manual example validation workflow so the selected GitHub Actions branch is the single source of truth for checkout.
+- Replace the Gradle-generated job summary with a compact workflow-owned summary for example runs.
+- Clean up `kmp-project-auditor` reports by showing relative example paths, total findings, and `Additional AI Findings` without duplicating deterministic findings.
+- Align CI scripts and documentation with the updated report format and workflow UX.
+
 ## v0.1.3
 - Add Milestone 8 release-readiness support for `kmp-project-auditor`.
 - Add release packaging validation script for `installDist`, `distZip`, and `distTar`.
