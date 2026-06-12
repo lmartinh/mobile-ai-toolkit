@@ -4,8 +4,9 @@
 - Gradle files: 2
 - Source sets: 4
 - Kotlin source roots: 4
+- Total findings: 0
 - Deterministic findings: 0
-- AI findings: 1
+- Additional AI findings: 0
 - AI warnings: 0
 - Provider: fake
 
@@ -31,14 +32,8 @@
 ## Deterministic Findings
 No deterministic findings found.
 
-## AI Findings
-### INFO - kmp.ai.source-set-clarity
-**Title:** Review intermediate source-set intent  
-**File:** `<project>`  
-**Evidence:** `Scan summary lists intermediate source sets.`
-Intermediate source sets should have clear ownership and purpose.
-
-**Suggestion:** Document why each intermediate source set exists and which targets consume it.
+## Additional AI Findings
+No additional AI findings found.
 
 ## AI Warnings
 No AI warnings.

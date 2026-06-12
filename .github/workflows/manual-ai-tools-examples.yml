@@ -179,6 +179,44 @@ jobs:
         run: |
           set -euo pipefail
 
+          summarize_compose_report() {
+            local report_path="$1"
+            local total_findings="n/a"
+            local severity_breakdown="n/a"
+
+            if [[ -f "$report_path" ]]; then
+              total_findings="$(grep -m1 '^- Total findings:' "$report_path" | sed 's/^- Total findings: //')"
+              severity_breakdown="$(grep -m1 '^- Findings by severity:' "$report_path" | sed 's/^- Findings by severity: //')"
+            fi
+
+            echo "$total_findings|$severity_breakdown"
+          }
+
+          summarize_kmp_report() {
+            local report_path="$1"
+            local total_findings="n/a"
+            local deterministic_findings="n/a"
+            local additional_ai_findings="n/a"
+
+            if [[ -f "$report_path" ]]; then
+              total_findings="$(grep -m1 '^- Total findings:' "$report_path" | sed 's/^- Total findings: //')"
+              deterministic_findings="$(grep -m1 '^- Deterministic findings:' "$report_path" | sed 's/^- Deterministic findings: //')"
+              additional_ai_findings="$(grep -m1 '^- Additional AI findings:' "$report_path" | sed 's/^- Additional AI findings: //')"
+            fi
+
+            echo "$total_findings|$deterministic_findings|$additional_ai_findings"
+          }
+
+          summarize_status() {
+            case "$1" in
+              success) echo "Passed" ;;
+              failure) echo "Failed" ;;
+              cancelled) echo "Cancelled" ;;
+              skipped) echo "Skipped" ;;
+              *) echo "Unknown" ;;
+            esac
+          }
+
           selected_model=""
           case "$SELECTED_PROVIDER" in
             fake)
@@ -195,6 +233,22 @@ jobs:
               ;;
           esac
 
+          compose_summary="$(summarize_compose_report "$COMPOSE_GUARDRAILS_REPORT_PATH")"
+          compose_total="${compose_summary%%|*}"
+          compose_severity="${compose_summary#*|}"
+
+          kmp_clean_summary="$(summarize_kmp_report "$KMP_PROJECT_AUDITOR_CLEAN_REPORT_PATH")"
+          kmp_clean_total="${kmp_clean_summary%%|*}"
+          kmp_clean_rest="${kmp_clean_summary#*|}"
+          kmp_clean_deterministic="${kmp_clean_rest%%|*}"
+          kmp_clean_additional_ai="${kmp_clean_rest##*|}"
+
+          kmp_bad_summary="$(summarize_kmp_report "$KMP_PROJECT_AUDITOR_BAD_REPORT_PATH")"
+          kmp_bad_total="${kmp_bad_summary%%|*}"
+          kmp_bad_rest="${kmp_bad_summary#*|}"
+          kmp_bad_deterministic="${kmp_bad_rest%%|*}"
+          kmp_bad_additional_ai="${kmp_bad_rest##*|}"
+
           {
             echo "## Manual AI Tools Examples"
             echo ""
@@ -204,13 +258,15 @@ jobs:
             echo "- Tool: \`$SELECTED_TOOL\`"
             echo "- Fail on findings: \`$FAIL_ON_FINDINGS\`"
             echo ""
-            echo "### Example targets"
+            echo "### Results"
+            echo "| Example | Status | Findings | Details |"
+            echo "| --- | --- | --- | --- |"
             if [[ "$SELECTED_TOOL" == "compose-guardrails" || "$SELECTED_TOOL" == "all" ]]; then
-              echo "- compose-guardrails: \`tools/compose-guardrails/examples\`"
+              echo "| compose-guardrails | $(summarize_status "${{ steps.compose_guardrails.outcome }}") | $compose_total total ($compose_severity) | \`tools/compose-guardrails/examples\` |"
             fi
             if [[ "$SELECTED_TOOL" == "kmp-project-auditor" || "$SELECTED_TOOL" == "all" ]]; then
-              echo "- kmp-project-auditor clean: \`tools/kmp-project-auditor/examples/clean-kmp-library\`"
-              echo "- kmp-project-auditor bad: \`tools/kmp-project-auditor/examples/bad-kmp-library\`"
+              echo "| kmp-project-auditor clean | $(summarize_status "${{ steps.kmp_clean.outcome }}") | $kmp_clean_total total ($kmp_clean_deterministic deterministic, $kmp_clean_additional_ai additional AI) | \`tools/kmp-project-auditor/examples/clean-kmp-library\` |"
+              echo "| kmp-project-auditor bad | $(summarize_status "${{ steps.kmp_bad.outcome }}") | $kmp_bad_total total ($kmp_bad_deterministic deterministic, $kmp_bad_additional_ai additional AI) | \`tools/kmp-project-auditor/examples/bad-kmp-library\` |"
             fi
             echo ""
             echo "### Artifacts"

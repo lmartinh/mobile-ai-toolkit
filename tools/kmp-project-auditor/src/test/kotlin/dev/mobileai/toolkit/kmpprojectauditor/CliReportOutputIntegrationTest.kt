@@ -30,7 +30,7 @@ class CliReportOutputIntegrationTest {
         val report = outputPath.readText()
         assertTrue(report.contains("# KMP Project Audit Report"))
         assertTrue(report.contains("## Deterministic Findings"))
-        assertTrue(report.contains("## AI Findings"))
+        assertTrue(report.contains("## Additional AI Findings"))
         assertTrue(report.contains("## Limitations"))
         assertFalse(report.contains("> Task :"))
         assertFalse(report.contains("BUILD SUCCESSFUL"))

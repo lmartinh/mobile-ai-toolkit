@@ -10,15 +10,18 @@ class KmpMarkdownReportRenderer {
         deterministicFindings: List<KmpFinding>,
         aiResult: KmpAiAnalysisResult
     ): String {
+        val additionalAiFindings = additionalAiFindings(deterministicFindings, aiResult.findings)
+        val totalFindings = deterministicFindings.size + additionalAiFindings.size
         val lines = mutableListOf<String>()
         lines += "# KMP Project Audit Report"
         lines += "## Summary"
-        lines += "- Analyzed path: `${escapeInline(scanResult.analyzedPath.toString())}`"
+        lines += "- Analyzed path: `${escapeInline(displayPath(scanResult.analyzedPath))}`"
         lines += "- Gradle files: ${scanResult.gradleFiles.size}"
         lines += "- Source sets: ${scanResult.sourceSets.size}"
         lines += "- Kotlin source roots: ${scanResult.kotlinSourceRoots.size}"
+        lines += "- Total findings: $totalFindings"
         lines += "- Deterministic findings: ${deterministicFindings.size}"
-        lines += "- AI findings: ${aiResult.findings.size}"
+        lines += "- Additional AI findings: ${additionalAiFindings.size}"
         lines += "- AI warnings: ${aiResult.warnings.size}"
         lines += "- Provider: ${escapeInline(aiResult.provider)}"
         lines += ""
@@ -44,8 +47,8 @@ class KmpMarkdownReportRenderer {
         lines += "## Deterministic Findings"
         lines += formatFindingsSection(deterministicFindings, "No deterministic findings found.")
         lines += ""
-        lines += "## AI Findings"
-        lines += formatFindingsSection(aiResult.findings, "No AI findings found.")
+        lines += "## Additional AI Findings"
+        lines += formatFindingsSection(additionalAiFindings, "No additional AI findings found.")
         lines += ""
         lines += "## AI Warnings"
         if (aiResult.warnings.isEmpty()) {
@@ -78,6 +81,30 @@ class KmpMarkdownReportRenderer {
                 appendLine()
                 append("**Suggestion:** ${escapeText(finding.suggestion)}")
             }.trimEnd()
+        }
+    }
+
+    private fun additionalAiFindings(
+        deterministicFindings: List<KmpFinding>,
+        aiFindings: List<KmpFinding>
+    ): List<KmpFinding> {
+        val deterministicKeys = deterministicFindings.mapTo(linkedSetOf(), ::findingKey)
+        val seenAiKeys = linkedSetOf<String>()
+        return aiFindings.filter { finding ->
+            val key = findingKey(finding)
+            key !in deterministicKeys && seenAiKeys.add(key)
+        }
+    }
+
+    private fun findingKey(finding: KmpFinding): String = "${finding.ruleId}|${finding.file}"
+
+    private fun displayPath(path: java.nio.file.Path): String {
+        val normalized = path.toAbsolutePath().normalize()
+        val workingDirectory = java.nio.file.Path.of("").toAbsolutePath().normalize()
+        return if (normalized.startsWith(workingDirectory)) {
+            workingDirectory.relativize(normalized).toString().replace("\\", "/")
+        } else {
+            path.normalize().toString().replace("\\", "/")
         }
     }
 

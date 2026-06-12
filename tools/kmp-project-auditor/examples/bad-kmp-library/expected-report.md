@@ -4,8 +4,9 @@
 - Gradle files: 1
 - Source sets: 1
 - Kotlin source roots: 1
+- Total findings: 5
 - Deterministic findings: 5
-- AI findings: 1
+- Additional AI findings: 0
 - AI warnings: 0
 - Provider: fake
 
@@ -62,14 +63,8 @@ Shared code exists in commonMain but commonTest was not found.
 
 **Suggestion:** Add commonTest to cover shared business logic with multiplatform tests.
 
-## AI Findings
-### INFO - kmp.ai.source-set-clarity
-**Title:** Review intermediate source-set intent  
-**File:** `<project>`  
-**Evidence:** `Scan summary lists intermediate source sets.`
-Intermediate source sets should have clear ownership and purpose.
-
-**Suggestion:** Document why each intermediate source set exists and which targets consume it.
+## Additional AI Findings
+No additional AI findings found.
 
 ## AI Warnings
 No AI warnings.

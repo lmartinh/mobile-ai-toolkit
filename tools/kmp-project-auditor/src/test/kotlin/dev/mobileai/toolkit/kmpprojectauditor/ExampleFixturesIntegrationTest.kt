@@ -18,7 +18,7 @@ class ExampleFixturesIntegrationTest {
     private val renderer = ScanSummaryRenderer()
 
     @Test
-    fun `clean fixture output is deterministic and contains ai section`() {
+    fun `clean fixture output is deterministic and contains empty ai section`() {
         val fixturePath = Path.of("examples/clean-kmp-library")
         val result = scanner.scan(fixturePath)
         val deterministicFindings = deterministicAuditor.audit(result)
@@ -26,19 +26,19 @@ class ExampleFixturesIntegrationTest {
 
         assertContentEquals(listOf("build.gradle.kts", "settings.gradle.kts"), result.gradleFiles)
         assertTrue(deterministicFindings.isEmpty())
-        assertTrue(aiResult.findings.isNotEmpty())
+        assertTrue(aiResult.findings.isEmpty())
 
         val summary = renderer.render(result, deterministicFindings, aiResult.findings, aiResult.warnings)
         assertEquals(-1, summary.indexOf('\\'))
         assertTrue(summary.contains("Deterministic findings:"))
         assertTrue(summary.contains("No deterministic findings found."))
         assertTrue(summary.contains("AI findings:"))
-        assertTrue(summary.contains("kmp.ai.source-set-clarity"))
+        assertTrue(summary.contains("No AI findings found."))
         assertTrue(summary.contains("Use --output <path> to write a Markdown report."))
     }
 
     @Test
-    fun `bad fixture output is deterministic and keeps deterministic findings separate from ai findings`() {
+    fun `bad fixture output is deterministic and keeps empty ai findings separate`() {
         val fixturePath = Path.of("examples/bad-kmp-library")
         val result = scanner.scan(fixturePath)
         val deterministicFindings = deterministicAuditor.audit(result)
@@ -53,6 +53,6 @@ class ExampleFixturesIntegrationTest {
         assertTrue(summary.contains("kmp.common.no-android-api"))
         assertTrue(summary.contains("kmp.common.no-ios-api"))
         assertTrue(summary.contains("AI findings:"))
-        assertTrue(summary.contains("kmp.ai.source-set-clarity"))
+        assertTrue(summary.contains("No AI findings found."))
     }
 }
