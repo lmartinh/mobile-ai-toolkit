@@ -16,7 +16,7 @@ class DeterministicKmpAuditorTest {
     private val auditor = DeterministicKmpAuditor()
 
     @Test
-    fun `android and androidx imports in commonMain create findings`() {
+    fun `compose multiplatform imports in commonMain are allowed while android only imports are flagged`() {
         val project = createTempDirectory()
         project.resolve("build.gradle.kts").writeText("plugins { kotlin(\"multiplatform\") }")
         project.resolve("src/commonMain/kotlin/Sample.kt").apply {
@@ -24,7 +24,14 @@ class DeterministicKmpAuditorTest {
             writeText(
                 """
                 import android.content.Context
+                import androidx.activity.ComponentActivity
+                import androidx.appcompat.app.AppCompatActivity
                 import androidx.core.content.ContextCompat
+                import androidx.lifecycle.ViewModel
+                import androidx.compose.runtime.Composable
+                import androidx.compose.foundation.layout.Column
+                import androidx.compose.material3.MaterialTheme
+                import androidx.compose.ui.Modifier
                 """.trimIndent()
             )
         }
@@ -32,8 +39,17 @@ class DeterministicKmpAuditorTest {
         val findings = auditor.audit(scanner.scan(project))
 
         val ruleFindings = findings.filter { it.ruleId == "kmp.common.no-android-api" }
-        assertEquals(2, ruleFindings.size)
+        assertEquals(5, ruleFindings.size)
         assertTrue(ruleFindings.all { it.file == "src/commonMain/kotlin/Sample.kt" })
+        assertTrue(ruleFindings.any { it.evidence == "import android.content.Context" })
+        assertTrue(ruleFindings.any { it.evidence == "import androidx.activity.ComponentActivity" })
+        assertTrue(ruleFindings.any { it.evidence == "import androidx.appcompat.app.AppCompatActivity" })
+        assertTrue(ruleFindings.any { it.evidence == "import androidx.core.content.ContextCompat" })
+        assertTrue(ruleFindings.any { it.evidence == "import androidx.lifecycle.ViewModel" })
+        assertTrue(findings.none { it.evidence == "import androidx.compose.runtime.Composable" })
+        assertTrue(findings.none { it.evidence == "import androidx.compose.foundation.layout.Column" })
+        assertTrue(findings.none { it.evidence == "import androidx.compose.material3.MaterialTheme" })
+        assertTrue(findings.none { it.evidence == "import androidx.compose.ui.Modifier" })
     }
 
     @Test

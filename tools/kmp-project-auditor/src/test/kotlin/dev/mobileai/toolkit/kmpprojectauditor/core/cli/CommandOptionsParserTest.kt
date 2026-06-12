@@ -24,6 +24,20 @@ class CommandOptionsParserTest {
     }
 
     @Test
+    fun `parses external repository target path verbatim`() {
+        val options = parser.parse(
+            arrayOf(
+                "kmp",
+                "audit",
+                "/home/runner/work/qr-guardian/qr-guardian"
+            )
+        )
+
+        assertEquals("/home/runner/work/qr-guardian/qr-guardian", options.projectPath.toString())
+        assertEquals(null, options.outputPath)
+    }
+
+    @Test
     fun `rejects invalid command`() {
         assertFailsWith<IllegalArgumentException> {
             parser.parse(arrayOf("guardrails", "check", "/tmp/project"))

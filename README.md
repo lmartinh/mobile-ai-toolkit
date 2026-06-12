@@ -84,8 +84,14 @@ MOBILE_AI_PROVIDER=fake ./gradlew :tools:kmp-project-auditor:run --args="kmp aud
 Runtime provider configuration is shared across tools:
 
 - `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
-- `MOBILE_AI_API_KEY` (required for real providers)
-- `MOBILE_AI_MODEL` (required for real providers)
+- `MOBILE_AI_API_KEY` (required only for real providers)
+- `MOBILE_AI_MODEL` (fixed by provider)
+
+| Provider | Model |
+| --- | --- |
+| `openai` | `gpt-4.1-mini` |
+| `anthropic` | `claude-3-5-sonnet` |
+| `gemini` | `gemini-1.5-pro` |
 
 For deterministic local/CI runs, use `MOBILE_AI_PROVIDER=fake`.
 
@@ -93,11 +99,42 @@ Security:
 - Never commit API keys or tokens.
 - Keep secrets in environment variables or CI secrets.
 
+### OpenAI API key permissions
+
+Use a restricted OpenAI key for this workflow instead of an unrestricted key.
+
+Recommended OpenAI key permissions:
+
+| Permission area | Access |
+|---|---|
+| List models | Read |
+| Responses (`/v1/responses`) | Write |
+| Chat completions (`/v1/chat/completions`) | Write |
+| Text-to-speech | None |
+| Realtime | None |
+| Embeddings | None |
+| Images | None |
+| Moderations | None |
+| Assistants | None |
+| Threads | None |
+| Evals | None |
+
+Responses: Write supports the newer OpenAI responses endpoint. Chat completions: Write keeps compatibility if the toolkit provider uses the chat completions endpoint. List models: Read is useful if the provider or diagnostics need to check available models. The other permissions are not needed for QR Guardian AI reports.
+
+After creating the key, add it as a GitHub Actions repository secret: `OPENAI_API_KEY`
+
+Settings → Secrets and variables → Actions → Repository secrets → New repository secret
+
+If you are using a fork, configure `OPENAI_API_KEY` in your fork. The upstream repository owner’s secrets are not shared with forks.
+
+Do not paste API keys into workflow inputs, Gradle files, `local.properties`, `.env` files committed to git, documentation, or source code.
+
 ## CI and GitHub Action
 
 Current baseline workflows:
 - [.github/workflows/compose-guardrails.yml](.github/workflows/compose-guardrails.yml)
 - [.github/workflows/kmp-project-auditor.yml](.github/workflows/kmp-project-auditor.yml)
+- [.github/workflows/manual-ai-tools-examples.yml](.github/workflows/manual-ai-tools-examples.yml)
 
 Current release workflows:
 - [.github/workflows/release-compose-guardrails.yml](.github/workflows/release-compose-guardrails.yml)
@@ -111,6 +148,13 @@ Current behavior is report-first by default:
 
 Reusable action for external repositories:
 - [.github/actions/compose-guardrails/action.yml](.github/actions/compose-guardrails/action.yml)
+
+Manual example testing workflow:
+- Runs through `workflow_dispatch` against repository example projects.
+- Lets you select the checkout ref, provider, tool, and fail-on-findings behavior.
+- Defaults to `fake`, which needs no secrets.
+- Real providers require GitHub Secrets for the provider API key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GEMINI_API_KEY`); the model is fixed by provider.
+- It is report-first by default and does not comment on PRs.
 
 Minimal usage:
 

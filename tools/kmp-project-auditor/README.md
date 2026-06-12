@@ -28,6 +28,8 @@ Current status:
 Flags:
 - `--output <path>` (write Markdown report to file)
 
+The `<path>` is the project root to audit. Report paths stay relative to that root.
+
 ## Quick Start
 
 Run from repository root with absolute paths:
@@ -82,6 +84,7 @@ MOBILE_AI_MODEL=claude-3-5-sonnet \
 Security:
 - Never commit API keys.
 - Use CI secrets for real providers.
+- Real providers are optional; `fake` remains the safe default for local and CI runs.
 
 ## Integration in CI
 
@@ -116,6 +119,7 @@ Stable top-level sections:
 - `## Summary`
 - `## Deterministic Findings`
 - `## AI Findings`
+- `## AI Warnings`
 
 Automation note:
 - Heading names above are intended to remain stable.
@@ -166,8 +170,10 @@ Severity guidance:
 ## Safe Defaults
 
 - Scanner is read-only.
-- Traversal excludes generated/internal directories (`build`, `.gradle`, `.idea`, `.kotlin`, `out`).
+- Traversal excludes generated/internal directories (`.git`, `build`, `.gradle`, `.idea`, `.kotlin`, `out`).
+- Nested checkouts that match the toolkit repository layout are ignored so external repository reports stay scoped to the audited project.
 - `fake` provider works without API key/model.
+- Compose Multiplatform imports under `androidx.compose.*` are allowed in `commonMain`; Android-only imports such as `android.*`, `androidx.activity.*`, `androidx.appcompat.*`, `androidx.core.*`, and `androidx.lifecycle.*` are still flagged.
 
 ## Troubleshooting
 
@@ -176,7 +182,7 @@ Severity guidance:
 - Missing API key/model with real provider:
   - Set both `MOBILE_AI_API_KEY` and `MOBILE_AI_MODEL`.
 - Empty or malformed AI output:
-  - Parser falls back safely; inspect AI findings section and re-run with `fake` to validate deterministic behavior.
+  - Parser falls back safely; inspect AI findings and AI warnings sections and re-run with `fake` to validate deterministic behavior.
 - No useful findings:
   - Review project layout assumptions in [docs/audit-areas.md](docs/audit-areas.md).
 

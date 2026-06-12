@@ -33,6 +33,7 @@ Current behavior is deterministic and heuristic-based:
   - missing `commonTest`
   - Android/iOS target-source-set mismatch
   - obvious Android dependency leaks in `commonMain` dependencies
+  - Compose Multiplatform imports under `androidx.compose.*` remain valid in `commonMain`
 - load prompt assets and compose deterministic AI review context
 - run AI analysis through shared `AiClient` (fake provider by default)
 - parse structured AI findings separately from deterministic findings

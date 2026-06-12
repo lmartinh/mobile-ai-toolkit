@@ -1,6 +1,7 @@
 # Compose Guardrails Report
 
 ## Summary
+- Analyzed path: `tools/compose-guardrails/examples/expensive-work-in-composition-sample`
 - Kotlin files scanned: 1
 - Expected findings: 1
 

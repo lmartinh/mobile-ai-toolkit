@@ -1,0 +1,245 @@
+name: Manual AI Tools Examples
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git branch, tag, or SHA to run.
+        required: true
+        default: main
+        type: string
+      tool:
+        description: Tool to run.
+        required: true
+        default: all
+        type: choice
+        options:
+          - compose-guardrails
+          - kmp-project-auditor
+          - all
+      provider:
+        description: AI provider.
+        required: true
+        default: fake
+        type: choice
+        options:
+          - fake
+          - openai
+          - anthropic
+          - gemini
+      fail-on-findings:
+        description: Whether the workflow should fail when findings are detected.
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  manual-ai-tools-examples:
+    runs-on: ubuntu-latest
+    env:
+      MOBILE_AI_PROVIDER: ${{ inputs.provider }}
+      COMPOSE_GUARDRAILS_FAIL_ON_FINDINGS: ${{ inputs['fail-on-findings'] }}
+      COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY: false
+      KMP_PROJECT_AUDITOR_FAIL_ON_FINDINGS: ${{ inputs['fail-on-findings'] }}
+      KMP_PROJECT_AUDITOR_WRITE_STEP_SUMMARY: false
+      COMPOSE_GUARDRAILS_REPORT_PATH: artifacts/manual-ai-tools-examples/compose-guardrails-example-report.md
+      KMP_PROJECT_AUDITOR_CLEAN_REPORT_PATH: artifacts/manual-ai-tools-examples/kmp-project-auditor-clean-example-report.md
+      KMP_PROJECT_AUDITOR_BAD_REPORT_PATH: artifacts/manual-ai-tools-examples/kmp-project-auditor-bad-example-report.md
+    steps:
+      - name: Checkout selected ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Configure real provider secrets
+        if: ${{ inputs.provider != 'fake' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          case "${{ inputs.provider }}" in
+            openai)
+              api_key="$OPENAI_API_KEY"
+              mobile_ai_model="gpt-4.1-mini"
+              ;;
+            anthropic)
+              api_key="$ANTHROPIC_API_KEY"
+              mobile_ai_model="claude-3-5-sonnet"
+              ;;
+            gemini)
+              api_key="$GEMINI_API_KEY"
+              mobile_ai_model="gemini-1.5-pro"
+              ;;
+            *)
+              echo "Unsupported provider: ${{ inputs.provider }}" >&2
+              exit 1
+              ;;
+          esac
+
+          if [[ -z "$api_key" ]]; then
+            case "${{ inputs.provider }}" in
+              openai)
+                echo "OPENAI_API_KEY secret is required when provider is openai." >&2
+                ;;
+              anthropic)
+                echo "ANTHROPIC_API_KEY secret is required when provider is anthropic." >&2
+                ;;
+              gemini)
+                echo "GEMINI_API_KEY secret is required when provider is gemini." >&2
+                ;;
+            esac
+            exit 1
+          fi
+
+          {
+            echo "MOBILE_AI_API_KEY<<EOF"
+            echo "$api_key"
+            echo "EOF"
+            echo "MOBILE_AI_MODEL<<EOF"
+            echo "$mobile_ai_model"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      - name: Run compose-guardrails example
+        id: compose_guardrails
+        if: ${{ inputs.tool == 'compose-guardrails' || inputs.tool == 'all' }}
+        continue-on-error: true
+        env:
+          COMPOSE_GUARDRAILS_TARGET: tools/compose-guardrails/examples/bad-compose-sample
+        run: .github/scripts/run-compose-guardrails.sh
+
+      - name: Upload compose-guardrails report artifact
+        if: ${{ always() && steps.compose_guardrails.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-guardrails-example-report
+          path: ${{ env.COMPOSE_GUARDRAILS_REPORT_PATH }}
+          if-no-files-found: error
+
+      - name: Run kmp-project-auditor clean example
+        id: kmp_clean
+        if: ${{ inputs.tool == 'kmp-project-auditor' || inputs.tool == 'all' }}
+        continue-on-error: true
+        env:
+          KMP_PROJECT_AUDITOR_TARGET: tools/kmp-project-auditor/examples/clean-kmp-library
+          KMP_PROJECT_AUDITOR_REPORT_PATH: ${{ env.KMP_PROJECT_AUDITOR_CLEAN_REPORT_PATH }}
+        run: .github/scripts/run-kmp-project-auditor.sh
+
+      - name: Upload kmp-project-auditor clean report artifact
+        if: ${{ always() && steps.kmp_clean.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: kmp-project-auditor-clean-example-report
+          path: ${{ env.KMP_PROJECT_AUDITOR_CLEAN_REPORT_PATH }}
+          if-no-files-found: error
+
+      - name: Run kmp-project-auditor bad example
+        id: kmp_bad
+        if: ${{ inputs.tool == 'kmp-project-auditor' || inputs.tool == 'all' }}
+        continue-on-error: true
+        env:
+          KMP_PROJECT_AUDITOR_TARGET: tools/kmp-project-auditor/examples/bad-kmp-library
+          KMP_PROJECT_AUDITOR_REPORT_PATH: ${{ env.KMP_PROJECT_AUDITOR_BAD_REPORT_PATH }}
+        run: .github/scripts/run-kmp-project-auditor.sh
+
+      - name: Upload kmp-project-auditor bad report artifact
+        if: ${{ always() && steps.kmp_bad.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: kmp-project-auditor-bad-example-report
+          path: ${{ env.KMP_PROJECT_AUDITOR_BAD_REPORT_PATH }}
+          if-no-files-found: error
+
+      - name: Write workflow summary
+        if: always()
+        env:
+          SELECTED_REF: ${{ inputs.ref }}
+          SELECTED_TOOL: ${{ inputs.tool }}
+          SELECTED_PROVIDER: ${{ inputs.provider }}
+          FAIL_ON_FINDINGS: ${{ inputs['fail-on-findings'] }}
+        run: |
+          set -euo pipefail
+
+          selected_model=""
+          case "$SELECTED_PROVIDER" in
+            fake)
+              selected_model="(none)"
+              ;;
+            openai)
+              selected_model="gpt-4.1-mini"
+              ;;
+            anthropic)
+              selected_model="claude-3-5-sonnet"
+              ;;
+            gemini)
+              selected_model="gemini-1.5-pro"
+              ;;
+          esac
+
+          {
+            echo "## Manual AI Tools Examples"
+            echo ""
+            echo "- Ref: \`$SELECTED_REF\`"
+            echo "- Provider: \`$SELECTED_PROVIDER\`"
+            echo "- Model: \`$selected_model\`"
+            echo "- Tool: \`$SELECTED_TOOL\`"
+            echo "- Fail on findings: \`$FAIL_ON_FINDINGS\`"
+            echo ""
+            echo "### Example targets"
+            if [[ "$SELECTED_TOOL" == "compose-guardrails" || "$SELECTED_TOOL" == "all" ]]; then
+              echo "- compose-guardrails: \`tools/compose-guardrails/examples/bad-compose-sample\`"
+            fi
+            if [[ "$SELECTED_TOOL" == "kmp-project-auditor" || "$SELECTED_TOOL" == "all" ]]; then
+              echo "- kmp-project-auditor clean: \`tools/kmp-project-auditor/examples/clean-kmp-library\`"
+              echo "- kmp-project-auditor bad: \`tools/kmp-project-auditor/examples/bad-kmp-library\`"
+            fi
+            echo ""
+            echo "### Artifacts"
+            if [[ "$SELECTED_TOOL" == "compose-guardrails" || "$SELECTED_TOOL" == "all" ]]; then
+              echo "- \`compose-guardrails-example-report\`"
+            fi
+            if [[ "$SELECTED_TOOL" == "kmp-project-auditor" || "$SELECTED_TOOL" == "all" ]]; then
+              echo "- \`kmp-project-auditor-clean-example-report\`"
+              echo "- \`kmp-project-auditor-bad-example-report\`"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail workflow when a run step failed
+        if: always()
+        run: |
+          set -euo pipefail
+
+          failures=()
+
+          if [[ "${{ steps.compose_guardrails.outcome }}" == "failure" ]]; then
+            failures+=("compose-guardrails")
+          fi
+
+          if [[ "${{ steps.kmp_clean.outcome }}" == "failure" ]]; then
+            failures+=("kmp-project-auditor-clean")
+          fi
+
+          if [[ "${{ steps.kmp_bad.outcome }}" == "failure" ]]; then
+            failures+=("kmp-project-auditor-bad")
+          fi
+
+          if [[ "${#failures[@]}" -gt 0 ]]; then
+            echo "One or more example runs failed: ${failures[*]}" >&2
+            exit 1
+          fi

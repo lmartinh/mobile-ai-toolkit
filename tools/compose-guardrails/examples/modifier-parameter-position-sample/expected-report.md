@@ -1,6 +1,7 @@
 # Compose Guardrails Report
 
 ## Summary
+- Analyzed path: `tools/compose-guardrails/examples/modifier-parameter-position-sample`
 - Kotlin files scanned: 1
 - Expected findings: 1
 

@@ -14,11 +14,13 @@ Rule status values:
 - Status: deterministic
 - Category: platform boundaries
 - Default severity: WARNING
-- Detects: `import android.*` or `import androidx.*` inside `commonMain` Kotlin files.
-- Does not detect: Android usage outside imports, or Android imports in `androidMain`.
+- Detects: `import android.*` and Android-only `androidx.*` imports inside `commonMain` Kotlin files.
+- Does not detect: Compose Multiplatform imports under `androidx.compose.*`, Android usage outside imports, or Android imports in `androidMain`.
 - Evidence used: import lines in files under `src/commonMain/kotlin`.
 - False-positive notes: import-based heuristic only.
 - Example bad pattern: `import android.content.Context` in `commonMain`.
+- Compose Multiplatform examples that are allowed in `commonMain`: `androidx.compose.runtime.Composable`, `androidx.compose.foundation.*`, `androidx.compose.material3.*`, and `androidx.compose.ui.*`.
+- Android-only examples that should still be flagged in `commonMain`: `androidx.activity.*`, `androidx.appcompat.*`, `androidx.core.*`, and `androidx.lifecycle.*`.
 - Better pattern: move Android-specific code to `androidMain` or use `expect`/`actual` boundaries.
 
 ### `kmp.common.no-ios-api`

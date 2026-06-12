@@ -13,6 +13,8 @@ import dev.mobileai.toolkit.composeguardrails.core.prompt.PromptComposer
 import dev.mobileai.toolkit.report.FindingSeverity
 import dev.mobileai.toolkit.report.MarkdownReportRenderer
 import dev.mobileai.toolkit.report.ReportInput
+import java.nio.file.Path
+import java.nio.file.Files
 import kotlin.io.path.pathString
 import kotlin.system.exitProcess
 
@@ -70,9 +72,10 @@ fun main(args: Array<String>) {
     }
     val parsedFindings = findingParser.parse(aiResult.content)
     val findingsBySeverity = parsedFindings.findings.groupingBy { it.severity }.eachCount()
+    val analyzedPath = displayPath(inputPath)
 
     println("Compose Guardrails - File Discovery")
-    println("Analyzed path: ${inputPath.toAbsolutePath().normalize().pathString}")
+    println("Analyzed path: $analyzedPath")
     println("Kotlin files found: ${kotlinFiles.size}")
     println("Compose candidate files: ${composeCandidates.size}")
     println("Composable functions detected: $totalComposableFunctions")
@@ -118,7 +121,7 @@ fun main(args: Array<String>) {
 
     val markdownReport = reportRenderer.render(
         ReportInput(
-            analyzedPath = inputPath.toAbsolutePath().normalize().pathString,
+            analyzedPath = analyzedPath,
             kotlinFilesScanned = kotlinFiles.size,
             findings = parsedFindings.findings,
             parserWarnings = parsedFindings.warnings
@@ -130,4 +133,31 @@ fun main(args: Array<String>) {
 
 private fun printUsage() {
     println("Usage: mobile-ai guardrails check <path> [--rule-set default|advanced|all] [--output <path>]")
+}
+
+private fun displayPath(path: Path): String {
+    val normalized = path.toAbsolutePath().normalize()
+    val workspaceRoot = repositoryRoot()
+
+    if (normalized.startsWith(workspaceRoot)) {
+        val relative = workspaceRoot.relativize(normalized).pathString
+        if (relative.isNotBlank()) {
+            return relative
+        }
+    }
+
+    return normalized.pathString
+}
+
+private fun repositoryRoot(): Path {
+    var current = Path.of("").toAbsolutePath().normalize()
+
+    while (true) {
+        if (Files.exists(current.resolve("settings.gradle.kts"))) {
+            return current
+        }
+
+        val parent = current.parent ?: return current
+        current = parent
+    }
 }

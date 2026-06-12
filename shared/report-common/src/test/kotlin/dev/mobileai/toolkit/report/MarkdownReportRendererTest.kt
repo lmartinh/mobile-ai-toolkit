@@ -18,6 +18,7 @@ class MarkdownReportRendererTest {
         )
 
         assertTrue(markdown.contains("# Compose Guardrails Report"))
+        assertTrue(markdown.contains("- Analyzed path: `/repo/sample`"))
         assertTrue(markdown.contains("No guardrail violations detected."))
         assertTrue(markdown.contains("- Total findings: 0"))
     }

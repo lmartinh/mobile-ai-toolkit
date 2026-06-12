@@ -30,7 +30,7 @@ class ProjectScanner {
             normalizedRoot,
             object : SimpleFileVisitor<Path>() {
                 override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
-                    if (dir != normalizedRoot && dir.fileName.toString() in IGNORED_DIRECTORY_NAMES) {
+                    if (dir != normalizedRoot && shouldSkipDirectory(dir)) {
                         return FileVisitResult.SKIP_SUBTREE
                     }
 
@@ -158,11 +158,20 @@ class ProjectScanner {
             "build.gradle"
         )
         val IGNORED_DIRECTORY_NAMES = setOf(
+            ".git",
             "build",
             ".gradle",
             ".idea",
             ".kotlin",
             "out"
+        )
+
+        val TOOLKIT_CHECKOUT_MARKERS = setOf(
+            Path.of("gradlew"),
+            Path.of("settings.gradle.kts"),
+            Path.of("shared", "ai-client", "src"),
+            Path.of("shared", "report-common", "src"),
+            Path.of("tools", "kmp-project-auditor", "src")
         )
 
         val KMP_PLUGIN_PATTERNS = listOf(
@@ -184,5 +193,20 @@ class ProjectScanner {
             Regex("\\biosArm64\\s*\\(", IGNORE_CASE),
             Regex("\\biosSimulatorArm64\\s*\\(", IGNORE_CASE)
         )
+    }
+
+    private fun shouldSkipDirectory(dir: Path): Boolean {
+        val directoryName = dir.fileName.toString()
+        if (directoryName in IGNORED_DIRECTORY_NAMES) {
+            return true
+        }
+
+        return directoryName == "mobile-ai-toolkit" && looksLikeToolkitCheckout(dir)
+    }
+
+    private fun looksLikeToolkitCheckout(dir: Path): Boolean {
+        return TOOLKIT_CHECKOUT_MARKERS.all { marker ->
+            Files.exists(dir.resolve(marker))
+        }
     }
 }

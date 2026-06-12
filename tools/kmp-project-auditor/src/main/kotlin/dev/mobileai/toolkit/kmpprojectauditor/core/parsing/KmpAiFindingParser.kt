@@ -16,8 +16,11 @@ class KmpAiFindingParser(
     }
 ) {
     fun parse(rawContent: String): ParsedKmpAiFindings {
+        val candidateContent = extractJsonCandidate(rawContent)
+            ?: return ParsedKmpAiFindings(emptyList(), listOf("AI response was empty."))
+
         val root = try {
-            json.parseToJsonElement(rawContent)
+            json.parseToJsonElement(candidateContent)
         } catch (_: Exception) {
             return ParsedKmpAiFindings(emptyList(), listOf("Unable to parse AI response."))
         }
@@ -31,6 +34,31 @@ class KmpAiFindingParser(
         }
 
         return ParsedKmpAiFindings(findings, warnings)
+    }
+
+    private fun extractJsonCandidate(rawContent: String): String? {
+        val trimmed = rawContent.trim()
+        if (trimmed.isEmpty()) {
+            return null
+        }
+
+        if (trimmed.startsWith("```")) {
+            val lines = trimmed.lines()
+                .dropWhile { it.isBlank() || it.startsWith("```") }
+                .dropLastWhile { it.isBlank() || it.startsWith("```") }
+            val fencedJson = lines.joinToString("\n").trim()
+            if (fencedJson.isNotBlank()) {
+                return fencedJson
+            }
+        }
+
+        val objectStart = trimmed.indexOf('{')
+        val objectEnd = trimmed.lastIndexOf('}')
+        if (objectStart >= 0 && objectEnd > objectStart) {
+            return trimmed.substring(objectStart, objectEnd + 1)
+        }
+
+        return trimmed
     }
 
     private fun parseFinding(index: Int, findingObject: JsonObject?, warnings: MutableList<String>): KmpFinding? {

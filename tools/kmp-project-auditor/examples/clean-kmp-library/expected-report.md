@@ -6,6 +6,7 @@
 - Kotlin source roots: 4
 - Deterministic findings: 0
 - AI findings: 1
+- AI warnings: 0
 - Provider: fake
 
 ## Detected Gradle Configuration

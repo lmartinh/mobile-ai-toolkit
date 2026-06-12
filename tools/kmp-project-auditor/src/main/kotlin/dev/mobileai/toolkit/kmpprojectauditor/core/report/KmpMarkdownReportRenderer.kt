@@ -19,6 +19,7 @@ class KmpMarkdownReportRenderer {
         lines += "- Kotlin source roots: ${scanResult.kotlinSourceRoots.size}"
         lines += "- Deterministic findings: ${deterministicFindings.size}"
         lines += "- AI findings: ${aiResult.findings.size}"
+        lines += "- AI warnings: ${aiResult.warnings.size}"
         lines += "- Provider: ${escapeInline(aiResult.provider)}"
         lines += ""
         lines += "## Detected Gradle Configuration"

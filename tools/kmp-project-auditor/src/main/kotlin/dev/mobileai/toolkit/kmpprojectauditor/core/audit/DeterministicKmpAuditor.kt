@@ -41,7 +41,7 @@ class DeterministicKmpAuditor {
                 kotlinFile.toFile().readLines().forEach { line ->
                     val trimmed = line.trim()
                     when {
-                        trimmed.startsWith("import android.") || trimmed.startsWith("import androidx.") -> {
+                        isAndroidOnlyImport(trimmed) -> {
                             findings += KmpFinding(
                                 ruleId = RULE_COMMON_NO_ANDROID_API,
                                 severity = KmpFindingSeverity.WARNING,
@@ -209,6 +209,19 @@ class DeterministicKmpAuditor {
 
     private fun countClosingBraces(line: String): Int = line.count { it == '}' }
 
+    private fun isAndroidOnlyImport(trimmedLine: String): Boolean {
+        if (!trimmedLine.startsWith("import ")) {
+            return false
+        }
+
+        val importedName = trimmedLine.removePrefix("import ").trim()
+        if (ANDROID_COMMONMAIN_ALLOWED_PREFIXES.any { importedName.startsWith(it) }) {
+            return false
+        }
+
+        return ANDROID_ONLY_IMPORT_PREFIXES.any { importedName.startsWith(it) }
+    }
+
     private fun visitKotlinFiles(root: Path, onFile: (Path) -> Unit) {
         Files.walkFileTree(
             root,
@@ -260,6 +273,21 @@ class DeterministicKmpAuditor {
             Regex("\"androidx\\."),
             Regex("\"com\\.android\\."),
             Regex("\"android\\.")
+        )
+
+        val ANDROID_COMMONMAIN_ALLOWED_PREFIXES = listOf(
+            "androidx.compose."
+        )
+
+        val ANDROID_ONLY_IMPORT_PREFIXES = listOf(
+            "android.",
+            "androidx.activity.",
+            "androidx.appcompat.",
+            "androidx.core.",
+            "androidx.fragment.",
+            "androidx.lifecycle.",
+            "androidx.navigation.",
+            "androidx.work."
         )
     }
 }

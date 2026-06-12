@@ -61,6 +61,14 @@ class KmpAiFindingParserTest {
     }
 
     @Test
+    fun `empty ai response is handled gracefully`() {
+        val result = parser.parse("   ")
+
+        assertTrue(result.findings.isEmpty())
+        assertTrue(result.warnings.any { it.contains("empty", ignoreCase = true) })
+    }
+
+    @Test
     fun `parses multiple findings deterministically`() {
         val result = parser.parse(
             """

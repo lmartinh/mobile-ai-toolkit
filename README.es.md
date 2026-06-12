@@ -93,6 +93,36 @@ Seguridad:
 - Nunca subas API keys o tokens al repositorio.
 - Guarda secretos en variables de entorno o secrets de CI.
 
+### Permisos recomendados para la API key de OpenAI
+
+Usa una clave restringida de OpenAI para este flujo en lugar de una clave sin restricciones.
+
+Permisos recomendados para la clave de OpenAI:
+
+| Área de permiso | Acceso |
+|---|---|
+| List models | Read |
+| Responses (`/v1/responses`) | Write |
+| Chat completions (`/v1/chat/completions`) | Write |
+| Text-to-speech | None |
+| Realtime | None |
+| Embeddings | None |
+| Images | None |
+| Moderations | None |
+| Assistants | None |
+| Threads | None |
+| Evals | None |
+
+Responses: Write soporta el endpoint moderno de OpenAI responses. Chat completions: Write mantiene compatibilidad si el provider de la toolkit usa chat completions. List models: Read es útil si el provider o los diagnósticos necesitan comprobar los modelos disponibles. Los demás permisos no son necesarios para los reportes de AI de QR Guardian.
+
+Después de crear la clave, añádela como secret de GitHub Actions del repositorio: `OPENAI_API_KEY`
+
+Settings → Secrets and variables → Actions → Repository secrets → New repository secret
+
+Si usas un fork, configura `OPENAI_API_KEY` en tu fork. Los secrets del repositorio upstream no se comparten con forks.
+
+No pegues API keys en inputs del workflow, archivos Gradle, `local.properties`, archivos `.env` commitidos en git, documentación o código fuente.
+
 ## CI y GitHub Action
 
 Workflow base actual:

@@ -235,6 +235,34 @@ class ProjectScannerTest {
     }
 
     @Test
+    fun `ignores nested mobile ai toolkit checkout inside an external repository workspace`() {
+        val externalRepo = createTempDirectory()
+        externalRepo.resolve("build.gradle.kts").writeText("plugins { kotlin(\"multiplatform\") }")
+        externalRepo.resolve("shared/src/commonMain/kotlin").createDirectories()
+        externalRepo.resolve("shared/src/commonMain/kotlin/Shared.kt").writeText("class Shared")
+
+        externalRepo.resolve("mobile-ai-toolkit").createDirectories()
+        externalRepo.resolve("mobile-ai-toolkit/gradlew").writeText("#!/usr/bin/env sh")
+        externalRepo.resolve("mobile-ai-toolkit/settings.gradle.kts").writeText("rootProject.name = \"mobile-ai-toolkit\"")
+        externalRepo.resolve("mobile-ai-toolkit/build.gradle.kts").writeText("plugins { kotlin(\"multiplatform\") }")
+        externalRepo.resolve("mobile-ai-toolkit/shared/ai-client/src/main/kotlin").createDirectories()
+        externalRepo.resolve("mobile-ai-toolkit/shared/ai-client/src/main/kotlin/Toolkit.kt").writeText("class Toolkit")
+        externalRepo.resolve("mobile-ai-toolkit/shared/report-common/src/main/kotlin").createDirectories()
+        externalRepo.resolve("mobile-ai-toolkit/tools/kmp-project-auditor/src/main/kotlin").createDirectories()
+        externalRepo.resolve("mobile-ai-toolkit/tools/kmp-project-auditor/examples/bad-kmp-library/src/commonMain/kotlin").createDirectories()
+        externalRepo.resolve("mobile-ai-toolkit/tools/kmp-project-auditor/examples/bad-kmp-library/src/commonMain/kotlin/Fake.kt")
+            .writeText("import android.content.Context")
+
+        val result = scanner.scan(externalRepo)
+
+        assertTrue(result.gradleFiles.any { it == "build.gradle.kts" })
+        assertTrue(result.gradleFiles.none { it.contains("mobile-ai-toolkit") })
+        assertTrue(result.sourceSets.any { it == "commonMain" })
+        assertTrue(result.kotlinSourceRoots.any { it == "shared/src/commonMain/kotlin" })
+        assertTrue(result.kotlinSourceRoots.none { it.contains("mobile-ai-toolkit") })
+    }
+
+    @Test
     fun `renders discovered relative paths with forward slashes`() {
         val tempDir = createTempDirectory()
         tempDir.resolve("module-a/build.gradle.kts").apply {

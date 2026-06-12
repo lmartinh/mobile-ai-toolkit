@@ -6,8 +6,12 @@ import dev.mobileai.toolkit.kmpprojectauditor.core.analysis.KmpAiAnalysisResult
 import dev.mobileai.toolkit.kmpprojectauditor.core.audit.DeterministicKmpAuditor
 import dev.mobileai.toolkit.kmpprojectauditor.core.scan.ProjectScanner
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createTempDirectory
+import kotlin.io.path.writeText
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class KmpMarkdownReportRendererTest {
@@ -55,6 +59,34 @@ class KmpMarkdownReportRendererTest {
         assertTrue(report.contains("No deterministic findings found."))
         assertTrue(report.contains("No AI findings found."))
         assertTrue(report.contains("No AI warnings."))
+    }
+
+    @Test
+    fun `rendered markdown does not include ignored nested toolkit paths`() {
+        val externalRepo = createTempDirectory()
+        externalRepo.resolve("build.gradle.kts").writeText("plugins { kotlin(\"multiplatform\") }")
+        externalRepo.resolve("shared/src/commonMain/kotlin").createDirectories()
+        externalRepo.resolve("shared/src/commonMain/kotlin/Shared.kt").writeText("class Shared")
+        externalRepo.resolve("mobile-ai-toolkit").createDirectories()
+        externalRepo.resolve("mobile-ai-toolkit/gradlew").writeText("#!/usr/bin/env sh")
+        externalRepo.resolve("mobile-ai-toolkit/settings.gradle.kts").writeText("rootProject.name = \"mobile-ai-toolkit\"")
+        externalRepo.resolve("mobile-ai-toolkit/shared/ai-client/src/main/kotlin").createDirectories()
+        externalRepo.resolve("mobile-ai-toolkit/shared/report-common/src/main/kotlin").createDirectories()
+        externalRepo.resolve("mobile-ai-toolkit/tools/kmp-project-auditor/src/main/kotlin").createDirectories()
+        externalRepo.resolve("mobile-ai-toolkit/tools/kmp-project-auditor/examples/bad-kmp-library/src/commonMain/kotlin").createDirectories()
+        externalRepo.resolve("mobile-ai-toolkit/tools/kmp-project-auditor/examples/bad-kmp-library/src/commonMain/kotlin/Fake.kt")
+            .writeText("import android.content.Context")
+
+        val scanResult = scanner.scan(externalRepo)
+        val deterministicFindings = auditor.audit(scanResult)
+        val aiResult = KmpAiAnalysisResult(findings = emptyList(), warnings = emptyList(), model = "fake", provider = "fake")
+
+        val report = renderer.render(scanResult, deterministicFindings, aiResult)
+
+        assertFalse(report.contains("mobile-ai-toolkit/shared"))
+        assertFalse(report.contains("mobile-ai-toolkit/tools"))
+        assertFalse(report.contains("mobile-ai-toolkit/examples"))
+        assertTrue(report.contains("shared/src/commonMain/kotlin"))
     }
 
     private fun assertMatchesGolden(actual: String, fixturePath: Path, goldenPath: Path) {
