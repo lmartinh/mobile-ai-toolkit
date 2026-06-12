@@ -8,6 +8,9 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -29,7 +32,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run tests
-        run: ./gradlew :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test
+        run: ./gradlew --quiet --console=plain :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test
 
       - name: Validate release packaging
         run: .github/scripts/test-compose-guardrails-release-packaging.sh

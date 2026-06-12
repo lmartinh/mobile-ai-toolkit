@@ -10,6 +10,7 @@ permissions:
   contents: read
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   MOBILE_AI_PROVIDER: fake
   KMP_PROJECT_AUDITOR_TARGET: tools/kmp-project-auditor/examples/bad-kmp-library
   KMP_PROJECT_AUDITOR_REPORT_PATH: artifacts/kmp-project-auditor-report.md
@@ -33,7 +34,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run tests
-        run: ./gradlew :tools:kmp-project-auditor:test
+        run: ./gradlew --quiet --console=plain :tools:kmp-project-auditor:test
 
       - name: Validate CI run script
         run: .github/scripts/test-run-kmp-project-auditor.sh

@@ -65,7 +65,7 @@ if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 fi
 
 set +e
-MOBILE_AI_PROVIDER="$MOBILE_AI_PROVIDER" "$MOBILE_AI_TOOLKIT_DIR/gradlew" --project-dir "$MOBILE_AI_TOOLKIT_DIR" :tools:kmp-project-auditor:run \
+MOBILE_AI_PROVIDER="$MOBILE_AI_PROVIDER" "$MOBILE_AI_TOOLKIT_DIR/gradlew" --quiet --console=plain --project-dir "$MOBILE_AI_TOOLKIT_DIR" :tools:kmp-project-auditor:run \
   --args="kmp audit ${TARGET_ABS} --output ${REPORT_ABS}"
 audit_exit_code=$?
 set -e

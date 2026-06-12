@@ -40,7 +40,7 @@ run_guardrails_for_path() {
   cg_assert_no_whitespace_path "$analysis_path" "analysis path"
   cg_assert_no_whitespace_path "$output_path" "report output path"
 
-  "$MOBILE_AI_TOOLKIT_DIR/gradlew" --project-dir "$MOBILE_AI_TOOLKIT_DIR" :tools:compose-guardrails:run \
+  "$MOBILE_AI_TOOLKIT_DIR/gradlew" --quiet --console=plain --project-dir "$MOBILE_AI_TOOLKIT_DIR" :tools:compose-guardrails:run \
     --args="guardrails check ${analysis_path} --rule-set ${COMPOSE_GUARDRAILS_RULE_SET} --output ${output_path}"
 }
 

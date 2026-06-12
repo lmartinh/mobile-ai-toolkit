@@ -12,13 +12,13 @@ release_version="${RELEASE_VERSION:-}"
 release_version="${release_version#v}"
 
 if [[ -n "$release_version" ]]; then
-  "$repo_root/gradlew" --project-dir "$repo_root" \
+  "$repo_root/gradlew" --quiet --console=plain --project-dir "$repo_root" \
     "-PreleaseVersion=$release_version" \
     :tools:kmp-project-auditor:installDist \
     :tools:kmp-project-auditor:distZip \
     :tools:kmp-project-auditor:distTar
 else
-  "$repo_root/gradlew" --project-dir "$repo_root" \
+  "$repo_root/gradlew" --quiet --console=plain --project-dir "$repo_root" \
     :tools:kmp-project-auditor:installDist \
     :tools:kmp-project-auditor:distZip \
     :tools:kmp-project-auditor:distTar
