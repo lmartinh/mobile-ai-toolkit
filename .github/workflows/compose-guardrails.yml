@@ -10,6 +10,7 @@ permissions:
   contents: read
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   COMPOSE_GUARDRAILS_TARGET: tools/compose-guardrails/src/main
   COMPOSE_GUARDRAILS_RULE_SET: default
   COMPOSE_GUARDRAILS_REPORT_PATH: artifacts/compose-guardrails-report.md
@@ -38,7 +39,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run tests
-        run: ./gradlew :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test
+        run: ./gradlew --quiet --console=plain :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test
 
       - name: Validate changed-files helper logic
         run: .github/scripts/test-run-compose-guardrails.sh

@@ -17,13 +17,13 @@ if [[ -n "$release_version" ]]; then
 fi
 
 if ((${#gradle_args[@]})); then
-  "$tool_root/gradlew" --project-dir "$tool_root" \
+  "$tool_root/gradlew" --quiet --console=plain --project-dir "$tool_root" \
     "${gradle_args[@]}" \
     :tools:compose-guardrails:installDist \
     :tools:compose-guardrails:distZip \
     :tools:compose-guardrails:distTar
 else
-  "$tool_root/gradlew" --project-dir "$tool_root" \
+  "$tool_root/gradlew" --quiet --console=plain --project-dir "$tool_root" \
     :tools:compose-guardrails:installDist \
     :tools:compose-guardrails:distZip \
     :tools:compose-guardrails:distTar

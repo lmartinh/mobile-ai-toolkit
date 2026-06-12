@@ -15,6 +15,6 @@ application {
 dependencies {
     implementation(project(":shared:ai-client"))
     implementation(project(":shared:report-common"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     testImplementation(kotlin("test"))
 }

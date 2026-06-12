@@ -36,6 +36,9 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   manual-ai-tools-examples:
     runs-on: ubuntu-latest
@@ -45,7 +48,7 @@ jobs:
       COMPOSE_GUARDRAILS_WRITE_STEP_SUMMARY: false
       KMP_PROJECT_AUDITOR_FAIL_ON_FINDINGS: ${{ inputs['fail-on-findings'] }}
       KMP_PROJECT_AUDITOR_WRITE_STEP_SUMMARY: false
-      COMPOSE_GUARDRAILS_REPORT_PATH: artifacts/manual-ai-tools-examples/compose-guardrails-example-report.md
+      COMPOSE_GUARDRAILS_REPORT_PATH: artifacts/manual-ai-tools-examples/compose-guardrails-examples-report.md
       KMP_PROJECT_AUDITOR_CLEAN_REPORT_PATH: artifacts/manual-ai-tools-examples/kmp-project-auditor-clean-example-report.md
       KMP_PROJECT_AUDITOR_BAD_REPORT_PATH: artifacts/manual-ai-tools-examples/kmp-project-auditor-bad-example-report.md
     steps:
@@ -121,14 +124,14 @@ jobs:
         if: ${{ inputs.tool == 'compose-guardrails' || inputs.tool == 'all' }}
         continue-on-error: true
         env:
-          COMPOSE_GUARDRAILS_TARGET: tools/compose-guardrails/examples/bad-compose-sample
+          COMPOSE_GUARDRAILS_TARGET: tools/compose-guardrails/examples
         run: .github/scripts/run-compose-guardrails.sh
 
       - name: Upload compose-guardrails report artifact
         if: ${{ always() && steps.compose_guardrails.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
-          name: compose-guardrails-example-report
+          name: compose-guardrails-examples-report
           path: ${{ env.COMPOSE_GUARDRAILS_REPORT_PATH }}
           if-no-files-found: error
 
@@ -203,7 +206,7 @@ jobs:
             echo ""
             echo "### Example targets"
             if [[ "$SELECTED_TOOL" == "compose-guardrails" || "$SELECTED_TOOL" == "all" ]]; then
-              echo "- compose-guardrails: \`tools/compose-guardrails/examples/bad-compose-sample\`"
+              echo "- compose-guardrails: \`tools/compose-guardrails/examples\`"
             fi
             if [[ "$SELECTED_TOOL" == "kmp-project-auditor" || "$SELECTED_TOOL" == "all" ]]; then
               echo "- kmp-project-auditor clean: \`tools/kmp-project-auditor/examples/clean-kmp-library\`"
@@ -212,7 +215,7 @@ jobs:
             echo ""
             echo "### Artifacts"
             if [[ "$SELECTED_TOOL" == "compose-guardrails" || "$SELECTED_TOOL" == "all" ]]; then
-              echo "- \`compose-guardrails-example-report\`"
+              echo "- \`compose-guardrails-examples-report\`"
             fi
             if [[ "$SELECTED_TOOL" == "kmp-project-auditor" || "$SELECTED_TOOL" == "all" ]]; then
               echo "- \`kmp-project-auditor-clean-example-report\`"
