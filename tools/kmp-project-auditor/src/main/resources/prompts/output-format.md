@@ -14,4 +14,5 @@ Return only JSON with this shape:
 }
 
 Allowed severities: ERROR, WARNING, INFO.
-If there are no high-confidence findings, return: {"findings": []}.
+Do not include findings that duplicate deterministic findings already provided in context.
+If there are no additional high-confidence findings, return: {"findings": []}.

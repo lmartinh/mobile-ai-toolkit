@@ -126,11 +126,13 @@ Reusable action for external repositories:
 
 Manual example testing workflow:
 - Runs through `workflow_dispatch` against repository example projects.
-- Lets you select the checkout ref, provider, tool, and fail-on-findings behavior.
+- Uses the branch selected in the GitHub Actions "Use workflow from" dropdown as the checkout source.
+- Lets you select the provider, tool, and fail-on-findings behavior.
 - Defaults to `fake`, which needs no secrets.
 - Real providers require GitHub Secrets for the provider API key (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GEMINI_API_KEY`) and use workflow convenience defaults for `MOBILE_AI_MODEL`.
 - Direct CLI usage and reusable actions should pass `MOBILE_AI_MODEL` explicitly when using a real provider.
-- It is report-first by default and does not comment on PRs.
+- It is report-first by default, uploads Markdown artifacts, and writes a compact run summary without Gradle-generated job summary noise.
+- It does not comment on PRs.
 
 Minimal usage:
 

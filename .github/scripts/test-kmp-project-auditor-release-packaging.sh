@@ -99,8 +99,8 @@ if ! grep -Fq -- "## Deterministic Findings" "$tmp_report"; then
   exit 1
 fi
 
-if ! grep -Fq -- "## AI Findings" "$tmp_report"; then
-  echo "FAIL: packaged report is missing AI findings section" >&2
+if ! grep -Fq -- "## Additional AI Findings" "$tmp_report"; then
+  echo "FAIL: packaged report is missing Additional AI Findings section" >&2
   exit 1
 fi
 

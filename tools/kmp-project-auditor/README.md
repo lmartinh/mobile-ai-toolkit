@@ -156,15 +156,15 @@ Reports are written in Markdown so they can be reviewed locally or uploaded as C
 The report includes:
 - analyzed path
 - summary
+- total findings
 - deterministic findings
-- AI findings
+- additional AI findings (only when AI adds something beyond deterministic checks)
 - AI warnings
 - severity
 - rule id
 - file path
 - explanation
 - suggestion
-- optional code example
 
 Example:
 - [tools/kmp-project-auditor/examples/bad-kmp-library/expected-report.md](examples/bad-kmp-library/expected-report.md)
@@ -177,7 +177,7 @@ Stable top-level sections:
 - `# KMP Project Audit Report`
 - `## Summary`
 - `## Deterministic Findings`
-- `## AI Findings`
+- `## Additional AI Findings`
 - `## AI Warnings`
 
 Automation note:

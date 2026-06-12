@@ -45,7 +45,7 @@ MOBILE_AI_PROVIDER="fake" \
 assert_true "report file created" test -f "$REPORT_PATH"
 assert_file_contains "report has markdown title" "$REPORT_PATH" "# KMP Project Audit Report"
 assert_file_contains "report has deterministic findings section" "$REPORT_PATH" "## Deterministic Findings"
-assert_file_contains "report has ai findings section" "$REPORT_PATH" "## AI Findings"
+assert_file_contains "report has additional ai findings section" "$REPORT_PATH" "## Additional AI Findings"
 assert_true "report does not include gradle logs" bash -c "! grep -Fq '> Task :' '$REPORT_PATH'"
 assert_true "step summary created" test -f "$STEP_SUMMARY_PATH"
 assert_file_contains "step summary has tool name" "$STEP_SUMMARY_PATH" "## KMP Project Auditor"

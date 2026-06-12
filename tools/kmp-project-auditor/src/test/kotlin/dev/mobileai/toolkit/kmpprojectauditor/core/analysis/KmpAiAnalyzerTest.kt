@@ -22,7 +22,7 @@ class KmpAiAnalyzerTest {
 
         val result = KmpAiAnalyzer(FakeAiClient()).analyze(scanResult, deterministicFindings)
 
-        assertTrue(result.findings.isNotEmpty())
+        assertTrue(result.findings.isEmpty())
         assertTrue(result.warnings.isEmpty())
         assertEquals("fake", result.provider)
     }

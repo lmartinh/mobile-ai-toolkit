@@ -57,8 +57,28 @@ class KmpMarkdownReportRendererTest {
         val report = renderer.render(scanResult, emptyList(), aiResult)
 
         assertTrue(report.contains("No deterministic findings found."))
-        assertTrue(report.contains("No AI findings found."))
+        assertTrue(report.contains("No additional AI findings found."))
         assertTrue(report.contains("No AI warnings."))
+    }
+
+    @Test
+    fun `suppresses ai findings that duplicate deterministic findings`() {
+        val scanResult = scanner.scan(Path.of("examples/bad-kmp-library"))
+        val deterministicFindings = auditor.audit(scanResult)
+        val duplicatedAiFinding = deterministicFindings.first()
+        val aiResult = KmpAiAnalysisResult(
+            findings = listOf(duplicatedAiFinding),
+            warnings = emptyList(),
+            model = "fake",
+            provider = "fake"
+        )
+
+        val report = renderer.render(scanResult, deterministicFindings, aiResult)
+
+        assertTrue(report.contains("- Total findings: ${deterministicFindings.size}"))
+        assertTrue(report.contains("- Additional AI findings: 0"))
+        assertTrue(report.contains("## Additional AI Findings"))
+        assertTrue(report.contains("No additional AI findings found."))
     }
 
     @Test

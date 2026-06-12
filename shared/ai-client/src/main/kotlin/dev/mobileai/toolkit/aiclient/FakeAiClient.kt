@@ -7,21 +7,7 @@ class FakeAiClient : AiClient {
         val content = when (mode) {
             "empty" -> """{"findings": []}"""
             "error-like" -> """{"message":"could not infer findings"}"""
-            "kmp-audit" -> """
-                {
-                  "findings": [
-                    {
-                      "ruleId": "kmp.ai.source-set-clarity",
-                      "severity": "INFO",
-                      "title": "Review intermediate source-set intent",
-                      "file": "<project>",
-                      "explanation": "Intermediate source sets should have clear ownership and purpose.",
-                      "suggestion": "Document why each intermediate source set exists and which targets consume it.",
-                      "evidence": "Scan summary lists intermediate source sets."
-                    }
-                  ]
-                }
-            """.trimIndent()
+            "kmp-audit" -> """{"findings": []}"""
             else -> """
                 {
                   "findings": [
