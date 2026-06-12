@@ -113,10 +113,11 @@ Notas:
 El formato de reporte es Markdown-first con secciones deterministas + IA.
 
 Secciones de alto nivel estables:
-- `# KMP Project Auditor Report`
+- `# KMP Project Audit Report`
 - `## Summary`
 - `## Deterministic Findings`
-- `## AI Findings`
+- `## Additional AI Findings`
+- `## AI Warnings`
 
 Nota para automatización:
 - Los nombres de encabezado anteriores se consideran estables.
@@ -177,7 +178,7 @@ Guía de severidad:
 - Falta API key/model con proveedor real:
   - Configura `MOBILE_AI_API_KEY`; el modelo queda fijo por proveedor.
 - Salida de IA vacía o malformada:
-  - El parser aplica fallback seguro; revisa la sección AI Findings y re-ejecuta con `fake` para validar el comportamiento determinista.
+  - El parser aplica fallback seguro; revisa las secciones Additional AI Findings y AI Warnings y re-ejecuta con `fake` para validar el comportamiento determinista.
 - Findings poco útiles:
   - Revisa supuestos de layout en [docs/audit-areas.md](docs/audit-areas.md).
 
