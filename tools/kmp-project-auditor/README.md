@@ -10,6 +10,11 @@ It combines deterministic project scanning, source-set and Gradle evidence colle
 
 The tool helps teams review project structure, source-set boundaries, platform leaks, dependency organization, and maintainability risks early, before they become expensive refactors.
 
+## Prompt System
+
+Prompt formation follows the shared repository pattern documented in [docs/architecture.md](../../docs/architecture.md#shared-prompt-pipeline).
+The rule catalog is documented in [docs/rules.md](docs/rules.md).
+
 ## What it checks
 
 - Kotlin Multiplatform source-set structure.

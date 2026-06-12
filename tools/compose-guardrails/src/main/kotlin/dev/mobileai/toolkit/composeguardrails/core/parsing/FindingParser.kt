@@ -71,7 +71,7 @@ class FindingParser(
 
 @Serializable
 private data class AiFindingsPayload(
-    val findings: List<AiFindingDto> = emptyList()
+    val findings: List<AiFindingDto>
 )
 
 @Serializable

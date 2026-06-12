@@ -10,6 +10,22 @@ class FindingParserTest {
     private val parser = FindingParser()
 
     @Test
+    fun `parse accepts exact empty findings payload`() {
+        val parsed = parser.parse("""{"findings": []}""")
+
+        assertTrue(parsed.findings.isEmpty())
+        assertTrue(parsed.warnings.isEmpty())
+    }
+
+    @Test
+    fun `parse treats json object without findings as malformed`() {
+        val parsed = parser.parse("""{"message":"could not infer findings"}""")
+
+        assertTrue(parsed.findings.isEmpty())
+        assertTrue(parsed.warnings.any { it.contains("Invalid JSON AI response") })
+    }
+
+    @Test
     fun `parse supports escaped quotes in strings`() {
         val raw = """
             {

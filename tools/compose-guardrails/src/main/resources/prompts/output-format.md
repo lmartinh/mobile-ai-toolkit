@@ -19,6 +19,8 @@ Return **valid JSON** using this schema:
 ```
 
 Rules:
+- Return exactly one JSON object and nothing else.
+- The top-level `findings` field is required.
 - Every finding must include: `severity`, `rule_id`, `title`, `file_path`, `explanation`, `suggestion`.
 - `code_example` is optional.
 - Omit uncertain findings.
