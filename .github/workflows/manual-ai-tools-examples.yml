@@ -53,19 +53,19 @@ jobs:
       KMP_PROJECT_AUDITOR_BAD_REPORT_PATH: artifacts/manual-ai-tools-examples/kmp-project-auditor-bad-example-report.md
     steps:
       - name: Checkout selected ref
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Configure real provider secrets
         if: ${{ inputs.provider != 'fake' }}
@@ -129,7 +129,7 @@ jobs:
 
       - name: Upload compose-guardrails report artifact
         if: ${{ always() && steps.compose_guardrails.outcome != 'skipped' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: compose-guardrails-examples-report
           path: ${{ env.COMPOSE_GUARDRAILS_REPORT_PATH }}
@@ -146,7 +146,7 @@ jobs:
 
       - name: Upload kmp-project-auditor clean report artifact
         if: ${{ always() && steps.kmp_clean.outcome != 'skipped' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kmp-project-auditor-clean-example-report
           path: ${{ env.KMP_PROJECT_AUDITOR_CLEAN_REPORT_PATH }}
@@ -163,7 +163,7 @@ jobs:
 
       - name: Upload kmp-project-auditor bad report artifact
         if: ${{ always() && steps.kmp_bad.outcome != 'skipped' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kmp-project-auditor-bad-example-report
           path: ${{ env.KMP_PROJECT_AUDITOR_BAD_REPORT_PATH }}

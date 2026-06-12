@@ -2,15 +2,34 @@
 
 > **Read in another language:** **English** · [Español](README.es.md)
 
-`compose-guardrails` is a Kotlin CLI that analyzes Jetpack Compose code with provider-agnostic AI-assisted guardrails.
+AI-assisted guardrails for Jetpack Compose and Compose Multiplatform code.
 
-It helps teams catch architecture, state-management, side-effect, accessibility, and multiplatform boundary issues early, before they become expensive review or production problems. The tool is designed for practical CI usage: deterministic input scanning, structured findings, and stable Markdown reporting.
+`compose-guardrails` is an AI-assisted CLI for reviewing Jetpack Compose and Compose Multiplatform code against practical mobile architecture guardrails.
 
-## Why teams use it
+It combines deterministic source scanning, versioned Markdown prompt assets, provider-agnostic AI analysis, structured finding parsing, and Markdown report rendering. AI is used as a review aid, not a replacement for human code review.
 
-- Faster review loops for Compose-heavy codebases.
-- More consistent guardrail enforcement across contributors.
-- CI-friendly reports that can be shared as artifacts.
+The tool helps teams catch architecture, state, side-effect, accessibility, maintainability, and Kotlin Multiplatform boundary risks early. It is designed for practical CI usage with safe defaults and stable Markdown reporting.
+
+## What it checks
+
+- State hoisting and unidirectional data flow.
+- Side effects and effect keys.
+- Recomposition and stability risks.
+- Large or hard-to-review composables.
+- Accessibility and semantics.
+- Lazy list keys.
+- Modifier usage.
+- ViewModel usage in leaf composables.
+- Android API leaks in common code.
+- Compose Multiplatform resource usage.
+
+## When to use it
+
+- Before opening a PR.
+- In CI as a Markdown report artifact.
+- During Compose refactors.
+- When reviewing shared Compose Multiplatform UI.
+- As a lightweight architecture review aid.
 
 If you are new to this repository, start with the root [README](../../README.md) and [architecture guide](../../docs/architecture.md).
 
@@ -19,7 +38,17 @@ Roadmap:
 
 ## Command
 
-`mobile-ai guardrails check <path>`
+Installed launcher:
+
+```bash
+compose-guardrails guardrails check <path>
+```
+
+Gradle during development:
+
+```bash
+./gradlew :tools:compose-guardrails:run --args="guardrails check <path> --rule-set default --output artifacts/compose-guardrails-report.md"
+```
 
 Flags:
 - `--rule-set default|advanced|all` (default: `default`)
@@ -30,7 +59,9 @@ Flags:
 Run from repository root with absolute paths:
 
 ```bash
-MOBILE_AI_PROVIDER=fake ./gradlew :tools:compose-guardrails:run --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default --output $PWD/artifacts/compose-guardrails-report.md"
+MOBILE_AI_PROVIDER=fake \
+  ./gradlew :tools:compose-guardrails:run \
+  --args="guardrails check $PWD/tools/compose-guardrails/examples/bad-compose-sample --rule-set default --output $PWD/artifacts/compose-guardrails-report.md"
 ```
 
 Run tests:
@@ -44,7 +75,7 @@ Run tests:
 Environment variables:
 - `MOBILE_AI_PROVIDER` (`fake`, `openai`, `anthropic`, `gemini`)
 - `MOBILE_AI_API_KEY` (required only for real providers)
-- `MOBILE_AI_MODEL` (fixed by provider)
+- `MOBILE_AI_MODEL` (required for real providers in the current implementation)
 
 | Provider | Model |
 | --- | --- |
@@ -79,6 +110,8 @@ Security:
 - Never commit API keys.
 - Use CI secrets for real providers.
 
+For provider-specific setup and key permissions, see [Provider configuration](../../docs/provider-configuration.md).
+
 ## Integration in CI
 
 Workflow:
@@ -97,7 +130,7 @@ Minimal external usage:
 
 ```yaml
 - id: compose-guardrails
-  uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.2
+  uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.3
   with:
     target: .
     provider: fake
@@ -108,6 +141,25 @@ Minimal external usage:
 Common options:
 - `changed-files-only: true`
 - `fail-on-findings: true`
+
+## Example report
+
+Reports are written in Markdown so they can be reviewed locally or uploaded as CI artifacts.
+
+The report includes:
+- analyzed path
+- summary
+- parser warnings when present
+- findings
+- severity
+- rule id
+- file path
+- explanation
+- suggestion
+- optional code example
+
+Example:
+- [tools/compose-guardrails/examples/bad-compose-sample/expected-report.md](tools/compose-guardrails/examples/bad-compose-sample/expected-report.md)
 
 ## Output Contract
 
@@ -193,7 +245,8 @@ MOBILE_AI_PROVIDER=fake \
 - `Invalid rule-set value`:
   - Use only `default`, `advanced`, or `all`.
 - `Missing API key/model` with real provider:
-  - Set `MOBILE_AI_API_KEY`; the model is fixed by provider.
+  - Set `MOBILE_AI_API_KEY` for real providers.
+  - `MOBILE_AI_MODEL` is required by the current implementation for real providers.
 - Paths with spaces in CI:
   - Current CI scripts reject them to avoid Gradle `--args` splitting issues.
 - Empty or malformed AI output:

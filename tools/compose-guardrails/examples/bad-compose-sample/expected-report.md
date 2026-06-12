@@ -3,16 +3,18 @@
 ## Summary
 - Analyzed path: `tools/compose-guardrails/examples/bad-compose-sample`
 - Kotlin files scanned: 1
-- Expected findings: 2
+- Total findings: 1
+- Affected files: 1
+- Findings by severity: error=0, warning=1, info=0
 
 ## Findings
 
 ### File: LoginScreen.kt
+#### Warning: Business logic inside Composable
 - Rule: `compose.no-business-logic-in-composables`
-- Severity: `warning`
-- Title: Business validation logic is implemented in the composable callback
-
-### File: LoginScreen.kt
-- Rule: `compose.state-hoisting`
-- Severity: `warning`
-- Title: Screen-local form state may be better hoisted for external control
+- Explanation: Validation logic appears directly in UI code.
+- Suggestion: Move validation to ViewModel or domain use case.
+- Code example:
+```kotlin
+viewModel.validateCredentials(email, password)
+```

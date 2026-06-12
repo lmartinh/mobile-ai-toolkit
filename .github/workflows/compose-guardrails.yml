@@ -25,18 +25,18 @@ jobs:
       MOBILE_AI_PROVIDER: fake
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Run tests
         run: ./gradlew --quiet --console=plain :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test
@@ -64,7 +64,7 @@ jobs:
 
       - name: Upload guardrails report artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: compose-guardrails-report
           path: ${{ steps.analyze.outputs.report-path }}
