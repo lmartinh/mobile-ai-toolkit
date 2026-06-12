@@ -5,6 +5,7 @@ import dev.mobileai.toolkit.aiclient.AiRequest
 import dev.mobileai.toolkit.aiclient.AiResponse
 import dev.mobileai.toolkit.aiclient.FakeAiClient
 import dev.mobileai.toolkit.kmpprojectauditor.core.audit.DeterministicKmpAuditor
+import dev.mobileai.toolkit.kmpprojectauditor.core.audit.KmpFindingSeverity
 import dev.mobileai.toolkit.kmpprojectauditor.core.scan.ProjectScanner
 import java.nio.file.Path
 import kotlin.test.Test
@@ -60,6 +61,60 @@ class KmpAiAnalyzerTest {
         assertEquals(1, result.findings.size)
         assertTrue(result.warnings.isEmpty())
         assertEquals("mock", result.provider)
+    }
+
+    @Test
+    fun `filters compose multiplatform false positives and caps advisory severities`() {
+        val scanResult = scanner.scan(Path.of("examples/clean-kmp-library"))
+
+        val client = object : AiClient {
+            override fun generate(request: AiRequest): AiResponse {
+                return AiResponse(
+                    content = """
+                        {
+                          "findings": [
+                            {
+                              "ruleId": "kmp.common.no-android-api",
+                              "severity": "ERROR",
+                              "title": "Android API import in commonMain",
+                              "file": "src/commonMain/kotlin/CommonCode.kt",
+                              "explanation": "This looks like an Android API leak.",
+                              "suggestion": "Move it.",
+                              "evidence": "import androidx.compose.material3.MaterialTheme"
+                            },
+                            {
+                              "ruleId": "kmp.project.structure",
+                              "severity": "ERROR",
+                              "title": "Heuristic structure note",
+                              "file": "<project>",
+                              "explanation": "Layout hints at a possible mismatch.",
+                              "suggestion": "Review target declarations.",
+                              "evidence": "Android source sets found but no Android target declaration was detected."
+                            },
+                            {
+                              "ruleId": "kmp.common.no-android-api",
+                              "severity": "ERROR",
+                              "title": "Android API import in commonMain",
+                              "file": "src/commonMain/kotlin/CommonCode.kt",
+                              "explanation": "This is a real Android-only import.",
+                              "suggestion": "Move it.",
+                              "evidence": "import android.content.Context"
+                            }
+                          ]
+                        }
+                    """.trimIndent(),
+                    model = "mock-model",
+                    metadata = mapOf("provider" to "mock")
+                )
+            }
+        }
+
+        val result = KmpAiAnalyzer(client).analyze(scanResult, emptyList())
+
+        assertEquals(2, result.findings.size)
+        assertTrue(result.findings.none { it.evidence == "import androidx.compose.material3.MaterialTheme" })
+        assertTrue(result.findings.any { it.evidence == "import android.content.Context" && it.severity == KmpFindingSeverity.WARNING })
+        assertTrue(result.findings.any { it.ruleId == "kmp.project.structure" && it.severity == KmpFindingSeverity.INFO })
     }
 
     @Test

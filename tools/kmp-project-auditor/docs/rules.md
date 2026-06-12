@@ -14,31 +14,31 @@ Rule status values:
 - Status: deterministic
 - Category: platform boundaries
 - Default severity: WARNING
-- Detects: `import android.*` and Android-only `androidx.*` imports inside `commonMain` Kotlin files.
+- Detects: `import android.*` and Android-only `androidx.*` imports inside shared code in `commonMain` Kotlin files.
 - Does not detect: Compose Multiplatform imports under `androidx.compose.*`, Android usage outside imports, or Android imports in `androidMain`.
 - Evidence used: import lines in files under `src/commonMain/kotlin`.
 - False-positive notes: import-based heuristic only.
-- Example bad pattern: `import android.content.Context` in `commonMain`.
-- Compose Multiplatform examples that are allowed in `commonMain`: `androidx.compose.runtime.Composable`, `androidx.compose.foundation.*`, `androidx.compose.material3.*`, and `androidx.compose.ui.*`.
-- Android-only examples that should still be flagged in `commonMain`: `androidx.activity.*`, `androidx.appcompat.*`, `androidx.core.*`, and `androidx.lifecycle.*`.
+- Example bad pattern: `import android.content.Context` in shared code in `commonMain`.
+- Compose Multiplatform examples that are allowed in shared code in `commonMain`: `androidx.compose.runtime.Composable`, `androidx.compose.foundation.*`, `androidx.compose.material3.*`, and `androidx.compose.ui.*`.
+- Android-only examples that should still be flagged in shared code in `commonMain`: `androidx.activity.*`, `androidx.appcompat.*`, `androidx.core.*`, and `androidx.lifecycle.*`.
 - Better pattern: move Android-specific code to `androidMain` or use `expect`/`actual` boundaries.
 
 ### `kmp.common.no-ios-api`
 - Status: deterministic
 - Category: platform boundaries
 - Default severity: WARNING
-- Detects: `import platform.*` or `import kotlinx.cinterop.*` inside `commonMain`.
+- Detects: `import platform.*` or `import kotlinx.cinterop.*` inside shared code in `commonMain`.
 - Does not detect: platform imports in `iosMain`.
 - Evidence used: import lines in files under `src/commonMain/kotlin`.
 - False-positive notes: import-based heuristic only.
-- Example bad pattern: `import platform.Foundation.NSString` in `commonMain`.
+- Example bad pattern: `import platform.Foundation.NSString` in shared code in `commonMain`.
 - Better pattern: move native/iOS-specific code to `iosMain` or native source sets.
 
 ### `kmp.tests.missing-common-test`
 - Status: deterministic
 - Category: test readiness
 - Default severity: INFO
-- Detects: `commonMain` exists but `commonTest` is missing.
+- Detects: shared code exists in `commonMain` but `commonTest` is missing.
 - Does not detect: test quality or coverage depth.
 - Evidence used: discovered source-set directories.
 - False-positive notes: some tiny modules intentionally skip shared tests.
@@ -71,6 +71,7 @@ Rule status values:
 - Does not detect: hidden targets in external convention plugins.
 - Evidence used: source-set discovery + Gradle text patterns.
 - False-positive notes: Gradle convention indirection may hide target declarations.
+- Advice-only rule. A missing target can be a tooling limitation, not a project defect.
 
 ### `kmp.source-sets.ios-source-set-without-target`
 - Status: deterministic
@@ -80,6 +81,7 @@ Rule status values:
 - Does not detect: hidden target setup from convention plugins.
 - Evidence used: source-set discovery + Gradle text patterns.
 - False-positive notes: Gradle convention indirection may hide target declarations.
+- Advice-only rule. A missing target can be a tooling limitation, not a project defect.
 
 ### `kmp.dependencies.common-platform-leak`
 - Status: deterministic
@@ -102,6 +104,7 @@ Rule status values:
 - Does not detect: strict structural errors.
 - Evidence used: scan summary, deterministic findings, selected snippets.
 - False-positive notes: suggestions require human review.
+- AI output is intentionally conservative and should avoid turning heuristic layout notes into strong findings.
 
 ### `kmp.project.structure`
 - Status: ai-assisted
@@ -110,6 +113,7 @@ Rule status values:
 - Detects: unclear KMP module/source-set organization signals.
 - Does not detect: one true architecture.
 - Evidence used: provided scan summary and snippets.
+- AI output is advisory only.
 
 ### `kmp.source-sets.intermediate-clarity`
 - Status: ai-assisted
