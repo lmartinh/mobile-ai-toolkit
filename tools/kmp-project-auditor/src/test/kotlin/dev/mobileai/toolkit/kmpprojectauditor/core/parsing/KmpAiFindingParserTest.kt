@@ -32,6 +32,14 @@ class KmpAiFindingParserTest {
     }
 
     @Test
+    fun `valid json without findings field is malformed`() {
+        val result = parser.parse("""{"message":"could not infer findings"}""")
+
+        assertTrue(result.findings.isEmpty())
+        assertTrue(result.warnings.any { it.contains("findings array") })
+    }
+
+    @Test
     fun `skips finding with missing required fields`() {
         val result = parser.parse("""{"findings":[{"ruleId":"x"}]}""")
 

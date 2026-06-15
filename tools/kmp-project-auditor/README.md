@@ -12,7 +12,7 @@ The tool helps teams review project structure, source-set boundaries, platform l
 
 ## Prompt System
 
-Prompt formation follows the shared repository pattern documented in [docs/architecture.md](../../docs/architecture.md#shared-prompt-pipeline).
+Prompt formation follows the shared Markdown-backed prompt pipeline described in [Architecture](../../docs/architecture.md#shared-prompt-pipeline). If you change prompt assets or output contracts, read that section first.
 The rule catalog is documented in [docs/rules.md](docs/rules.md).
 
 ## What it checks
