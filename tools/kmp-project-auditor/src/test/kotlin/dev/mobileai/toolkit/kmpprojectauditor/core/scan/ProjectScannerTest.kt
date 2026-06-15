@@ -210,6 +210,55 @@ class ProjectScannerTest {
     }
 
     @Test
+    fun `detects gradle heuristics in nested modules with version catalog aliases`() {
+        val tempDir = createTempDirectory()
+        tempDir.resolve("shared/build.gradle.kts").apply {
+            parent.createDirectories()
+            writeText(
+                """
+                plugins {
+                    alias(libs.plugins.kotlinMultiplatform)
+                    alias(libs.plugins.androidMultiplatformLibrary)
+                }
+
+                kotlin {
+                    androidLibrary {
+                        namespace = "com.example.shared"
+                    }
+                    iosArm64()
+                }
+                """.trimIndent()
+            )
+        }
+        tempDir.resolve("shared/src/commonMain/kotlin").createDirectories()
+        tempDir.resolve("shared/src/androidMain/kotlin").createDirectories()
+        tempDir.resolve("shared/src/iosMain/kotlin").createDirectories()
+
+        val result = scanner.scan(tempDir)
+
+        assertTrue(result.gradleHeuristics.hasKmpPlugin)
+        assertTrue(result.gradleHeuristics.hasAndroidTarget)
+        assertTrue(result.gradleHeuristics.hasIosTarget)
+        assertContentEquals(
+            listOf("shared/build.gradle.kts"),
+            result.gradleHeuristics.kmpPluginFiles
+        )
+        assertContentEquals(
+            listOf("shared/build.gradle.kts"),
+            result.gradleHeuristics.androidTargetFiles
+        )
+        assertContentEquals(
+            listOf("shared/build.gradle.kts"),
+            result.gradleHeuristics.iosTargetFiles
+        )
+        assertEquals("detected", result.androidTargetStatusLabel())
+        assertContentEquals(
+            listOf("androidMain", "commonMain", "iosMain"),
+            result.sourceSets
+        )
+    }
+
+    @Test
     fun `ignores generated and internal directories during traversal`() {
         val tempDir = createTempDirectory()
         tempDir.resolve("build.gradle.kts").writeText("plugins {}")

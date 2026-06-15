@@ -31,9 +31,10 @@ class ScanSummaryRenderer {
         lines += "Gradle files:"
         lines += formatList(result.gradleFiles)
         lines += "Detected Gradle configuration:"
-        lines += "- Kotlin Multiplatform plugin: ${result.gradleHeuristics.hasKmpPlugin}"
-        lines += "- Android target: ${result.gradleHeuristics.hasAndroidTarget}"
-        lines += "- iOS target: ${result.gradleHeuristics.hasIosTarget}"
+        lines += "- KMP project shape: ${result.kmpContextStatusLabel()}"
+        lines += "- Kotlin Multiplatform plugin: ${result.kmpPluginStatusLabel()}"
+        lines += "- Android target: ${result.androidTargetStatusLabel()}"
+        lines += "- iOS target: ${result.iosTargetStatusLabel()}"
         lines += "- KMP plugin detected in: ${formatInlineList(result.gradleHeuristics.kmpPluginFiles)}"
         lines += "- Android target detected in: ${formatInlineList(result.gradleHeuristics.androidTargetFiles)}"
         lines += "- iOS target detected in: ${formatInlineList(result.gradleHeuristics.iosTargetFiles)}"
@@ -46,8 +47,8 @@ class ScanSummaryRenderer {
         lines += "- has commonTest: ${result.hasCommonTest}"
         lines += "- has Android source set: ${result.hasAndroidSourceSet}"
         lines += "- has iOS source set: ${result.hasIosSourceSet}"
-        lines += "- has Android target: ${result.hasAndroidTarget}"
-        lines += "- has iOS target: ${result.hasIosTarget}"
+        lines += "- Android target signal: ${result.androidTargetStatusLabel()}"
+        lines += "- iOS target signal: ${result.iosTargetStatusLabel()}"
         lines += "- has intermediate source sets: ${result.hasIntermediateSourceSets}"
         lines += "- has custom source sets: ${result.hasCustomSourceSets}"
         lines += "Layout notes:"
@@ -80,6 +81,9 @@ class ScanSummaryRenderer {
         findings.forEach { finding ->
             lines += "- [${finding.severity}] ${finding.ruleId} - ${finding.title}"
             lines += "  File: ${finding.file}"
+            if (finding.lineNumber != null) {
+                lines += "  Line: ${finding.lineNumber}"
+            }
             if (finding.evidence != null) {
                 lines += "  Evidence: ${finding.evidence}"
             }

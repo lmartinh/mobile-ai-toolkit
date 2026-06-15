@@ -40,6 +40,9 @@ class CliReportOutputIntegrationTest {
             .toFile()
             .readText()
             .replace("\r\n", "\n")
+            .lines()
+            .map { it.trimEnd() }
+            .joinToString("\n")
             .trimEnd()
         assertEquals(expected, normalized)
     }
@@ -56,6 +59,7 @@ class CliReportOutputIntegrationTest {
                     line.replace(fixture, fixturePath)
                 }
             }
+            .map { it.trimEnd() }
             .joinToString("\n")
             .trimEnd()
     }

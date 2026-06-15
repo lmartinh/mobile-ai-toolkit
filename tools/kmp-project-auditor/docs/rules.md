@@ -1,7 +1,7 @@
 # KMP Rule Catalog
 
 This catalog documents the current audit rules for `kmp-project-auditor`.
-Milestone 8 is release-readiness focused and does not add new rule families.
+Milestone 8 is release-readiness focused and keeps the rule set heuristic and text-based.
 
 Rule status values:
 - `deterministic`: implemented as text/path-based checks in the current tool.
@@ -33,6 +33,17 @@ Rule status values:
 - False-positive notes: import-based heuristic only.
 - Example bad pattern: `import platform.Foundation.NSString` in shared code in `commonMain`.
 - Better pattern: move native/iOS-specific code to `iosMain` or native source sets.
+
+### `kmp.common.jvm-only-api`
+- Status: deterministic
+- Category: platform boundaries
+- Default severity: WARNING
+- Detects: JVM-only imports and simple fully qualified JVM-only usages inside `commonMain`.
+- Examples: `import java.time.LocalDate`, `import javax.crypto.Cipher`, `java.time.LocalDate.now()`, `kotlin.io.path.createTempDirectory()`.
+- Does not detect: complex aliasing, compiler-inferred usages, or fully semantic API compatibility.
+- Evidence used: import lines and simple fully qualified usages in files under `src/commonMain/kotlin`.
+- False-positive notes: text-based heuristic only; comments are ignored but string-literal usage may still be noisy.
+- Better pattern: move JVM-specific code behind `expect`/`actual`, inject an abstraction, or use a multiplatform library.
 
 ### `kmp.tests.missing-common-test`
 - Status: deterministic
@@ -83,6 +94,27 @@ Rule status values:
 - False-positive notes: Gradle convention indirection may hide target declarations.
 - Advice-only rule. A missing target can be a tooling limitation, not a project defect.
 
+### `kmp.expect-actual.missing-actual`
+- Status: deterministic
+- Category: expect/actual
+- Default severity: WARNING
+- Detects: simple `expect` declarations in `commonMain` with no matching `actual` declaration in platform or intermediate source sets.
+- Examples: `expect class Name`, `expect fun platformName()`, `expect val value`.
+- Does not detect: full signature compatibility, annotations, visibility, overload sets, type parameters, or `androidUnitTest`/test-only handling.
+- Evidence used: declaration lines in `commonMain` and matching declarations in non-common source sets.
+- False-positive notes: heuristic text scan only.
+- Better pattern: add the corresponding platform `actual` declaration or remove the unused `expect`.
+
+### `kmp.expect-actual.orphan-actual`
+- Status: deterministic
+- Category: expect/actual
+- Default severity: WARNING
+- Detects: simple `actual` declarations in platform or intermediate source sets with no matching `expect` in `commonMain`.
+- Does not detect: full signature compatibility, annotations, visibility, overload sets, or test-only handling.
+- Evidence used: declaration lines in non-common source sets and matching declarations in `commonMain`.
+- False-positive notes: heuristic text scan only.
+- Better pattern: add the matching `expect` in `commonMain` or remove the orphan `actual`.
+
 ### `kmp.dependencies.common-platform-leak`
 - Status: deterministic
 - Category: dependency placement
@@ -93,6 +125,26 @@ Rule status values:
 - False-positive notes: string-pattern based heuristic.
 - Example bad pattern: `implementation("androidx.core:core-ktx:...")` in `commonMain.dependencies`.
 - Better pattern: move Android artifacts to Android-specific source-set dependency scopes.
+
+### `kmp.compose.common-localcontext-usage`
+- Status: deterministic
+- Category: Compose platform boundaries
+- Default severity: WARNING
+- Detects: Android-specific Compose platform access in `commonMain`, such as `LocalContext.current`, `LocalView.current`, `LocalLifecycleOwner.current`, and `BackHandler`.
+- Does not detect: generic `androidx.compose.*` imports that are valid in Compose Multiplatform.
+- Evidence used: explicit imports and simple `Local*` platform access lines under `src/commonMain/kotlin`.
+- False-positive notes: narrow denylist by design.
+- Better pattern: move platform behavior behind `expect`/`actual`, pass dependencies from platform code, or use a multiplatform-safe abstraction.
+
+### `kmp.compose.resources.android-res-in-common`
+- Status: deterministic
+- Category: Compose resources / platform boundaries
+- Default severity: WARNING
+- Detects: Android resource access in `commonMain`, such as `R.string.*`, `R.drawable.*`, `LocalContext.current.resources`, and `.resources.getString(...)`.
+- Does not detect: Compose Multiplatform resource access via generated `Res.*` APIs.
+- Evidence used: explicit import/resource access lines under `src/commonMain/kotlin`.
+- False-positive notes: heuristic text scan only; avoids broad `R` matching unless the Android resource shape is explicit.
+- Better pattern: use Compose Multiplatform resources, pass platform-specific values from platform source sets, or move the access behind `expect`/`actual`.
 
 ## AI-Assisted Rules
 
@@ -160,13 +212,6 @@ Rule status values:
 - Does not detect: full docs completeness.
 
 ## Future Rules
-
-### `kmp.expect-actual.missing-actual`
-- Status: future
-- Category: expect/actual
-- Default severity: WARNING
-- Planned intent: detect `expect` declarations missing platform `actual` implementations.
-- Why future: needs careful symbol/package matching beyond current heuristics.
 
 ### `kmp.expect-actual.unnecessary-expect`
 - Status: future

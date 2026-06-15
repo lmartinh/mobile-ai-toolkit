@@ -27,7 +27,7 @@ class KmpPromptComposerTest {
         assertTrue(bundle.promptText.contains("## Deterministic Findings"))
         assertTrue(bundle.promptText.contains("## Relevant File Snippets"))
         assertTrue(bundle.promptText.contains("build.gradle.kts"))
-        assertTrue(bundle.promptText.contains("src/commonMain/kotlin/CommonOnly.kt"))
+        assertTrue(bundle.promptText.contains("src/commonMain/kotlin/CommonPlatformLeaks.kt"))
         assertTrue(bundle.snippetPaths.all { !it.contains('\\') })
 
         val bundle2 = composer.compose(assets, scanResult, deterministicFindings)

@@ -4,6 +4,8 @@ import dev.mobileai.toolkit.aiclient.FakeAiClient
 import dev.mobileai.toolkit.kmpprojectauditor.core.analysis.KmpAiAnalyzer
 import dev.mobileai.toolkit.kmpprojectauditor.core.analysis.KmpAiAnalysisResult
 import dev.mobileai.toolkit.kmpprojectauditor.core.audit.DeterministicKmpAuditor
+import dev.mobileai.toolkit.kmpprojectauditor.core.audit.KmpFinding
+import dev.mobileai.toolkit.kmpprojectauditor.core.audit.KmpFindingSeverity
 import dev.mobileai.toolkit.kmpprojectauditor.core.scan.ProjectScanner
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -62,6 +64,26 @@ class KmpMarkdownReportRendererTest {
     }
 
     @Test
+    fun `renders line numbers when findings provide them`() {
+        val scanResult = scanner.scan(Path.of("examples/clean-kmp-library"))
+        val finding = KmpFinding(
+            ruleId = "kmp.test.line-number",
+            severity = KmpFindingSeverity.WARNING,
+            title = "Line number test",
+            file = "src/commonMain/kotlin/Test.kt",
+            explanation = "test",
+            suggestion = "test",
+            evidence = "import java.time.LocalDate",
+            lineNumber = 7
+        )
+        val aiResult = KmpAiAnalysisResult(findings = emptyList(), warnings = emptyList(), model = "fake", provider = "fake")
+
+        val report = renderer.render(scanResult, listOf(finding), aiResult)
+
+        assertTrue(report.contains("**Line:** 7"))
+    }
+
+    @Test
     fun `suppresses ai findings that duplicate deterministic findings`() {
         val scanResult = scanner.scan(Path.of("examples/bad-kmp-library"))
         val deterministicFindings = auditor.audit(scanResult)
@@ -109,6 +131,31 @@ class KmpMarkdownReportRendererTest {
         assertTrue(report.contains("shared/src/commonMain/kotlin"))
     }
 
+    @Test
+    fun `renders conservative wording when kmp shape is inferred from source sets`() {
+        val project = createTempDirectory()
+        project.resolve("shared/build.gradle.kts").apply {
+            parent.createDirectories()
+            writeText("plugins { }")
+        }
+        project.resolve("shared/src/commonMain/kotlin").createDirectories()
+        project.resolve("shared/src/androidMain/kotlin").createDirectories()
+        project.resolve("shared/src/iosMain/kotlin").createDirectories()
+
+        val scanResult = scanner.scan(project)
+        val deterministicFindings = auditor.audit(scanResult)
+        val aiResult = KmpAiAnalysisResult(findings = emptyList(), warnings = emptyList(), model = "fake", provider = "fake")
+
+        val report = renderer.render(scanResult, deterministicFindings, aiResult)
+
+        assertTrue(report.contains("- KMP project shape: inferred from source sets"))
+        assertTrue(report.contains("- Kotlin Multiplatform plugin: not detected"))
+        assertTrue(report.contains("- Android target: inferred from source sets"))
+        assertTrue(report.contains("- iOS target: inferred from source sets"))
+        assertFalse(report.contains("- Android target: false"))
+        assertFalse(report.contains("- iOS target: false"))
+    }
+
     private fun assertMatchesGolden(actual: String, fixturePath: Path, goldenPath: Path) {
         val normalizedActual = normalizeForGolden(actual, fixturePath)
         val expected = goldenPath.toFile().readText().replace("\r\n", "\n").trimEnd()
@@ -123,7 +170,7 @@ class KmpMarkdownReportRendererTest {
             } else {
                 line.replace(absoluteFixturePath, fixturePath.toString().replace("\\", "/"))
             }
-        }
+        }.map { it.trimEnd() }
         return lines.joinToString("\n").trimEnd()
     }
 }

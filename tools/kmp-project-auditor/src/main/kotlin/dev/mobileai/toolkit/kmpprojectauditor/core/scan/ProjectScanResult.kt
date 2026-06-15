@@ -41,4 +41,30 @@ data class ProjectScanResult(
     val hasIosTarget: Boolean = gradleHeuristics.hasIosTarget
     val hasIntermediateSourceSets: Boolean = sourceSetSummaries.any { it.kind == SourceSetKind.INTERMEDIATE }
     val hasCustomSourceSets: Boolean = sourceSetSummaries.any { it.kind == SourceSetKind.CUSTOM }
+    val hasKmpSourceSetShape: Boolean = hasCommonMain && (hasAndroidSourceSet || hasIosSourceSet)
+    val hasKmpContext: Boolean = gradleHeuristics.hasKmpPlugin || hasKmpSourceSetShape
+
+    fun kmpContextStatusLabel(): String = when {
+        gradleHeuristics.hasKmpPlugin -> "detected"
+        hasKmpSourceSetShape -> "inferred from source sets"
+        else -> "not detected"
+    }
+
+    fun kmpPluginStatusLabel(): String = if (gradleHeuristics.hasKmpPlugin) {
+        "detected"
+    } else {
+        "not detected"
+    }
+
+    fun androidTargetStatusLabel(): String = when {
+        gradleHeuristics.hasAndroidTarget -> "detected"
+        hasKmpSourceSetShape && hasAndroidSourceSet -> "inferred from source sets"
+        else -> "not detected"
+    }
+
+    fun iosTargetStatusLabel(): String = when {
+        gradleHeuristics.hasIosTarget -> "detected"
+        hasKmpSourceSetShape && hasIosSourceSet -> "inferred from source sets"
+        else -> "not detected"
+    }
 }

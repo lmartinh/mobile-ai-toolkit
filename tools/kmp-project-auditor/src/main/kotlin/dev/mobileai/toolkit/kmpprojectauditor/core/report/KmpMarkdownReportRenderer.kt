@@ -26,9 +26,10 @@ class KmpMarkdownReportRenderer {
         lines += "- Provider: ${escapeInline(aiResult.provider)}"
         lines += ""
         lines += "## Detected Gradle Configuration"
-        lines += "- Kotlin Multiplatform plugin: ${scanResult.gradleHeuristics.hasKmpPlugin}"
-        lines += "- Android target: ${scanResult.gradleHeuristics.hasAndroidTarget}"
-        lines += "- iOS target: ${scanResult.gradleHeuristics.hasIosTarget}"
+        lines += "- KMP project shape: ${scanResult.kmpContextStatusLabel()}"
+        lines += "- Kotlin Multiplatform plugin: ${scanResult.kmpPluginStatusLabel()}"
+        lines += "- Android target: ${scanResult.androidTargetStatusLabel()}"
+        lines += "- iOS target: ${scanResult.iosTargetStatusLabel()}"
         lines += ""
         lines += "## Source Sets"
         lines += "| Source set | Category |"
@@ -74,6 +75,9 @@ class KmpMarkdownReportRenderer {
                 appendLine("### ${finding.severity} - ${escapeText(finding.ruleId)}")
                 appendLine("**Title:** ${escapeText(finding.title)}  ")
                 appendLine("**File:** `${escapeInline(finding.file)}`  ")
+                if (finding.lineNumber != null) {
+                    appendLine("**Line:** ${finding.lineNumber}  ")
+                }
                 if (!finding.evidence.isNullOrBlank()) {
                     appendLine("**Evidence:** `${escapeInline(finding.evidence)}`")
                 }

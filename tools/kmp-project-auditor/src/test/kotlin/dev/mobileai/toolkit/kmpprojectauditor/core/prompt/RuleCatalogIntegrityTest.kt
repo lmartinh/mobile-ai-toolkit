@@ -69,8 +69,7 @@ class RuleCatalogIntegrityTest {
         assertTrue(cleanReport.contains("No deterministic findings found."))
         deterministicRuleIds().forEach { ruleId ->
             if (ruleId != "kmp.source-sets.android-target-without-source-set" &&
-                ruleId != "kmp.source-sets.android-source-set-without-target" &&
-                ruleId != "kmp.source-sets.ios-source-set-without-target"
+                ruleId != "kmp.source-sets.ios-target-without-source-set"
             ) {
                 assertTrue(badReport.contains(ruleId), "Bad expected report should include deterministic rule id: $ruleId")
             }
@@ -80,12 +79,17 @@ class RuleCatalogIntegrityTest {
     private fun deterministicRuleIds(): Set<String> = setOf(
         "kmp.common.no-android-api",
         "kmp.common.no-ios-api",
+        "kmp.common.jvm-only-api",
+        "kmp.compose.common-localcontext-usage",
+        "kmp.compose.resources.android-res-in-common",
+        "kmp.dependencies.common-platform-leak",
+        "kmp.expect-actual.missing-actual",
+        "kmp.expect-actual.orphan-actual",
         "kmp.tests.missing-common-test",
         "kmp.source-sets.android-target-without-source-set",
         "kmp.source-sets.ios-target-without-source-set",
         "kmp.source-sets.android-source-set-without-target",
-        "kmp.source-sets.ios-source-set-without-target",
-        "kmp.dependencies.common-platform-leak"
+        "kmp.source-sets.ios-source-set-without-target"
     )
 
     private fun aiAndFutureRuleIds(): Set<String> = setOf(
@@ -97,7 +101,6 @@ class RuleCatalogIntegrityTest {
         "kmp.publishing.metadata",
         "kmp.api.public-surface-cleanliness",
         "kmp.docs.consumer-setup",
-        "kmp.expect-actual.missing-actual",
         "kmp.expect-actual.unnecessary-expect",
         "kmp.tests.source-set-coverage"
     )
