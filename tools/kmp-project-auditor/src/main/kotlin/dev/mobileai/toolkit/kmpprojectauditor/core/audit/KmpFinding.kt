@@ -13,5 +13,6 @@ data class KmpFinding(
     val file: String,
     val explanation: String,
     val suggestion: String,
-    val evidence: String? = null
+    val evidence: String? = null,
+    val lineNumber: Int? = null
 )

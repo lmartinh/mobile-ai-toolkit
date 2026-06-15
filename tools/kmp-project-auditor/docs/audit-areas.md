@@ -30,8 +30,12 @@ Current behavior is deterministic and heuristic-based:
 - summarize detected capabilities and layout notes
 - produce deterministic findings for:
   - Android/iOS/native imports in shared code in `commonMain`
+  - JVM-only imports/usages in shared code in `commonMain`
   - missing `commonTest`
   - Android/iOS target-source-set mismatch
+  - simple `expect`/`actual` mismatches
+  - Android-specific Compose platform access in shared code
+  - Android resource access in shared code
   - obvious Android dependency leaks in `commonMain` dependencies
   - Compose Multiplatform imports under `androidx.compose.*` remain valid in shared code in `commonMain`
 - load prompt assets and compose deterministic AI review context

@@ -11,9 +11,10 @@
 - Provider: fake
 
 ## Detected Gradle Configuration
-- Kotlin Multiplatform plugin: true
-- Android target: true
-- iOS target: true
+- KMP project shape: detected
+- Kotlin Multiplatform plugin: detected
+- Android target: detected
+- iOS target: detected
 
 ## Source Sets
 | Source set | Category |

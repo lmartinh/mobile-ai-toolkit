@@ -20,6 +20,10 @@ The rule catalog is documented in [docs/rules.md](docs/rules.md).
 - Kotlin Multiplatform source-set structure.
 - Shared code in `commonMain` / `commonTest` platform-boundary risks.
 - Android and iOS API leaks in shared code.
+- JVM-only API usage in shared code.
+- `expect`/`actual` declaration mismatches.
+- Android-specific Compose platform access in shared code.
+- Android resource access in shared code.
 - Gradle module and dependency organization.
 - `commonTest` presence when shared code is present.
 - Project layout maintainability.
@@ -194,11 +198,16 @@ Automation note:
 `deterministic` (implemented, higher confidence):
 - `kmp.common.no-android-api`: Detects Android imports inside shared code in `commonMain`.
 - `kmp.common.no-ios-api`: Detects iOS/native imports inside shared code in `commonMain`.
+- `kmp.common.jvm-only-api`: Detects JVM-only imports/usages inside shared code in `commonMain`.
 - `kmp.tests.missing-common-test`: Flags projects with shared code in `commonMain` but missing `commonTest`.
 - `kmp.source-sets.android-target-without-source-set`: Detects Android target declarations without Android source sets.
 - `kmp.source-sets.ios-target-without-source-set`: Detects iOS target declarations without iOS source sets.
 - `kmp.source-sets.android-source-set-without-target`: Detects Android source sets without matching Android target declarations.
 - `kmp.source-sets.ios-source-set-without-target`: Detects iOS source sets without matching iOS target declarations.
+- `kmp.expect-actual.missing-actual`: Detects simple `expect` declarations in `commonMain` with no matching platform `actual`.
+- `kmp.expect-actual.orphan-actual`: Detects simple platform `actual` declarations without matching `commonMain` `expect`.
+- `kmp.compose.common-localcontext-usage`: Detects Android-specific Compose platform access in `commonMain`.
+- `kmp.compose.resources.android-res-in-common`: Detects Android resource access in `commonMain`.
 - `kmp.dependencies.common-platform-leak`: Detects obvious Android dependency coordinates leaking into `commonMain` dependencies.
 
 `ai-assisted` (implemented, advisory):
@@ -214,7 +223,6 @@ Automation note:
 AI findings are advisory by design. The tool normalizes AI output to avoid high-severity claims when the evidence is only heuristic, and it rejects Android API leakage claims in `commonMain` when the only imports are valid Compose Multiplatform APIs under `androidx.compose.*`.
 
 `future` (documented, not implemented yet):
-- `kmp.expect-actual.missing-actual`: Planned check for `expect` declarations missing platform `actual` implementations.
 - `kmp.expect-actual.unnecessary-expect`: Planned check for overuse of `expect` abstractions.
 - `kmp.tests.source-set-coverage`: Planned check for broader test coverage across source sets.
 
@@ -257,7 +265,7 @@ Severity guidance:
 
 - Filesystem/text heuristics only (no full AST/compiler model).
 - No full dependency-graph analysis.
-- No `expect`/`actual` analysis yet.
+- No full semantic `expect`/`actual` validation yet.
 - No CLI `--fail-on-findings` flag (CI script supports opt-in fail mode via `KMP_PROJECT_AUDITOR_FAIL_ON_FINDINGS`).
 - No SARIF/JSON outputs yet.
 - No PR comments.

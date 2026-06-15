@@ -176,15 +176,18 @@ class ProjectScanner {
 
         val KMP_PLUGIN_PATTERNS = listOf(
             Regex("kotlin\\(\\s*\"multiplatform\"\\s*\\)", IGNORE_CASE),
-            Regex("id\\(\\s*\"org\\.jetbrains\\.kotlin\\.multiplatform\"\\s*\\)", IGNORE_CASE)
+            Regex("id\\(\\s*\"org\\.jetbrains\\.kotlin\\.multiplatform\"\\s*\\)", IGNORE_CASE),
+            Regex("alias\\(\\s*libs\\.plugins\\.[A-Za-z0-9_.]*kotlin[A-Za-z0-9_.]*multiplatform[A-Za-z0-9_.]*\\s*\\)", IGNORE_CASE)
         )
 
         val ANDROID_TARGET_PATTERNS = listOf(
             Regex("androidTarget\\s*\\(", IGNORE_CASE),
+            Regex("\\bandroidLibrary\\s*\\{", IGNORE_CASE),
             Regex("\\bandroid\\s*\\(\\s*\\)", IGNORE_CASE),
             Regex("id\\(\\s*\"com\\.android\\.library\"\\s*\\)", IGNORE_CASE),
             Regex("id\\(\\s*\"com\\.android\\.application\"\\s*\\)", IGNORE_CASE),
-            Regex("kotlin\\(\\s*\"android\"\\s*\\)", IGNORE_CASE)
+            Regex("kotlin\\(\\s*\"android\"\\s*\\)", IGNORE_CASE),
+            Regex("alias\\(\\s*libs\\.plugins\\.[A-Za-z0-9_.]*android(?:Multiplatform)?(?:Library|Application)[A-Za-z0-9_.]*\\s*\\)", IGNORE_CASE)
         )
 
         val IOS_TARGET_PATTERNS = listOf(
