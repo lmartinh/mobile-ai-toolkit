@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.1.5
+- Refresh release documentation and examples to reference the `v0.1.5` tag.
+
 ## v0.1.4
 - Improve the manual example validation workflow so the selected GitHub Actions branch is the single source of truth for checkout.
 - Replace the Gradle-generated job summary with a compact workflow-owned summary for example runs.

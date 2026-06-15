@@ -1,6 +1,6 @@
 # Release Checklist
 
-Use this checklist before tagging `v0.1.4` or any later public patch release.
+Use this checklist before tagging `v0.1.5` or any later public patch release.
 
 ## Validation
 - Run `./gradlew :shared:ai-client:test :shared:report-common:test :tools:compose-guardrails:test`.
@@ -12,7 +12,7 @@ Use this checklist before tagging `v0.1.4` or any later public patch release.
 - Run `.github/scripts/test-compose-guardrails-release-packaging.sh`.
 - Run `.github/scripts/test-kmp-project-auditor-release-packaging.sh`.
 - Verify `gradlew`, `gradlew.bat` (if present), `gradle/wrapper/gradle-wrapper.properties`, and `gradle/wrapper/gradle-wrapper.jar` are tracked before tagging.
-- Validate the release version mechanism by building with `-PreleaseVersion=0.1.4` or the tag-derived release value.
+- Validate the release version mechanism by building with `-PreleaseVersion=0.1.5` or the tag-derived release value.
 - Verify release ZIP/TAR artifact names do not include `SNAPSHOT`.
 - Verify the packaged CLI works outside the repository.
 - Verify `kmp-project-auditor` packaged distributions include prompt assets under `prompts/`.

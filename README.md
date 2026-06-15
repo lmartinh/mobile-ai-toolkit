@@ -138,7 +138,7 @@ Minimal usage:
 
 ```yaml
 - id: compose-guardrails
-  uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.4
+  uses: your-org/mobile-ai-toolkit/.github/actions/compose-guardrails@v0.1.5
   with:
     target: .
     provider: fake
